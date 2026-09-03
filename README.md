@@ -45,10 +45,26 @@ Deployment is managed by OpenAI Sites using `.openai/hosting.json`. The configur
 
 No application environment variables are required for this MVP. Microsoft/AISG SSO credentials are intentionally not embedded. Replace or extend `app/chatgpt-auth.ts` when AISG's identity integration is available, while keeping authorization checks in server-side data access.
 
+### GitHub Pages test deployment
+
+The workflow in `.github/workflows/deploy-pages.yml` deploys a browser-only test
+version whenever `main` is pushed. It calculates the repository subdirectory at
+build time, so asset paths work without hard-coding the GitHub username or
+repository name.
+
+GitHub Pages cannot run the application's Cloudflare D1 database, authentication,
+or server API routes. The Pages version therefore uses a demo learner and stores
+assessment progress only in that browser's local storage. It does not provide the
+administrator workspace or shared training records. The full Sites deployment
+continues to use the original Vinext build and server-backed features.
+
 ## Seed accounts and data
 
 The database includes eight entirely fictional learners across faculty, educational assistants, coaches, substitutes, counselors, leadership and operations, with representative not-started, in-progress, passed and retake states. Addresses use the reserved `example.invalid` domain.
 
 ## Quality checks
 
-Run `pnpm build` for the production build and `pnpm lint` for static checks. The generated Worker must export a callable default `fetch` handler and the Drizzle migration must remain schema-only.
+Run `pnpm build` for the production Sites build, `pnpm build:pages` for the static
+GitHub Pages build, and `pnpm lint` for static checks. The generated Worker must
+export a callable default `fetch` handler and the Drizzle migration must remain
+schema-only.

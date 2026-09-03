@@ -24,7 +24,7 @@ type Feedback = { isCorrect: boolean; feedback: string; correctAnswer: string[];
 type Result = { score: number; percentage: number; passed: boolean; threshold: number; completedAt: number; moduleScores: { module: string; correct: number; total: number }[] };
 type View = 'dashboard' | 'intro' | 'question' | 'results';
 
-export default function TrainingApp() {
+export default function TrainingApp({ staticMode = false }: { staticMode?: boolean }) {
   const [data, setData] = useState<Bootstrap | null>(null);
   const [view, setView] = useState<View>('dashboard');
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -129,10 +129,10 @@ export default function TrainingApp() {
   }
 
   const header = <AppHeader user={data.user} onHome={() => setView('dashboard')} />;
-  if (view === 'results' && result) return <>{header}<ResultsScreen data={data} result={result} responses={[...responseMap.values()]} onRetake={retake} busy={busy} /></>;
+  if (view === 'results' && result) return <>{header}<ResultsScreen data={data} result={result} responses={[...responseMap.values()]} onRetake={retake} busy={busy} staticMode={staticMode} /></>;
   if (view === 'intro' && currentModule) return <>{header}<ModuleIntro module={currentModule} progress={progressPercent} onBack={() => setView('dashboard')} onStart={() => setView('question')} /></>;
   if (view === 'question' && question && currentModule) return <>{header}<QuestionScreen question={question} module={currentModule} index={questionIndex} selected={selected} setSelected={setSelected} feedback={feedback} onSubmit={submit} onContinue={continueAfterFeedback} busy={busy} error={error} remediationConfirmed={remediationConfirmed} setRemediationConfirmed={setRemediationConfirmed} /></>;
-  return <>{header}<Dashboard data={data} progressPercent={progressPercent} completedCount={completedCount} onContinue={beginOrResume} /></>;
+  return <>{header}<Dashboard data={data} progressPercent={progressPercent} completedCount={completedCount} onContinue={beginOrResume} staticMode={staticMode} /></>;
 }
 
 function AppHeader({ user, onHome }: { user: Bootstrap['user']; onHome: () => void }) {
@@ -148,7 +148,7 @@ function AppHeader({ user, onHome }: { user: Bootstrap['user']; onHome: () => vo
 
 function AisgMark() { return <span className="aisg-mark" aria-label="AISG"><span>A</span><span>I</span><span>S</span><span>G</span></span>; }
 
-function Dashboard({ data, progressPercent, completedCount, onContinue }: { data: Bootstrap; progressPercent: number; completedCount: number; onContinue: () => void }) {
+function Dashboard({ data, progressPercent, completedCount, onContinue, staticMode }: { data: Bootstrap; progressPercent: number; completedCount: number; onContinue: () => void; staticMode: boolean }) {
   const completeModules = Math.floor(completedCount / 5);
   return <main className="dashboard-shell"><section className="dashboard-main"><div className="max-w-3xl">
     <div className="eyebrow"><ShieldCheck aria-hidden="true" /> Required annual learning</div>
@@ -157,7 +157,7 @@ function Dashboard({ data, progressPercent, completedCount, onContinue }: { data
     <div className="progress-card"><div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"><div><p className="meta-label">Your progress</p><div className="mt-1 flex flex-wrap items-baseline gap-3"><strong className="metric-number">{progressPercent}%</strong><span className="text-sm text-muted-foreground">{completeModules} of 6 sections complete</span></div></div>
       <Button onClick={onContinue} className="primary-pill" size="lg">{completedCount ? 'Continue training' : 'Begin training'} <ArrowRight aria-hidden="true" /></Button></div>
       <Progress value={progressPercent} aria-label={`Course progress: ${progressPercent} percent`} className="mt-7 [&_[data-slot=progress-track]]:h-2.5 [&_[data-slot=progress-indicator]]:bg-red" />
-      <p className="autosave"><Clock3 aria-hidden="true" /> {30 - completedCount} questions remaining • Progress autosaves</p>
+      <p className="autosave"><Clock3 aria-hidden="true" /> {30 - completedCount} questions remaining • {staticMode ? 'Saved in this browser' : 'Progress autosaves'}</p>
     </div>
   </div></section><CourseMap modules={data.modules} completed={completedCount} passThreshold={data.passThreshold} /></main>;
 }
@@ -195,7 +195,7 @@ function QuestionScreen({ question, module, index, selected, setSelected, feedba
 
 function optionClass(id: string, selected: string[], feedback: Feedback | null) { const chosen = selected.includes(id); const correct = feedback?.correctAnswer.includes(id); return `answer-option ${chosen ? 'answer-selected' : ''} ${feedback && chosen && !correct ? 'answer-wrong' : ''} ${feedback && correct ? 'answer-correct' : ''}`; }
 
-function ResultsScreen({ data, result, responses, onRetake, busy }: { data: Bootstrap; result: Result; responses: ResponseRecord[]; onRetake: () => void; busy: boolean }) {
+function ResultsScreen({ data, result, responses, onRetake, busy, staticMode }: { data: Bootstrap; result: Result; responses: ResponseRecord[]; onRetake: () => void; busy: boolean; staticMode: boolean }) {
   const correctByModule = data.modules.map((module) => { const ids = data.questions.filter((q) => q.module === module.id).map((q) => q.id); return { ...module, correct: responses.filter((r) => ids.includes(r.questionId) && r.isCorrect).length }; });
   const strongest = [...correctByModule].sort((a, b) => b.correct - a.correct).slice(0, 2);
   const review = correctByModule.filter((m) => m.correct < 4);
@@ -203,7 +203,7 @@ function ResultsScreen({ data, result, responses, onRetake, busy }: { data: Boot
     <div className="score-grid"><div><span>Score</span><strong>{result.score}/30</strong></div><div><span>Percentage</span><strong>{result.percentage}%</strong></div><div><span>Status</span><strong>{result.passed ? 'Passed' : 'Another attempt'}</strong></div></div>
     <div className="results-columns"><div><h2>Areas answered well</h2>{strongest.map((m) => <p key={m.id}><CheckCircle2 /> {m.title} <span>{m.correct}/5</span></p>)}</div><div><h2>Review next</h2>{review.length ? review.map((m) => <p key={m.id}><BookOpen /> {m.title} <span>{m.correct}/5</span></p>) : <p><CheckCircle2 /> No priority review areas</p>}</div></div>
     <div className="result-actions">{result.passed ? <Button className="primary-pill" size="lg" onClick={() => window.print()}><Download /> Print or save certificate</Button> : <Button className="primary-pill" size="lg" onClick={onRetake} disabled={busy}><RotateCcw /> {busy ? 'Starting…' : 'Start another attempt'}</Button>}</div>
-  </section>{result.passed && <section className="certificate"><AisgMark /><p className="certificate-kicker">Certificate of completion</p><h2>AISG Student Safeguarding Training</h2><p>Completed by</p><strong>{data.user.name}</strong><div><span>Completion date<br /><b>{new Date(result.completedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</b></span><span>Score<br /><b>{result.percentage}%</b></span><span>Course version<br /><b>SY2026–27</b></span></div><small>Completion is recorded independently in the AISG training system.</small></section>}</main>;
+  </section>{result.passed && <section className="certificate"><AisgMark /><p className="certificate-kicker">Certificate of completion</p><h2>AISG Student Safeguarding Training</h2><p>Completed by</p><strong>{data.user.name}</strong><div><span>Completion date<br /><b>{new Date(result.completedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</b></span><span>Score<br /><b>{result.percentage}%</b></span><span>Course version<br /><b>SY2026–27</b></span></div><small>{staticMode ? 'This test completion is saved only in this browser.' : 'Completion is recorded independently in the AISG training system.'}</small></section>}</main>;
 }
 
 function resultFromBootstrap(data: Bootstrap): Result { const responses = data.responses; return { score: Number(data.attempt?.score ?? responses.filter((r) => r.isCorrect).length), percentage: Number(data.attempt?.percentage ?? 0), passed: data.attempt?.status === 'PASSED', threshold: data.passThreshold, completedAt: Number(data.attempt?.completedAt ?? Date.now()), moduleScores: [] }; }
