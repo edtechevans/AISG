@@ -185,6 +185,6 @@ export function installStaticApi() {
       return json({ ok: true });
     }
 
-    return json({ error: 'This API is unavailable in the GitHub Pages test build.' }, 404);
+    return json({ error: 'This API is unavailable in the GitHub Pages version.' }, 404);
   };
 }

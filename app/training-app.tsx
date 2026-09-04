@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { AlertCircle, ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock3, Download, Lightbulb, ListChecks, LockKeyhole, MessageCircle, RotateCcw, ShieldCheck, Sparkles } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Download, Lightbulb, ListChecks, LockKeyhole, MessageCircle, RotateCcw, Save, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
@@ -35,9 +35,12 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
   const [error, setError] = useState('');
   const [result, setResult] = useState<Result | null>(null);
   const [completedLearningModules, setCompletedLearningModules] = useState<string[]>([]);
+  const [learningStages, setLearningStages] = useState<Record<string, number>>({});
   const responseMap = useMemo(() => new Map(data?.responses.map((r) => [r.questionId, r]) ?? []), [data]);
   const completedCount = Math.max(data?.progress?.completed ?? 0, responseMap.size);
-  const progressPercent = Math.round((completedCount + completedLearningModules.length) / 36 * 100);
+  const partialLearningUnits = data?.modules.reduce((total, module) => completedLearningModules.includes(module.id) ? total : total + Math.min(0.99, (learningStages[module.id] ?? 0) / (module.learningSteps.length + 1)), 0) ?? 0;
+  const progressPercent = Math.round((completedCount + completedLearningModules.length + partialLearningUnits) / 36 * 100);
+  const hasStarted = completedCount > 0 || completedLearningModules.length > 0 || Object.values(learningStages).some((stage) => stage > 0);
   const question = data?.questions[questionIndex];
   const currentModule = data?.modules[Math.floor(questionIndex / 5)];
 
@@ -51,6 +54,7 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
       .then((payload) => {
         setData(payload);
         setCompletedLearningModules(readLearningProgress(payload.attempt?.attemptNumber ?? 1));
+        setLearningStages(readLearningStages(payload.attempt?.attemptNumber ?? 1));
         const saved = Math.max(0, Math.min(29, (payload.progress?.currentQuestion ?? 1) - 1));
         setQuestionIndex(saved);
         if (payload.attempt?.status === 'PASSED' || payload.attempt?.status === 'NEEDS_ANOTHER_ATTEMPT') {
@@ -99,6 +103,14 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
     setView('question');
   }
 
+  function saveLearningStage(moduleId: string, stage: number) {
+    setLearningStages((current) => {
+      const next = { ...current, [moduleId]: stage };
+      writeLearningStages(data?.attempt?.attemptNumber ?? 1, next);
+      return next;
+    });
+  }
+
   async function submit() {
     if (!question || selected.length === 0) return;
     setBusy(true); setError('');
@@ -136,22 +148,22 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
       const response = await fetch('/api/retake', { method: 'POST' });
       if (!response.ok) throw new Error('A new attempt could not be started.');
       const refreshed = await fetch('/api/bootstrap', { cache: 'no-store' }).then((r) => r.json()) as Bootstrap;
-      setData(refreshed); setQuestionIndex(0); setSelected([]); setFeedback(null); setResult(null); setCompletedLearningModules([]); setView('intro');
+      setData(refreshed); setQuestionIndex(0); setSelected([]); setFeedback(null); setResult(null); setCompletedLearningModules([]); setLearningStages({}); setView('intro');
     } catch (reason) { setError(reason instanceof Error ? reason.message : 'A new attempt could not be started.'); }
     finally { setBusy(false); }
   }
 
   const header = <AppHeader user={data.user} onHome={() => setView('dashboard')} />;
   if (view === 'results' && result) return <>{header}<ResultsScreen data={data} result={result} responses={[...responseMap.values()]} onRetake={retake} busy={busy} staticMode={staticMode} /></>;
-  if (view === 'intro' && currentModule) return <>{header}<ModuleLearning key={currentModule.id} module={currentModule} progress={progressPercent} onBack={() => setView('dashboard')} onStart={() => completeLearning(currentModule.id)} /></>;
+  if (view === 'intro' && currentModule) return <>{header}<ModuleLearning key={currentModule.id} module={currentModule} progress={progressPercent} initialStage={learningStages[currentModule.id] ?? 0} onStageChange={(stage) => saveLearningStage(currentModule.id, stage)} onBack={() => setView('dashboard')} onStart={() => completeLearning(currentModule.id)} /></>;
   if (view === 'question' && question && currentModule) return <>{header}<QuestionScreen question={question} module={currentModule} index={questionIndex} courseProgress={progressPercent} selected={selected} setSelected={setSelected} feedback={feedback} onSubmit={submit} onContinue={continueAfterFeedback} busy={busy} error={error} remediationConfirmed={remediationConfirmed} setRemediationConfirmed={setRemediationConfirmed} /></>;
-  return <>{header}<Dashboard data={data} progressPercent={progressPercent} completedCount={completedCount} activeModuleNumber={Math.min(6, Math.floor(questionIndex / 5) + 1)} onContinue={beginOrResume} staticMode={staticMode} /></>;
+  return <>{header}<Dashboard data={data} progressPercent={progressPercent} completedCount={completedCount} activeModuleNumber={Math.min(6, Math.floor(questionIndex / 5) + 1)} hasStarted={hasStarted} onContinue={beginOrResume} staticMode={staticMode} /></>;
 }
 
 function AppHeader({ user, onHome }: { user: Bootstrap['user']; onHome: () => void }) {
   const initials = user.name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
   return <header className="app-header print:hidden"><div className="app-header-inner">
-    <button className="brand-button" onClick={onHome} aria-label="AISG safeguarding course home"><AisgLogo decorative variant="header" /><span className="brand-copy"><strong>Student Safeguarding</strong><small>Annual learning • SY2026–27</small></span></button>
+    <button className="brand-button" onClick={onHome} aria-label="AISG safeguarding course home"><AisgLogo decorative variant="header" /><span className="brand-copy"><strong>Student Safeguarding</strong><small>Untimed annual learning • SY2026–27</small></span></button>
     <nav className="flex items-center gap-2" aria-label="Account and administration">
       {user.role === 'ADMIN' && <Link href="/admin" className="admin-link">Admin workspace</Link>}
       <span className="hidden text-sm text-muted-foreground md:inline">{user.name}</span><span className="avatar">{initials}</span>
@@ -165,35 +177,36 @@ function AisgLogo({ variant, decorative = false }: { variant: 'header' | 'welcom
   return <img className={`aisg-logo aisg-logo-${variant}`} src="aisg-logo.png" alt={decorative ? '' : 'American International School of Guangzhou'} />;
 }
 
-function Dashboard({ data, progressPercent, completedCount, activeModuleNumber, onContinue, staticMode }: { data: Bootstrap; progressPercent: number; completedCount: number; activeModuleNumber: number; onContinue: () => void; staticMode: boolean }) {
+function Dashboard({ data, progressPercent, completedCount, activeModuleNumber, hasStarted, onContinue, staticMode }: { data: Bootstrap; progressPercent: number; completedCount: number; activeModuleNumber: number; hasStarted: boolean; onContinue: () => void; staticMode: boolean }) {
   const completeModules = Math.floor(completedCount / 5);
   return <main className="dashboard-shell"><section className="dashboard-main"><div className="max-w-3xl">
     <AisgLogo variant="welcome" />
     <div className="eyebrow"><ShieldCheck aria-hidden="true" /> Required annual learning</div>
     <h1 className="hero-title">Safeguarding is<br />everyone’s responsibility.</h1>
-    <p className="hero-copy">Learn the essential AISG expectations, then apply them to realistic school safeguarding decisions.</p>
+    <p className="hero-copy">Learn the essential AISG expectations at your own pace, then apply them to realistic school safeguarding decisions. Your progress is saved, so you can leave and return whenever you need.</p>
     <div className="learning-route" aria-label="Course learning flow"><span><BookOpen /> Learn</span><ArrowRight /><span><ListChecks /> Check understanding</span><ArrowRight /><span><MessageCircle /> Learn from feedback</span></div>
     <div className="progress-card"><div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"><div><p className="meta-label">Your course progress</p><div className="mt-1 flex flex-wrap items-baseline gap-3"><strong className="metric-number">{progressPercent}%</strong><span className="text-sm text-muted-foreground">{completeModules} of 6 sections complete</span></div></div>
-      <Button onClick={onContinue} className="primary-pill" size="lg">{completedCount ? 'Continue course' : 'Begin course'} <ArrowRight aria-hidden="true" /></Button></div>
+      <Button onClick={onContinue} className="primary-pill" size="lg">{hasStarted ? 'Continue course' : 'Begin course'} <ArrowRight aria-hidden="true" /></Button></div>
       <Progress value={progressPercent} aria-label={`Course progress: ${progressPercent} percent`} className="mt-7 [&_[data-slot=progress-track]]:h-2.5 [&_[data-slot=progress-indicator]]:bg-red" />
-      <p className="autosave"><Clock3 aria-hidden="true" /> {30 - completedCount} understanding checks remaining • {staticMode ? 'Saved in this browser' : 'Progress autosaves'}</p>
+      <p className="autosave"><Save aria-hidden="true" /> Untimed • {staticMode ? 'Progress saved in this browser' : 'Progress saves automatically'} • Return at any time</p>
     </div>
   </div></section><CourseMap modules={data.modules} completed={completedCount} activeModuleNumber={activeModuleNumber} passThreshold={data.passThreshold} /></main>;
 }
 
 function CourseMap({ modules, completed, activeModuleNumber, passThreshold }: { modules: Module[]; completed: number; activeModuleNumber: number; passThreshold: number }) {
   return <aside className="course-map" aria-labelledby="course-map-title"><div className="flex items-center justify-between"><div><p className="tiny-eyebrow">Course map</p><h2 id="course-map-title" className="mt-1 text-2xl font-semibold tracking-tight text-navy">Six focused sections</h2></div><BookOpen className="text-navy/45" aria-hidden="true" /></div>
-    <ol className="mt-8 space-y-2">{modules.map((module) => { const complete = completed >= module.number * 5; const active = module.number === activeModuleNumber; return <li key={module.id} className={`module-row ${active ? 'module-active' : ''}`}><span className={`module-number ${complete ? 'module-complete' : ''}`}>{complete ? <Check aria-hidden="true" /> : String(module.number).padStart(2, '0')}</span><span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-navy">{module.title}</span><span className="mt-0.5 block text-xs text-muted-foreground">{module.estimatedMinutes} min learning • 5 checks</span></span><span className={`status-label ${complete ? 'status-complete' : active ? 'status-continue' : 'status-locked'}`}>{complete ? 'Complete' : active ? 'Next' : <LockKeyhole className="h-3.5 w-3.5" aria-label="Locked" />}</span></li>; })}</ol>
+    <ol className="mt-8 space-y-2">{modules.map((module) => { const complete = completed >= module.number * 5; const active = module.number === activeModuleNumber; return <li key={module.id} className={`module-row ${active ? 'module-active' : ''}`}><span className={`module-number ${complete ? 'module-complete' : ''}`}>{complete ? <Check aria-hidden="true" /> : String(module.number).padStart(2, '0')}</span><span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-navy">{module.title}</span><span className="mt-0.5 block text-xs text-muted-foreground">Self-paced learning • 5 checks</span></span><span className={`status-label ${complete ? 'status-complete' : active ? 'status-continue' : 'status-locked'}`}>{complete ? 'Complete' : active ? 'Next' : <LockKeyhole className="h-3.5 w-3.5" aria-label="Locked" />}</span></li>; })}</ol>
     <p className="mt-8 border-t border-navy/10 pt-6 text-sm leading-6 text-muted-foreground">Learning comes first in every section. The current course completion threshold is <strong className="text-navy">{passThreshold}%</strong> across the understanding checks.</p></aside>;
 }
 
-function ModuleLearning({ module, progress, onBack, onStart }: { module: Module; progress: number; onBack: () => void; onStart: () => void }) {
-  const [stage, setStage] = useState(0);
+function ModuleLearning({ module, progress, initialStage, onStageChange, onBack, onStart }: { module: Module; progress: number; initialStage: number; onStageChange: (stage: number) => void; onBack: () => void; onStart: () => void }) {
+  const [stage, setStage] = useState(() => Math.max(0, Math.min(module.learningSteps.length + 1, initialStage)));
   const takeawayStage = module.learningSteps.length + 1;
   const isOverview = stage === 0;
   const isTakeaways = stage === takeawayStage;
   const lesson = stage > 0 && stage <= module.learningSteps.length ? module.learningSteps[stage - 1] : null;
   const learningProgress = Math.round((stage / takeawayStage) * 100);
+  const moveToStage = (nextStage: number) => { setStage(nextStage); onStageChange(nextStage); };
 
   return <main className="learning-shell">
     <div className="learning-top"><Button variant="ghost" onClick={onBack}><ArrowLeft /> Course home</Button><span className="section-position">Section {module.number} of 6</span></div>
@@ -204,7 +217,7 @@ function ModuleLearning({ module, progress, onBack, onStart }: { module: Module;
     <section className={`intro-card ${lesson ? 'lesson-card' : ''}`}>
       <div className="module-orbit">{String(module.number).padStart(2, '0')}</div>
       {isOverview && <>
-        <p className="tiny-eyebrow">Section introduction • {module.estimatedMinutes} minute learn</p>
+        <p className="tiny-eyebrow">Section introduction • self-paced learning</p>
         <h1>{module.title}</h1>
         <p className="intro-summary">{module.summary}</p>
         <div className="principle-card"><Sparkles aria-hidden="true" /><div><strong>Why this matters</strong><p>{module.learningContent}</p></div></div>
@@ -226,7 +239,7 @@ function ModuleLearning({ module, progress, onBack, onStart }: { module: Module;
       </>}
       <div className="learning-footer">
         <div className="learning-dots" aria-label={`Learning page ${stage + 1} of ${takeawayStage + 1}`}>{Array.from({ length: takeawayStage + 1 }, (_, index) => <span key={index} className={index <= stage ? 'dot-complete' : ''} aria-current={index === stage ? 'step' : undefined} />)}</div>
-        <div className="learning-actions">{stage > 0 && <Button variant="ghost" onClick={() => setStage((current) => current - 1)}><ArrowLeft /> Previous</Button>}{isTakeaways ? <Button onClick={onStart} className="primary-pill" size="lg">Check your understanding <ArrowRight /></Button> : <Button onClick={() => setStage((current) => current + 1)} className="primary-pill" size="lg">{isOverview ? 'Begin learning' : 'Continue'} <ArrowRight /></Button>}</div>
+        <div className="learning-actions">{stage > 0 && <Button variant="ghost" onClick={() => moveToStage(stage - 1)}><ArrowLeft /> Previous</Button>}{isTakeaways ? <Button onClick={onStart} className="primary-pill" size="lg">Check your understanding <ArrowRight /></Button> : <Button onClick={() => moveToStage(stage + 1)} className="primary-pill" size="lg">{isOverview ? 'Begin learning' : 'Continue'} <ArrowRight /></Button>}</div>
       </div>
     </section>
   </main>;
@@ -254,7 +267,7 @@ function QuestionScreen({ question, module, index, courseProgress, selected, set
       {feedback && <output className={`feedback-card ${feedback.isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`}><div>{feedback.isCorrect ? <CheckCircle2 /> : <AlertCircle />}</div><div><strong>{feedback.isCorrect ? 'Good safeguarding decision' : 'Review this safeguarding principle'}</strong><p>{feedback.feedback}</p></div></output>}
       {needsRemediation && <div className="remediation"><p className="tiny-eyebrow">Pause and reinforce</p><h2>Before you continue</h2><p>When a safeguarding response is critical, choose the action that protects the student and follows AISG&apos;s reporting pathway. Do not investigate, delay, promise secrecy or handle the concern alone.</p><label htmlFor="remediation-confirmation" className="mt-4 flex items-start gap-3 font-medium"><Checkbox id="remediation-confirmation" checked={remediationConfirmed} onCheckedChange={(checked) => setRemediationConfirmed(Boolean(checked))} /><span>I understand the safeguarding action and will apply it in practice.</span></label></div>}
       {error && <p className="error-message" role="alert">{error}</p>}
-      <div className="question-actions"><span className="autosave"><Clock3 /> {feedback ? 'Response and feedback saved' : 'Saves after submission'}</span>{feedback ? <Button className="primary-pill" size="lg" onClick={onContinue} disabled={busy || (needsRemediation && !remediationConfirmed)}>{index === 29 ? 'Complete course' : sectionQuestion === 5 ? 'Next section' : 'Continue'} <ArrowRight /></Button> : <Button className="primary-pill" size="lg" onClick={onSubmit} disabled={busy || selected.length === 0}>{busy ? 'Saving…' : 'Check response'}</Button>}</div>
+      <div className="question-actions"><span className="autosave"><Save /> {feedback ? 'Response and feedback saved' : 'Progress saves after submission'}</span>{feedback ? <Button className="primary-pill" size="lg" onClick={onContinue} disabled={busy || (needsRemediation && !remediationConfirmed)}>{index === 29 ? 'Complete course' : sectionQuestion === 5 ? 'Next section' : 'Continue'} <ArrowRight /></Button> : <Button className="primary-pill" size="lg" onClick={onSubmit} disabled={busy || selected.length === 0}>{busy ? 'Saving…' : 'Check response'}</Button>}</div>
     </article><aside className="source-note"><BookOpen /><div><strong>Apply what you learned</strong><p>{question.learningObjective}</p><span>Handbook {question.handbookSection}, p. {question.handbookPage}</span></div></aside></section></main>;
 }
 
@@ -273,6 +286,7 @@ function ResultsScreen({ data, result, responses, onRetake, busy, staticMode }: 
 
 function resultFromBootstrap(data: Bootstrap): Result { const responses = data.responses; return { score: Number(data.attempt?.score ?? responses.filter((r) => r.isCorrect).length), percentage: Number(data.attempt?.percentage ?? 0), passed: data.attempt?.status === 'PASSED', threshold: data.passThreshold, completedAt: Number(data.attempt?.completedAt ?? Date.now()), moduleScores: [] }; }
 function learningStorageKey(attemptNumber: number) { return `${COURSE_VERSION_ID}-learning-${attemptNumber}`; }
+function learningStagesStorageKey(attemptNumber: number) { return `${COURSE_VERSION_ID}-learning-stages-${attemptNumber}`; }
 function readLearningProgress(attemptNumber: number) {
   if (typeof window === 'undefined') return [];
   try {
@@ -283,6 +297,17 @@ function readLearningProgress(attemptNumber: number) {
 function writeLearningProgress(attemptNumber: number, modules: string[]) {
   if (typeof window === 'undefined') return;
   try { window.localStorage.setItem(learningStorageKey(attemptNumber), JSON.stringify(modules)); } catch { /* Browser storage may be unavailable. */ }
+}
+function readLearningStages(attemptNumber: number) {
+  if (typeof window === 'undefined') return {};
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(learningStagesStorageKey(attemptNumber)) || '{}') as Record<string, unknown>;
+    return Object.fromEntries(Object.entries(parsed).filter((entry): entry is [string, number] => typeof entry[1] === 'number' && Number.isInteger(entry[1]) && entry[1] >= 0));
+  } catch { return {}; }
+}
+function writeLearningStages(attemptNumber: number, stages: Record<string, number>) {
+  if (typeof window === 'undefined') return;
+  try { window.localStorage.setItem(learningStagesStorageKey(attemptNumber), JSON.stringify(stages)); } catch { /* Browser storage may be unavailable. */ }
 }
 function LoadingScreen() { return <main className="loading-screen"><AisgLogo variant="loading" /><div className="loading-line" /><p>Preparing your safeguarding learning…</p></main>; }
 function ErrorScreen({ message }: { message: string }) { return <main className="loading-screen"><AlertCircle className="h-9 w-9 text-red" /><h1 className="text-2xl font-semibold text-navy">Training is temporarily unavailable</h1><p>{message}</p><Button onClick={() => location.reload()}>Try again</Button></main>; }
