@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'AISG Student Safeguarding Training',
-  description: 'Annual safeguarding learning and assessment for the AISG community.',
+  title: 'My Courses | AISG',
+  description: 'Short, practical professional learning designed for the AISG context.',
 };
 
 export default function RootLayout({
