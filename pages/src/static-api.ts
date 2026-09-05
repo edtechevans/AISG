@@ -22,7 +22,7 @@ type StoredState = {
 };
 
 const STORAGE_KEY = 'aisg-safeguarding-pages-test-v1';
-const QUESTIONS = questionSource as Question[];
+const QUESTIONS = [...(questionSource as Question[])].sort((a, b) => a.questionNumber - b.questionNumber);
 const LEARNER_QUESTIONS = QUESTIONS.map((question) => {
   const {
     correctAnswer: _correctAnswer,

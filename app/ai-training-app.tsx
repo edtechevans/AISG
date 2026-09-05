@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { aiQuestions, aiSections, AI_COURSE_VERSION } from '@/lib/ai-course';
 import { teamsQuestions, teamsSections, TEAMS_COURSE_VERSION } from '@/lib/teams-course';
 import { mtssQuestions, mtssSections, MTSS_COURSE_VERSION } from '@/lib/mtss-course';
+import { cognitiveLevelFor } from '@/lib/assessment-progression';
 
 type CourseProgress = {
   position: number;
@@ -220,7 +221,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   const checkInSection = questionIndex % 2 + 1;
   return <main className="learning-shell"><div className="learning-top"><Button variant="ghost" onClick={() => setStage('course-home')}><ArrowLeft /> Course home</Button><span className="text-sm text-muted-foreground">Check {checkInSection} of 2</span></div>
     <div className="dual-progress"><Progress value={completionPercent} aria-label={`Overall course: ${completionPercent}%`} /><span className="text-sm text-muted-foreground">Section {section.number} of {config.sections.length} · {completionPercent}% overall</span></div>
-    <section className="question-layout"><div className="question-number">{String(questionIndex + 1).padStart(2, '0')}</div><article className="question-card"><span className="question-kind">Check your understanding · Choose one</span><h1>{question.question}</h1><div className="scenario"><span>Scenario</span><p>{question.scenario}</p></div>
+    <section className="question-layout"><div className="question-number">{String(questionIndex + 1).padStart(2, '0')}</div><article className="question-card" data-cognitive-level={cognitiveLevelFor(course, question.id)}><span className="question-kind">Check your understanding · Choose one</span><h1>{question.question}</h1><div className="scenario"><span>Scenario</span><p>{question.scenario}</p></div>
       <div className="answers">{question.options.map((option) => <label key={option.id} className={`answer-option ${selected === option.id ? 'answer-selected' : ''} ${answered && answered.answer === option.id && !answered.correct ? 'answer-wrong' : ''}`}><input type="radio" name={question.id} value={option.id} checked={selected === option.id} disabled={Boolean(answered)} onChange={() => setSelected(option.id)} /><span><b>{option.id.toUpperCase()}</b>{option.text}</span></label>)}</div>
       {feedback && <output className={`feedback-card ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`} aria-live="polite"><div><Lightbulb /></div><div><strong>{isCorrect ? 'Correct — apply the principle' : 'Not quite — review the principle'}</strong><p>{feedback}</p></div></output>}
       <div className="question-actions"><span className="autosave"><Save /> Progress saved in this browser</span>{feedback ? <Button className="primary-pill" size="lg" onClick={continueAfterFeedback}>{questionIndex === config.questions.length - 1 ? 'Take it into practice' : checkInSection === 2 ? 'Next section' : 'Continue'} <ArrowRight /></Button> : <Button className="primary-pill" size="lg" disabled={!selected} onClick={submitResponse}>Check response</Button>}</div>

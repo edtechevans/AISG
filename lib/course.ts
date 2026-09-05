@@ -42,6 +42,7 @@ export type CourseModule = {
   summary: string;
   learningContent: string;
   estimatedMinutes: number;
+  firstCheckCount: 2 | 3;
   learningSteps: LearningStep[];
   keyTakeaways: string[];
   handbookReferences: { section: string; page: number }[];
@@ -56,9 +57,10 @@ export const courseModules: CourseModule[] = [
     summary: 'The commitment, shared responsibility and signs that require professional attention.',
     learningContent: 'At AISG, the interests and welfare of children come first. Every employee has a role in recognising and reporting suspected abuse or neglect.',
     estimatedMinutes: 3,
+    firstCheckCount: 3,
     learningSteps: [
       {
-        eyebrow: 'Learn 1 of 3',
+        eyebrow: 'Learn 1 of 4',
         title: "Start with the child's welfare",
         paragraphs: [
           "AISG's primary consideration in any decision about suspected abuse or neglect is the interests and welfare of the child. A safe and secure environment is essential to a student's education, physical development and emotional development.",
@@ -71,7 +73,7 @@ export const courseModules: CourseModule[] = [
         ],
       },
       {
-        eyebrow: 'Learn 2 of 3',
+        eyebrow: 'Learn 2 of 4',
         title: 'Recognise the main areas of abuse',
         paragraphs: [
           'The handbook identifies four main areas of student abuse: neglect, physical abuse, sexual abuse, and psychological or emotional abuse. These forms of harm can overlap, and sexual abuse does not have to involve physical contact.',
@@ -85,16 +87,26 @@ export const courseModules: CourseModule[] = [
         ],
       },
       {
-        eyebrow: 'Learn 3 of 3',
+        eyebrow: 'Learn 3 of 4',
         title: 'Look beyond appearances',
         paragraphs: [
           'Material comfort does not rule out neglect. The handbook highlights affluent neglect: caregivers may be physically present but emotionally absent, gifts may replace care, or a child may face extreme pressure to succeed. This can be difficult to spot and is often under-recognised.',
-          'Consider the whole picture over time. Several changes together may create reasonable cause for concern even when no single sign proves abuse. Record what you have observed accurately and follow the reporting process; do not question a student repeatedly, seek proof yourself or wait for the situation to become more serious.',
         ],
         points: [
           { label: 'Example', text: 'A well-presented student describes little emotional support, frequent caregiver absence and intense pressure at home.' },
           { label: 'Your judgement', text: 'Do not dismiss the concern because the student appears materially provided for.' },
-          { label: 'Your action', text: 'Record the indicators and raise the concern through AISG\'s safeguarding pathway.' },
+        ],
+      },
+      {
+        eyebrow: 'Learn 4 of 4',
+        title: 'Move from concern to a professional response',
+        paragraphs: [
+          'Consider the whole picture over time. Several changes together may create reasonable cause for concern even when no single sign proves abuse. Record what you have observed accurately and follow the reporting process; do not question a student repeatedly, seek proof yourself or wait for the situation to become more serious.',
+        ],
+        points: [
+          { label: 'Notice', text: 'A pattern can matter even when each individual sign has another possible explanation.' },
+          { label: 'Record', text: 'Keep observations factual, dated and separate from your interpretation.' },
+          { label: 'Report', text: 'Raise the concern through AISG\'s safeguarding pathway rather than trying to resolve it alone.' },
         ],
       },
     ],
@@ -120,9 +132,10 @@ export const courseModules: CourseModule[] = [
     summary: 'Recognising physical, sexual, emotional, financial and technology-enabled harm between students.',
     learningContent: 'Student-on-student harm can happen in varied relationships, at school or outside school, and through digital channels. Treat it as a safeguarding concern.',
     estimatedMinutes: 3,
+    firstCheckCount: 3,
     learningSteps: [
       {
-        eyebrow: 'Learn 1 of 3',
+        eyebrow: 'Learn 1 of 4',
         title: 'Harm between students is safeguarding',
         paragraphs: [
           'AISG defines student-on-student abuse broadly. It can include physical, sexual, emotional or financial abuse and coercive control. It may occur between classmates, friends or romantic partners, in intimate or non-intimate relationships.',
@@ -136,7 +149,7 @@ export const courseModules: CourseModule[] = [
         example: { title: 'AISG context', text: 'A concern shared after an activity or about behaviour in a friendship group deserves the same safeguarding attention as a concern first noticed in class.' },
       },
       {
-        eyebrow: 'Learn 2 of 3',
+        eyebrow: 'Learn 2 of 4',
         title: 'Separate harmful behaviour from ordinary conflict',
         paragraphs: [
           'The handbook describes antagonistic behaviour as unwanted, aggressive behaviour that may be verbal, physical or electronic. Examples include intimidation, threats, attacks linked to an identity or characteristic, encouraging self-harm, extortion or blackmail, and purposely excluding someone from a group.',
@@ -149,16 +162,27 @@ export const courseModules: CourseModule[] = [
         ],
       },
       {
-        eyebrow: 'Learn 3 of 3',
+        eyebrow: 'Learn 3 of 4',
         title: 'Digital harm is still real harm',
         paragraphs: [
           'Cyber harassment is the use of technology to harass, threaten or intimidate. It can include abusive messages, rumours, group-based abuse, posting photos or videos without consent, harmful memes or filters, hate sites, stolen identities, and AI-generated or manipulated media that misrepresents or harms another person.',
-          'Do not treat harmful online behaviour as only an IT issue or dismiss it because it happened after school. If a student reports sexual requests, coercion or other online harm, listen calmly, preserve their account, record accurately and report. Do not arrange a confrontation, conduct your own investigation or contact caregivers independently.',
         ],
         points: [
           { label: 'Deepfakes', text: 'Synthetic or manipulated media can humiliate, misrepresent and harm even when people know it is fake.' },
           { label: 'Private groups', text: 'A closed message thread can still cause serious safeguarding harm.' },
-          { label: 'Next step', text: 'Move from support to accurate recording and prompt reporting.' },
+          { label: 'Impact', text: 'Private or synthetic content can still humiliate, threaten or coerce a student.' },
+        ],
+      },
+      {
+        eyebrow: 'Learn 4 of 4',
+        title: 'Respond without taking over',
+        paragraphs: [
+          'Do not treat harmful online behaviour as only an IT issue or dismiss it because it happened after school. If a student reports sexual requests, coercion or other online harm, listen calmly, preserve their account, record accurately and report. Do not arrange a confrontation, conduct your own investigation or contact caregivers independently.',
+        ],
+        points: [
+          { label: 'Listen', text: 'Take the student seriously without pressing for a full investigation.' },
+          { label: 'Record', text: 'Preserve the student\'s account and relevant details accurately.' },
+          { label: 'Report', text: 'Use the safeguarding pathway promptly; do not mediate or confront the other student yourself.' },
         ],
       },
     ],
@@ -184,9 +208,10 @@ export const courseModules: CourseModule[] = [
     summary: 'Calm listening, neutral clarification, honest confidentiality and accurate recording.',
     learningContent: 'Listen without leading or investigating. Reassure the student, never promise secrecy, record their words accurately and report to the appropriate Student Safeguarding Lead.',
     estimatedMinutes: 3,
+    firstCheckCount: 3,
     learningSteps: [
       {
-        eyebrow: 'Learn 1 of 3',
+        eyebrow: 'Learn 1 of 4',
         title: 'Make the first response calm and safe',
         paragraphs: [
           'A student may test whether it feels safe to speak before sharing the full concern. Remain calm. Do not panic, show shock or rush the student. Listen carefully and allow them to use their own words without your assumptions.',
@@ -199,7 +224,7 @@ export const courseModules: CourseModule[] = [
         ],
       },
       {
-        eyebrow: 'Learn 2 of 3',
+        eyebrow: 'Learn 2 of 4',
         title: 'Clarify without leading or investigating',
         paragraphs: [
           'Do not prompt responses, project an explanation or supply details. Most employees are not responsible for conducting an interview. If a word or meaning must be understood, use the minimum neutral clarification needed and let the student continue in their own language.',
@@ -212,10 +237,19 @@ export const courseModules: CourseModule[] = [
         ],
       },
       {
-        eyebrow: 'Learn 3 of 3',
-        title: 'Be honest about what happens next',
+        eyebrow: 'Learn 3 of 4',
+        title: 'Be honest about who needs to know',
         paragraphs: [
           'Never promise secrecy. Explain that you need to tell specific people who can help, while keeping the matter as confidential as possible. The concern should not become general knowledge within the school community.',
+        ],
+        points: [
+          { label: 'Honesty', text: 'Explain that only specific people who can help may need to know.' },
+        ],
+      },
+      {
+        eyebrow: 'Learn 4 of 4',
+        title: 'Record and report with care',
+        paragraphs: [
           'After the conversation, record what the student said or what you observed, including relevant dates and times, in as much detail as possible. Report to the appropriate Division Student Safeguarding Lead when called for. Maintain confidentiality: do not discuss the incident with uninvolved staff, students, people outside school, friends or family.',
         ],
         points: [
@@ -246,9 +280,10 @@ export const courseModules: CourseModule[] = [
     summary: 'The reporting threshold, urgency, AISG pathways, confidentiality and personal responsibility.',
     learningContent: 'Reasonable cause is enough to report. Record observations, follow AISG procedures and consult the appropriate Student Safeguarding Lead.',
     estimatedMinutes: 3,
+    firstCheckCount: 3,
     learningSteps: [
       {
-        eyebrow: 'Learn 1 of 3',
+        eyebrow: 'Learn 1 of 4',
         title: 'Reasonable cause is the reporting threshold',
         paragraphs: [
           'All AISG employees must report suspected abuse or neglect whenever they have reasonable cause to believe a student has suffered, or is at risk of suffering, harm. Proof is not required. Investigating privately or waiting for certainty can delay protection.',
@@ -261,7 +296,7 @@ export const courseModules: CourseModule[] = [
         ],
       },
       {
-        eyebrow: 'Learn 2 of 3',
+        eyebrow: 'Learn 2 of 4',
         title: 'Match the speed to the level of danger',
         paragraphs: [
           'At all times, record your observations, follow AISG Student Safeguarding Policy and Procedures, and consult the appropriate Student Safeguarding Lead. A concern does not need to be an emergency before it is recorded and reported.',
@@ -274,16 +309,27 @@ export const courseModules: CourseModule[] = [
         ],
       },
       {
-        eyebrow: 'Learn 3 of 3',
-        title: 'Record facts and limit who knows',
+        eyebrow: 'Learn 3 of 4',
+        title: 'Create a factual record',
         paragraphs: [
           'A useful record preserves what was seen or heard: the student\'s words, direct observations, dates, times and relevant context. Avoid speculation, labels or conclusions that go beyond what you know. Detail helps reduce the need for a student to repeat an account unnecessarily.',
-          'After reporting, information stays within the safeguarding process. Do not discuss the incident with uninvolved colleagues, students, people outside school or loved ones. A name-free summary in a staff chat is still an inappropriate disclosure. The safeguarding team manages information on a need-to-know basis.',
         ],
         points: [
           { label: 'Record', text: 'Facts, exact words, dates, times and observations.' },
-          { label: 'Report', text: 'The concern and its urgency through the AISG pathway.' },
-          { label: 'Restrict', text: 'Details to the people responsible for the safeguarding response.' },
+          { label: 'Separate', text: 'What you observed from what you think it might mean.' },
+          { label: 'Purpose', text: 'A clear record supports the safeguarding team without asking a student to repeat themselves unnecessarily.' },
+        ],
+      },
+      {
+        eyebrow: 'Learn 4 of 4',
+        title: 'Limit who knows after a report',
+        paragraphs: [
+          'After reporting, information stays within the safeguarding process. Do not discuss the incident with uninvolved colleagues, students, people outside school or loved ones. A name-free summary in a staff chat is still an inappropriate disclosure. The safeguarding team manages information on a need-to-know basis.',
+        ],
+        points: [
+          { label: 'Report', text: 'Share the concern and its urgency through the AISG pathway.' },
+          { label: 'Restrict', text: 'Keep details with the people responsible for the safeguarding response.' },
+          { label: 'Protect', text: 'A name-free account can still disclose private information inappropriately.' },
         ],
       },
     ],
@@ -308,6 +354,7 @@ export const courseModules: CourseModule[] = [
     summary: 'Visible professional practice, Safe Touch, private spaces, self-reporting and adult conduct concerns.',
     learningContent: 'Professional boundaries protect students and adults. Transparency, visibility and early reporting help AISG identify risk and patterns.',
     estimatedMinutes: 4,
+    firstCheckCount: 2,
     learningSteps: [
       {
         eyebrow: 'Learn 1 of 4',
@@ -383,6 +430,7 @@ export const courseModules: CourseModule[] = [
     summary: 'Authorised channels, student identity, educational media, overnight travel and everyday judgement.',
     learningContent: 'Everyday choices protect students: use authorised communication, protect student identity, follow activity procedures and share concerns rather than managing them alone.',
     estimatedMinutes: 4,
+    firstCheckCount: 2,
     learningSteps: [
       {
         eyebrow: 'Learn 1 of 4',

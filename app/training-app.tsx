@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { COURSE_VERSION_ID, type CourseModule, type Question } from '@/lib/course';
+import { cognitiveLevelFor } from '@/lib/assessment-progression';
 
 type Module = CourseModule;
 type ResponseRecord = { questionId: string; answer: string[]; isCorrect: boolean };
@@ -23,6 +24,8 @@ type Bootstrap = {
 type Feedback = { isCorrect: boolean; feedback: string; correctAnswer: string[]; criticalSafeguarding: boolean };
 type Result = { score: number; percentage: number; passed: boolean; threshold: number; completedAt: number; moduleScores: { module: string; correct: number; total: number }[] };
 type View = 'dashboard' | 'intro' | 'question' | 'results';
+const FIRST_LEARNING_BLOCK_END = 2;
+const FIRST_CHECK_BLOCK_COMPLETE_STAGE = 100;
 
 export default function TrainingApp({ staticMode = false }: { staticMode?: boolean }) {
   const [data, setData] = useState<Bootstrap | null>(null);
@@ -91,7 +94,10 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
   if (!data) return <ErrorScreen message={error} />;
 
   function beginOrResume() {
-    setView(currentModule && completedLearningModules.includes(currentModule.id) ? 'question' : 'intro');
+    const questionInModule = questionIndex % 5 + 1;
+    const completedModule = currentModule && completedLearningModules.includes(currentModule.id);
+    const readyForFirstCheck = currentModule && (learningStages[currentModule.id] ?? 0) >= FIRST_LEARNING_BLOCK_END;
+    setView(completedModule || (questionInModule <= (currentModule?.firstCheckCount ?? 3) && readyForFirstCheck) ? 'question' : 'intro');
     setFeedback(null);
     setSelected([]);
   }
@@ -100,6 +106,11 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
     const next = completedLearningModules.includes(moduleId) ? completedLearningModules : [...completedLearningModules, moduleId];
     setCompletedLearningModules(next);
     writeLearningProgress(data?.attempt?.attemptNumber ?? 1, next);
+    setView('question');
+  }
+
+  function beginFirstCheck(moduleId: string) {
+    saveLearningStage(moduleId, FIRST_CHECK_BLOCK_COMPLETE_STAGE);
     setView('question');
   }
 
@@ -139,7 +150,7 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
     }
     const next = questionIndex + 1;
     setQuestionIndex(next); setSelected([]); setFeedback(null); setRemediationConfirmed(false);
-    setView(next % 5 === 0 ? 'intro' : 'question');
+    setView(next % 5 === 0 || questionIndex % 5 + 1 === currentModule?.firstCheckCount ? 'intro' : 'question');
   }
 
   async function retake() {
@@ -155,7 +166,7 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
 
   const header = <AppHeader user={data.user} onHome={() => setView('dashboard')} onPlatformHome={() => { window.location.href = new URL('./', window.location.href).toString(); }} />;
   if (view === 'results' && result) return <>{header}<ResultsScreen data={data} result={result} responses={[...responseMap.values()]} onRetake={retake} busy={busy} staticMode={staticMode} /></>;
-  if (view === 'intro' && currentModule) return <>{header}<ModuleLearning key={currentModule.id} module={currentModule} progress={progressPercent} initialStage={learningStages[currentModule.id] ?? 0} onStageChange={(stage) => saveLearningStage(currentModule.id, stage)} onBack={() => setView('dashboard')} onStart={() => completeLearning(currentModule.id)} /></>;
+  if (view === 'intro' && currentModule) return <>{header}<ModuleLearning key={`${currentModule.id}-${learningStages[currentModule.id] === FIRST_CHECK_BLOCK_COMPLETE_STAGE ? 'second' : 'first'}`} module={currentModule} progress={progressPercent} initialStage={learningStages[currentModule.id] ?? 0} onStageChange={(stage) => saveLearningStage(currentModule.id, stage)} onBack={() => setView('dashboard')} onFirstCheck={() => beginFirstCheck(currentModule.id)} onStart={() => completeLearning(currentModule.id)} /></>;
   if (view === 'question' && question && currentModule) return <>{header}<QuestionScreen question={question} module={currentModule} index={questionIndex} courseProgress={progressPercent} selected={selected} setSelected={setSelected} feedback={feedback} onSubmit={submit} onContinue={continueAfterFeedback} busy={busy} error={error} remediationConfirmed={remediationConfirmed} setRemediationConfirmed={setRemediationConfirmed} /></>;
   return <>{header}<Dashboard data={data} progressPercent={progressPercent} completedCount={completedCount} activeModuleNumber={Math.min(6, Math.floor(questionIndex / 5) + 1)} hasStarted={hasStarted} onContinue={beginOrResume} staticMode={staticMode} /></>;
 }
@@ -198,11 +209,11 @@ function Dashboard({ data, progressPercent, completedCount, activeModuleNumber, 
 function CourseMap({ modules, completed, activeModuleNumber, passThreshold }: { modules: Module[]; completed: number; activeModuleNumber: number; passThreshold: number }) {
   return <aside className="course-map" aria-labelledby="course-map-title"><div className="flex items-center justify-between"><div><p className="tiny-eyebrow">Course map</p><h2 id="course-map-title" className="mt-1 text-2xl font-semibold tracking-tight text-navy">Six focused sections</h2></div><BookOpen className="text-navy/45" aria-hidden="true" /></div>
     <ol className="mt-8 space-y-2">{modules.map((module) => { const complete = completed >= module.number * 5; const active = module.number === activeModuleNumber; return <li key={module.id} className={`module-row ${active ? 'module-active' : ''}`}><span className={`module-number ${complete ? 'module-complete' : ''}`}>{complete ? <Check aria-hidden="true" /> : String(module.number).padStart(2, '0')}</span><span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-navy">{module.title}</span><span className="mt-0.5 block text-xs text-muted-foreground">Self-paced learning • 5 checks</span></span><span className={`status-label ${complete ? 'status-complete' : active ? 'status-continue' : 'status-locked'}`}>{complete ? 'Complete' : active ? 'Next' : <LockKeyhole className="h-3.5 w-3.5" aria-label="Locked" />}</span></li>; })}</ol>
-    <p className="mt-8 border-t border-navy/10 pt-6 text-sm leading-6 text-muted-foreground">Learning comes first in every section. The current course completion threshold is <strong className="text-navy">{passThreshold}%</strong> across the understanding checks.</p></aside>;
+    <p className="mt-8 border-t border-navy/10 pt-6 text-sm leading-6 text-muted-foreground">Each section alternates between learning and two short check blocks. The current course completion threshold is <strong className="text-navy">{passThreshold}%</strong> across the understanding checks.</p></aside>;
 }
 
-function ModuleLearning({ module, progress, initialStage, onStageChange, onBack, onStart }: { module: Module; progress: number; initialStage: number; onStageChange: (stage: number) => void; onBack: () => void; onStart: () => void }) {
-  const [stage, setStage] = useState(() => Math.max(0, Math.min(module.learningSteps.length + 1, initialStage)));
+function ModuleLearning({ module, progress, initialStage, onStageChange, onBack, onFirstCheck, onStart }: { module: Module; progress: number; initialStage: number; onStageChange: (stage: number) => void; onBack: () => void; onFirstCheck: () => void; onStart: () => void }) {
+  const [stage, setStage] = useState(() => initialStage === FIRST_CHECK_BLOCK_COMPLETE_STAGE ? FIRST_LEARNING_BLOCK_END + 1 : Math.max(0, Math.min(module.learningSteps.length + 1, initialStage)));
   const takeawayStage = module.learningSteps.length + 1;
   const isOverview = stage === 0;
   const isTakeaways = stage === takeawayStage;
@@ -223,7 +234,7 @@ function ModuleLearning({ module, progress, initialStage, onStageChange, onBack,
         <h1>{module.title}</h1>
         <p className="intro-summary">{module.summary}</p>
         <div className="principle-card"><Sparkles aria-hidden="true" /><div><strong>Why this matters</strong><p>{module.learningContent}</p></div></div>
-        <div className="unlock-note"><LockKeyhole aria-hidden="true" /><span>The five understanding checks unlock after the learning pages and key takeaways.</span></div>
+        <div className="unlock-note"><LockKeyhole aria-hidden="true" /><span>The first {module.firstCheckCount} understanding checks unlock after the first learning block. The final {5 - module.firstCheckCount} follow the remaining learning pages.</span></div>
       </>}
       {lesson && <>
         <p className="tiny-eyebrow">{lesson.eyebrow}</p>
@@ -235,13 +246,13 @@ function ModuleLearning({ module, progress, initialStage, onStageChange, onBack,
       {isTakeaways && <>
         <p className="tiny-eyebrow">Learning complete</p>
         <h1>Key takeaways</h1>
-        <p className="intro-summary">Keep these actions in mind as you apply the section to five realistic AISG situations.</p>
+        <p className="intro-summary">Keep these actions in mind as you apply the final {5 - module.firstCheckCount} realistic AISG situations.</p>
         <ul className="takeaway-list">{module.keyTakeaways.map((takeaway) => <li key={takeaway}><CheckCircle2 aria-hidden="true" /><span>{takeaway}</span></li>)}</ul>
         <div className="source-strip"><BookOpen aria-hidden="true" /><div><strong>Grounded in the AISG Student Safeguarding Handbook</strong><p>{module.handbookReferences.map((reference) => `${reference.section} (p. ${reference.page})`).join(' • ')}</p></div></div>
       </>}
       <div className="learning-footer">
         <div className="learning-dots" aria-label={`Learning page ${stage + 1} of ${takeawayStage + 1}`}>{Array.from({ length: takeawayStage + 1 }, (_, index) => <span key={index} className={index <= stage ? 'dot-complete' : ''} aria-current={index === stage ? 'step' : undefined} />)}</div>
-        <div className="learning-actions">{stage > 0 && <Button variant="ghost" onClick={() => moveToStage(stage - 1)}><ArrowLeft /> Previous</Button>}{isTakeaways ? <Button onClick={onStart} className="primary-pill" size="lg">Check your understanding <ArrowRight /></Button> : <Button onClick={() => moveToStage(stage + 1)} className="primary-pill" size="lg">{isOverview ? 'Begin learning' : 'Continue'} <ArrowRight /></Button>}</div>
+        <div className="learning-actions">{stage > 0 && <Button variant="ghost" onClick={() => moveToStage(stage - 1)}><ArrowLeft /> Previous</Button>}{isTakeaways ? <Button onClick={onStart} className="primary-pill" size="lg">Final check your learning <ArrowRight /></Button> : stage === FIRST_LEARNING_BLOCK_END ? <Button onClick={onFirstCheck} className="primary-pill" size="lg">Check your learning <ArrowRight /></Button> : <Button onClick={() => moveToStage(stage + 1)} className="primary-pill" size="lg">{isOverview ? 'Begin learning' : 'Continue'} <ArrowRight /></Button>}</div>
       </div>
     </section>
   </main>;
@@ -254,12 +265,15 @@ function ProgressLine({ label, value, detail }: { label: string; value: number; 
 function QuestionScreen({ question, module, index, courseProgress, selected, setSelected, feedback, onSubmit, onContinue, busy, error, remediationConfirmed, setRemediationConfirmed }: { question: Question; module: Module; index: number; courseProgress: number; selected: string[]; setSelected: (value: string[]) => void; feedback: Feedback | null; onSubmit: () => void; onContinue: () => void; busy: boolean; error: string; remediationConfirmed: boolean; setRemediationConfirmed: (value: boolean) => void }) {
   const needsRemediation = Boolean(feedback && !feedback.isCorrect && question.criticalSafeguarding);
   const sectionQuestion = index % 5 + 1;
-  const sectionProgress = Math.round((1 + index % 5 + (feedback ? 1 : 0)) / 6 * 100);
+  const firstCheckBlock = sectionQuestion <= module.firstCheckCount;
+  const checkInBlock = firstCheckBlock ? sectionQuestion : sectionQuestion - module.firstCheckCount;
+  const checksInBlock = firstCheckBlock ? module.firstCheckCount : 5 - module.firstCheckCount;
+  const sectionProgress = Math.round((checkInBlock + (feedback ? 1 : 0)) / (checksInBlock + 1) * 100);
   const toggle = (id: string) => setSelected(selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]);
   const chooseSequence = (id: string) => { if (!selected.includes(id)) setSelected([...selected, id]); };
-  return <main className="learning-shell"><div className="learning-top"><span className="text-sm font-semibold text-navy">Section {module.number} of 6 — {module.title}</span><span className="text-sm text-muted-foreground">Check {sectionQuestion} of 5</span></div>
-    <div className="dual-progress" aria-label="Course and section progress"><ProgressLine label="Overall course" value={courseProgress} detail={`${courseProgress}%`} /><ProgressLine label="Current section" value={sectionProgress} detail={`Check ${sectionQuestion} of 5`} /></div>
-    <section className="question-layout"><div className="question-number">{String(index + 1).padStart(2, '0')}</div><article className="question-card"><div className="flex flex-wrap items-center gap-2"><span className="question-kind">Check your understanding • {question.questionType === 'multiple_response' ? 'Select all that apply' : question.questionType === 'sequence' ? 'Choose in order' : 'Choose one'}</span>{question.criticalSafeguarding && <span className="critical-chip"><ShieldCheck /> Critical safeguarding</span>}</div>
+  return <main className="learning-shell"><div className="learning-top"><span className="text-sm font-semibold text-navy">Section {module.number} of 6 — {module.title}</span><span className="text-sm text-muted-foreground">Check {checkInBlock} of {checksInBlock}</span></div>
+    <div className="dual-progress" aria-label="Course and section progress"><ProgressLine label="Overall course" value={courseProgress} detail={`${courseProgress}%`} /><ProgressLine label="Current check block" value={sectionProgress} detail={`Check ${checkInBlock} of ${checksInBlock}`} /></div>
+    <section className="question-layout"><div className="question-number">{String(index + 1).padStart(2, '0')}</div><article className="question-card" data-cognitive-level={cognitiveLevelFor('safeguarding', question.id)}><div className="flex flex-wrap items-center gap-2"><span className="question-kind">Check your understanding • {question.questionType === 'multiple_response' ? 'Select all that apply' : question.questionType === 'sequence' ? 'Choose in order' : 'Choose one'}</span>{question.criticalSafeguarding && <span className="critical-chip"><ShieldCheck /> Critical safeguarding</span>}</div>
       <h1>{question.question}</h1>{question.scenario && <div className="scenario"><span>Scenario</span><p>{question.scenario}</p></div>}
       <div className="answers" aria-label="Answer options">
         {question.questionType === 'single_answer' ? <RadioGroup value={selected[0] ?? ''} onValueChange={(value) => !feedback && setSelected([String(value)])}>{question.answerOptions.map((option) => <label htmlFor={`answer-${option.id}`} key={option.id} className={optionClass(option.id, selected, feedback)}><RadioGroupItem id={`answer-${option.id}`} value={option.id} disabled={Boolean(feedback)} /><span><b>{option.id.toUpperCase()}</b>{option.text}</span>{feedback && feedback.correctAnswer.includes(option.id) && <CheckCircle2 className="answer-icon" />}</label>)}</RadioGroup>
@@ -269,7 +283,7 @@ function QuestionScreen({ question, module, index, courseProgress, selected, set
       {feedback && <output className={`feedback-card ${feedback.isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`}><div>{feedback.isCorrect ? <CheckCircle2 /> : <AlertCircle />}</div><div><strong>{feedback.isCorrect ? 'Good safeguarding decision' : 'Review this safeguarding principle'}</strong><p>{feedback.feedback}</p></div></output>}
       {needsRemediation && <div className="remediation"><p className="tiny-eyebrow">Pause and reinforce</p><h2>Before you continue</h2><p>When a safeguarding response is critical, choose the action that protects the student and follows AISG&apos;s reporting pathway. Do not investigate, delay, promise secrecy or handle the concern alone.</p><label htmlFor="remediation-confirmation" className="mt-4 flex items-start gap-3 font-medium"><Checkbox id="remediation-confirmation" checked={remediationConfirmed} onCheckedChange={(checked) => setRemediationConfirmed(Boolean(checked))} /><span>I understand the safeguarding action and will apply it in practice.</span></label></div>}
       {error && <p className="error-message" role="alert">{error}</p>}
-      <div className="question-actions"><span className="autosave"><Save /> {feedback ? 'Response and feedback saved' : 'Progress saves after submission'}</span>{feedback ? <Button className="primary-pill" size="lg" onClick={onContinue} disabled={busy || (needsRemediation && !remediationConfirmed)}>{index === 29 ? 'Complete course' : sectionQuestion === 5 ? 'Next section' : 'Continue'} <ArrowRight /></Button> : <Button className="primary-pill" size="lg" onClick={onSubmit} disabled={busy || selected.length === 0}>{busy ? 'Saving…' : 'Check response'}</Button>}</div>
+      <div className="question-actions"><span className="autosave"><Save /> {feedback ? 'Response and feedback saved' : 'Progress saves after submission'}</span>{feedback ? <Button className="primary-pill" size="lg" onClick={onContinue} disabled={busy || (needsRemediation && !remediationConfirmed)}>{index === 29 ? 'Complete course' : sectionQuestion === module.firstCheckCount ? 'Continue learning' : sectionQuestion === 5 ? 'Next section' : 'Continue'} <ArrowRight /></Button> : <Button className="primary-pill" size="lg" onClick={onSubmit} disabled={busy || selected.length === 0}>{busy ? 'Saving…' : 'Check response'}</Button>}</div>
     </article><aside className="source-note"><BookOpen /><div><strong>Apply what you learned</strong><p>{question.learningObjective}</p><span>Handbook {question.handbookSection}, p. {question.handbookPage}</span></div></aside></section></main>;
 }
 

@@ -2,7 +2,7 @@
 
 My Courses is an educator-centred AISG professional learning hub. It connects the existing six-module Safeguarding at AISG course (30 checks) with AI in Education and Microsoft Teams for Communication (five sections and 10 judgement-focused checks each), while showing independent progress, exact resume positions and a personal course record.
 
-Courses follow a consistent Course Home → Learn → Check → Apply → Reflect rhythm. AI in Education, Microsoft Teams for Communication and MTSS present each section across short learning screens before two aligned checks, then provide immediate explanatory feedback, a private “Take it into practice” selection and an optional commitment. Safeguarding retains its handbook-grounded learning, remediation, attempts, certificates, reporting and question-review workspace.
+Courses follow a consistent Course Home → Learn → Check → Apply → Reflect rhythm. AI in Education, Microsoft Teams for Communication and MTSS present each section across short learning screens before two aligned checks. Safeguarding uses two learning pages → a three-check retrieval block → two further learning pages → a final two-check application block. Every route provides immediate explanatory feedback; the short courses also provide a private “Take it into practice” selection and optional commitment.
 
 The catalogue currently includes four courses: Safeguarding at AISG, AI in Education, Microsoft Teams for Communication, and Multi-Tiered System of Supports (MTSS). MTSS is an original synthesis of the MTSS Center’s essential-components framework: screening, a multi-level prevention system, progress monitoring, and data-based decision making.
 
@@ -75,7 +75,9 @@ filtering, aggregate insights and question review.
 
 Register catalogue metadata and a course-specific data/component module for a new
 course. Categories and Required / Optional / Recommended designations are ready
-for future filtering. Questions favour realistic scenarios, plausible distractors,
+for future filtering. `lib/assessment-progression.ts` provides a reviewable
+Foundation → Application → Analysis → Professional Judgement → Synthesis map for
+all existing checks. Questions favour realistic scenarios, plausible distractors,
 application and professional judgement. Feedback explains the strongest response
 and what an incorrect choice misses. Safeguarding content remains grounded in the
 handbook and begins as `draft_for_safeguarding_team_review` until AISG reviewers
