@@ -4,7 +4,7 @@ My Courses is an educator-centred AISG professional learning hub. It connects th
 
 Courses follow Learn → Check → Apply → Reflect where appropriate. AI in Education and Microsoft Teams for Communication include immediate explanatory feedback, a private “Take it into practice” selection and an optional commitment. Safeguarding retains its handbook-grounded learning, remediation, attempts, certificates, reporting and question-review workspace.
 
-The catalogue currently includes three courses: Safeguarding at AISG, AI in Education, and Microsoft Teams for Communication. The latter is grounded in the supplied AISG Communication Expectations guidance and focuses on purposeful, professional internal communication.
+The catalogue currently includes four courses: Safeguarding at AISG, AI in Education, Microsoft Teams for Communication, and Multi-Tiered System of Supports (MTSS). MTSS is an original synthesis of the MTSS Center’s essential-components framework: screening, a multi-level prevention system, progress monitoring, and data-based decision making.
 
 Typography uses the Geist family bundled at build time by `next/font`, with a system fallback stack; no runtime font CDN is required.
 
