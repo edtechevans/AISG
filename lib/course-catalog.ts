@@ -4,6 +4,7 @@ export type CourseCatalogItem = {
   id: CourseId;
   title: string;
   description: string;
+  intro?: string;
   category: string;
   designation: 'Required' | 'Foundation' | 'Recommended';
   duration: string;
@@ -22,6 +23,18 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     duration: '35–45 minutes',
     sectionCount: 6,
     checkCount: 30,
+  },
+  {
+    id: 'teams',
+    title: 'Employee Communication Guidelines',
+    description: 'Practical guidance for purposeful, professional and responsible communication at AISG.',
+    intro: 'Good communication helps us share information, identify patterns, coordinate support and make better decisions. The challenge is not whether we communicate. It is how we communicate well. Throughout this course, you will consider the purpose, audience, information, evidence, language and confidentiality behind everyday professional communication at AISG. This course is about professional judgement, not simply memorising rules.',
+    category: 'Professional Practice',
+    designation: 'Required',
+    duration: '30–40 minutes',
+    sectionCount: 6,
+    checkCount: 14,
+    storageKey: 'my-courses-communication-progress-v2',
   },
   {
     id: 'engagement',
@@ -55,17 +68,6 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     sectionCount: 5,
     checkCount: 10,
     storageKey: 'my-courses-ai-progress-v1',
-  },
-  {
-    id: 'teams',
-    title: 'Microsoft Teams for Communication',
-    description: 'Practical guidance for clear, purposeful and professional internal communication at AISG.',
-    category: 'Professional Practice',
-    designation: 'Recommended',
-    duration: '15–20 minutes',
-    sectionCount: 5,
-    checkCount: 10,
-    storageKey: 'my-courses-teams-progress-v1',
   },
 ];
 

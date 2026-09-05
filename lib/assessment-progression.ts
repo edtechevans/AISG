@@ -14,7 +14,7 @@ export const assessmentProgression: Record<CourseAssessmentId, Record<string, Co
   },
   engagement: { 'tlf-1': 2, 'tlf-2': 2, 'tlf-3': 3, 'tlf-4': 3, 'tlf-5': 3, 'tlf-6': 3, 'tlf-7': 4, 'tlf-8': 4, 'tlf-9': 4, 'tlf-10': 5 },
   ai: { 'ai-1': 2, 'ai-2': 2, 'ai-3': 2, 'ai-4': 3, 'ai-5': 3, 'ai-6': 3, 'ai-7': 4, 'ai-8': 4, 'ai-9': 4, 'ai-10': 5 },
-  teams: { 'teams-1': 2, 'teams-2': 2, 'teams-3': 2, 'teams-4': 2, 'teams-5': 3, 'teams-6': 3, 'teams-7': 3, 'teams-8': 3, 'teams-9': 4, 'teams-10': 5 },
+  teams: { 'communication-1': 2, 'communication-2': 2, 'communication-3': 3, 'communication-4': 3, 'communication-5': 4, 'communication-6': 4, 'communication-7': 3, 'communication-8': 4, 'communication-9': 4, 'communication-10': 4, 'communication-11': 4, 'communication-12': 4, 'communication-13': 4, 'communication-14': 5 },
   mtss: { 'mtss-1': 2, 'mtss-2': 2, 'mtss-3': 2, 'mtss-4': 3, 'mtss-5': 3, 'mtss-6': 3, 'mtss-7': 3, 'mtss-8': 3, 'mtss-9': 4, 'mtss-10': 4, 'mtss-11': 4, 'mtss-12': 4, 'mtss-13': 4, 'mtss-14': 4, 'mtss-15': 5, 'mtss-16': 5 },
 };
 

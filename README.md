@@ -1,10 +1,10 @@
 # My Courses — AISG Professional Development
 
-My Courses is an educator-centred AISG professional learning hub. It connects the existing six-module Safeguarding at AISG course (30 checks) with Engagement for All: The AISG Learning Framework, AI in Education, Microsoft Teams for Communication, and MTSS (five sections and 10 judgement-focused checks each), while showing independent progress, exact resume positions and a personal course record.
+My Courses is an educator-centred AISG professional learning hub. It connects the existing six-module Safeguarding at AISG course (30 checks) with Employee Communication Guidelines (the expanded successor to the former Microsoft Teams for Communication course), Engagement for All: The AISG Learning Framework, MTSS and AI in Education, while showing independent progress, exact resume positions and a personal course record.
 
 Courses follow a consistent Course Home → Learn → Check → Apply → Reflect rhythm. AI in Education, Microsoft Teams for Communication and MTSS present each section across short learning screens before two aligned checks. Safeguarding uses two learning pages → a three-check retrieval block → two further learning pages → a final two-check application block. Every route provides immediate explanatory feedback; the short courses also provide a private “Take it into practice” selection and optional commitment.
 
-The catalogue currently includes five courses in the shared learner order: Safeguarding at AISG; Engagement for All: The AISG Learning Framework; Multi-Tiered System of Supports (MTSS); AI in Education; and Microsoft Teams for Communication. Engagement for All is grounded in AISG’s Being, Connecting, and Doing framework, its six learning-engagement facets, and the official 38-indicator reference set. MTSS is an original synthesis of the MTSS Center’s essential-components framework: screening, a multi-level prevention system, progress monitoring, and data-based decision making.
+The catalogue currently includes five courses in the shared learner order: Safeguarding at AISG (Required); Employee Communication Guidelines (Required); Engagement for All: The AISG Learning Framework (Foundation); Multi-Tiered System of Supports (MTSS) (Recommended); and AI in Education (Recommended). Employee Communication Guidelines is version `SY2026-27-communication-v2`: Microsoft Teams communication and student collaboration now forms a dedicated section inside the broader course. Engagement for All is grounded in AISG’s Being, Connecting, and Doing framework, its six learning-engagement facets, and the official 38-indicator reference set. MTSS is an original synthesis of the MTSS Center’s essential-components framework: screening, a multi-level prevention system, progress monitoring, and data-based decision making.
 
 Typography uses the Geist family bundled at build time by `next/font`, with a system fallback stack; no runtime font CDN is required.
 
@@ -22,7 +22,7 @@ The administrator question-bank workspace allows safeguarding reviewers to edit 
 - Platform authentication adapter in `app/chatgpt-auth.ts`
 - Server-side role checks for administrator pages and write endpoints
 - Relational entities for users, courses, versions, modules, questions, attempts, responses, progress, completions and audit events
-- Course-specific browser progress keys support independent self-paced demo courses and exact resume positions. Course versions preserve historical completions.
+- Course-specific browser progress keys support independent self-paced demo courses and exact resume positions. The expanded communication course uses `my-courses-communication-progress-v2`; the old `my-courses-teams-progress-v1` key is deliberately left untouched so prior Teams-only browser data is not silently reinterpreted as completion of the expanded course. Course versions preserve historical completions.
 - The catalogue is data-driven so future courses can be added without redesigning the hub.
 
 The first authenticated user on a new, owner-only deployment is bootstrapped as the administrator. Later users default to learner. This makes the development build usable without AISG identity-provider credentials while leaving a single authentication adapter for future Microsoft/AISG SSO integration.
@@ -70,6 +70,10 @@ The Pages hub also stores AI practice commitments and the local My Course Record
 in that browser. It does not claim to provide shared reporting or named reflection
 analytics; the server-backed Sites deployment remains the place for administrator
 filtering, aggregate insights and question review.
+
+## Employee Communication Guidelines
+
+The required Employee Communication Guidelines course contains six sections and 14 applied checks (80% threshold, configurable). Its Teams section retains the authoritative AISG guidance on channels, chats, legitimate educational need, observable evidence, minimum necessary information, confidential records and professional digital records. Content is grounded in the supplied AISG Communication Expectations document; broader professional-learning synthesis is not presented as a new AISG policy. The assessment progression is 2 Foundation, 3 Application, 4 Analysis, 4 Professional Judgement and 1 Synthesis check. Incorrect Teams answers require a brief Stop → Understand → Continue acknowledgement before the learner can proceed.
 
 ## Adding courses and assessment quality
 

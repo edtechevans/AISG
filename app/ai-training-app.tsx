@@ -50,17 +50,19 @@ const courses = {
     ],
   },
   teams: {
-    storageKey: 'my-courses-teams-progress-v1',
+    storageKey: 'my-courses-communication-progress-v2',
     catalog: COURSE_BY_ID.teams,
     version: TEAMS_COURSE_VERSION,
     sections: teamsSections,
     questions: teamsQuestions,
     practiceOptions: [
-      'Choose the right audience for student communication.',
-      'Share only necessary support information.',
-      'Describe observations rather than labels.',
-      'Keep confidential records out of Teams.',
-      'Write as though messages may be reviewed.',
+      'Be more intentional about who actually needs information.',
+      'Share only what colleagues need to support the student.',
+      'Describe observable behaviour rather than label students.',
+      'Ask colleagues more specific questions.',
+      'Turn frustration into factual, useful communication.',
+      'Keep confidential student records out of Teams.',
+      'Use the Purpose / Audience / Information / Evidence / Language / Confidentiality / Professionalism check.',
       'Something else',
     ],
   },
@@ -106,7 +108,12 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   const [progress, setProgress] = useState<CourseProgress>(initialProgress);
   const [stage, setStage] = useState<LearningStage>(initialProgress.completedAt ? 'complete' : 'course-home');
   const [questionIndex, setQuestionIndex] = useState(initialQuestion);
-  const [sectionIndex, setSectionIndex] = useState(Math.min(config.sections.length - 1, Math.floor(initialQuestion / 2)));
+  const [sectionIndex, setSectionIndex] = useState(() => {
+    let index = 0;
+    let start = 0;
+    config.sections.forEach((item, itemIndex) => { if (start <= initialQuestion) index = itemIndex; start += item.questions.length; });
+    return index;
+  });
   const [learnPage, setLearnPage] = useState(0);
   const [selected, setSelected] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -114,6 +121,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   const [practice, setPractice] = useState(initialProgress.practice || '');
   const [commitment, setCommitment] = useState(initialProgress.commitment || '');
   const [reviewMode, setReviewMode] = useState(false);
+  const [remediationRead, setRemediationRead] = useState(false);
 
   const section = config.sections[sectionIndex];
   const question = config.questions[questionIndex];
@@ -122,6 +130,21 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   const totalSteps = config.questions.length + config.sections.length;
   const completionPercent = Math.round((completedChecks + progress.completedSections.length) / totalSteps * 100);
   const hasProgress = completedChecks > 0 || progress.completedSections.length > 0;
+  const sectionStarts = useMemo(() => {
+    const starts: number[] = [];
+    let total = 0;
+    for (const item of config.sections) {
+      starts.push(total);
+      total += item.questions.length;
+    }
+    return starts;
+  }, [config.sections]);
+  const sectionIndexForQuestion = (index: number) => {
+    let found = 0;
+    sectionStarts.forEach((start, indexOfStart) => { if (start <= index) found = indexOfStart; });
+    return found;
+  };
+  const questionIndexInSection = questionIndex - sectionStarts[sectionIndex];
 
   useEffect(() => {
     document.title = `${config.catalog.title} | My Courses`;
@@ -145,6 +168,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     setSelected('');
     setFeedback(null);
     setIsCorrect(null);
+    setRemediationRead(false);
     setStage(progress.completedSections.includes(section.id) ? 'question' : 'learn');
   }
 
@@ -161,7 +185,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
       }
       const nextSection = sectionIndex + 1;
       setSectionIndex(nextSection);
-      setQuestionIndex(nextSection * 2);
+      setQuestionIndex(sectionStarts[nextSection]);
       setLearnPage(0);
       return;
     }
@@ -182,6 +206,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     });
     setIsCorrect(correct);
     setFeedback(correct ? question.correctFeedback : question.incorrectFeedback);
+    setRemediationRead(correct || course !== 'teams');
   }
 
   function continueAfterFeedback() {
@@ -189,12 +214,14 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
       setStage('practice');
       return;
     }
+    if (course === 'teams' && !feedbackIsCorrectAndRemediated) return;
     const nextQuestion = questionIndex + 1;
-    const nextSection = Math.floor(nextQuestion / 2);
+    const nextSection = sectionIndexForQuestion(nextQuestion);
     setQuestionIndex(nextQuestion);
     setSelected('');
     setFeedback(null);
     setIsCorrect(null);
+    setRemediationRead(false);
     if (nextSection !== sectionIndex) {
       setSectionIndex(nextSection);
       setLearnPage(0);
@@ -231,7 +258,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   if (stage === 'course-home') {
     const nextLabel = hasProgress ? 'Continue learning' : 'Start course';
     return <main id="main-content" className="learning-shell"><section className="intro-card course-home-card">
-      <p className="tiny-eyebrow">Course home</p><h1>{config.catalog.title}</h1><p className="intro-summary">{config.catalog.description}</p>
+      <p className="tiny-eyebrow">Course home</p><h1>{config.catalog.title}</h1><p className="intro-summary">{config.catalog.intro ?? config.catalog.description}</p>
       <dl className="course-facts"><div><dt>Time</dt><dd>{config.catalog.duration}</dd></div><div><dt>Learning path</dt><dd>{config.sections.length} sections</dd></div><div><dt>Checks</dt><dd>{config.questions.length} applied questions</dd></div></dl>
       <div className="course-home-progress"><div><strong>Your progress</strong><span>{completionPercent}% complete</span></div><Progress value={completionPercent} aria-label={`${config.catalog.title}: ${completionPercent}% complete`} /><p>{completedChecks} of {config.questions.length} checks completed · Progress saved in this browser</p></div>
       <div className="course-home-sections" aria-label="Course sections">{config.sections.map((item, index) => { const complete = progress.completedSections.includes(item.id); const current = index === sectionIndex && !progress.completedAt; return <div key={item.id} className={current ? 'section-current' : ''} aria-current={current ? 'step' : undefined}><span className={complete ? 'section-complete-dot' : 'section-pending-dot'}>{complete ? '✓' : item.number}</span><span>{item.title}</span>{current && <small>Next</small>}</div>; })}</div>
@@ -242,7 +269,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   if (stage === 'practice') {
     return <main id="main-content" className="learning-shell"><section className="intro-card"><p className="tiny-eyebrow">Apply · Take it into practice</p><h1>What is one practice from this course that you want to strengthen?</h1>
       <div className="answers practice-options">{config.practiceOptions.map((option) => <label key={option} className={`answer-option ${practice === option ? 'answer-selected' : ''}`}><input type="radio" name="practice" checked={practice === option} onChange={() => setPractice(option)} /><span>{option}</span></label>)}</div>
-      {practice && <label className="mt-6 block"><span className="meta-label">My commitment (optional)</span><textarea className="mt-2 w-full rounded-xl border border-navy/15 p-3" value={commitment} onChange={(event) => setCommitment(event.target.value)} placeholder="What is one thing you could try?" rows={3} /></label>}
+      {practice && <label className="mt-6 block"><span className="meta-label">{practice === 'Something else' ? 'Tell us about your focus' : 'My commitment (optional)'}</span><textarea className="mt-2 w-full rounded-xl border border-navy/15 p-3" value={commitment} onChange={(event) => setCommitment(event.target.value)} placeholder={practice === 'Something else' ? 'What communication practice do you want to strengthen?' : 'What is one thing you could try?'} rows={3} /></label>}
       <Button className="primary-pill mt-8" size="lg" disabled={!practice} onClick={completeCourse}>Save and complete <ArrowRight /></Button>
     </section></main>;
   }
@@ -258,13 +285,15 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     </main>;
   }
 
-  const checkInSection = questionIndex % 2 + 1;
+  const checkInSection = questionIndexInSection + 1;
+  const checksInCurrentSection = section.questions.length;
+  const feedbackIsCorrectAndRemediated = Boolean(feedback && (isCorrect || remediationRead));
   return <main id="main-content" className="learning-shell"><div className="learning-top"><Button variant="ghost" onClick={() => setStage('course-home')}><ArrowLeft /> Course home</Button><span className="text-sm text-muted-foreground">Check {checkInSection} of 2</span></div>
     <div className="dual-progress"><Progress value={completionPercent} aria-label={`Overall course: ${completionPercent}%`} /><span className="text-sm text-muted-foreground">Section {section.number} of {config.sections.length} · {completionPercent}% overall</span></div>
-    <section className="question-layout"><div className="question-number">{String(questionIndex + 1).padStart(2, '0')}</div><article className="question-card" data-cognitive-level={cognitiveLevelFor(course, question.id)}><span className="question-kind">Check your understanding · Choose one</span><h1>{question.question}</h1><div className="scenario"><span>Scenario</span><p>{question.scenario}</p></div>
+    <section className="question-layout"><div className="question-number">{String(questionIndex + 1).padStart(2, '0')}</div><article className="question-card" data-cognitive-level={cognitiveLevelFor(course, question.id)}><span className="question-kind">Check {checkInSection} of {checksInCurrentSection} · Check your understanding</span><h1>{question.question}</h1><div className="scenario"><span>Scenario</span><p>{question.scenario}</p></div>
       <fieldset className="answers"><legend className="sr-only">Choose one answer</legend>{question.options.map((option) => <label key={option.id} className={`answer-option ${selected === option.id ? 'answer-selected' : ''} ${answered && answered.answer === option.id && !answered.correct ? 'answer-wrong' : ''} ${answered && question.answer === option.id ? 'answer-correct' : ''}`}><input type="radio" name={question.id} value={option.id} checked={selected === option.id} disabled={Boolean(answered)} onChange={() => setSelected(option.id)} /><span><b>{option.id.toUpperCase()}</b>{option.text}</span>{answered && question.answer === option.id && <CheckCircle2 className="answer-icon" aria-label="Correct answer" />}</label>)}</fieldset>
-      {feedback && <output className={`feedback-card ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`} aria-live="polite"><div><Lightbulb /></div><div><strong>{isCorrect ? 'Correct — apply the principle' : 'Not quite — review the principle'}</strong><p>{feedback}</p></div></output>}
-      <div className="question-actions"><span className="autosave"><Save /> Progress saved in this browser</span>{feedback ? <Button className="primary-pill" size="lg" onClick={continueAfterFeedback}>{questionIndex === config.questions.length - 1 ? 'Take it into practice' : checkInSection === 2 ? 'Next section' : 'Continue'} <ArrowRight /></Button> : <Button className="primary-pill" size="lg" disabled={!selected} onClick={submitResponse}>Check response</Button>}</div>
+      {feedback && <output className={`feedback-card ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`} aria-live="polite"><div><Lightbulb /></div><div><strong>{isCorrect ? 'Correct — apply the principle' : 'Not quite — review the principle'}</strong><p>{feedback}</p>{!isCorrect && course === 'teams' && <label className="remediation-check"><input type="checkbox" checked={remediationRead} onChange={(event) => setRemediationRead(event.target.checked)} /> <span>Stop · Understand · Continue: I understand the stronger communication principle.</span></label>}</div></output>}
+      <div className="question-actions"><span className="autosave"><Save /> Progress saved in this browser</span>{feedback ? <Button className="primary-pill" size="lg" disabled={!feedbackIsCorrectAndRemediated} onClick={continueAfterFeedback}>{questionIndex === config.questions.length - 1 ? 'Take it into practice' : checkInSection === checksInCurrentSection ? 'Next section' : 'Continue'} <ArrowRight /></Button> : <Button className="primary-pill" size="lg" disabled={!selected} onClick={submitResponse}>Check response</Button>}</div>
     </article></section>
   </main>;
 }
