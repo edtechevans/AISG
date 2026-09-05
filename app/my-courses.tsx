@@ -8,6 +8,7 @@ import TrainingApp from '@/app/training-app';
 import AiTrainingApp from '@/app/ai-training-app';
 import PlatformHeader from '@/app/platform-header';
 import { COURSE_BY_ID, COURSE_CATALOG, isCourseId, type CourseCatalogItem, type CourseId } from '@/lib/course-catalog';
+import { installStaticApi } from '@/pages/src/static-api';
 
 export { COURSE_CATALOG } from '@/lib/course-catalog';
 
@@ -54,6 +55,7 @@ function shortCourseStates(): Record<CourseId, CourseState> {
 export default function MyCoursesApp({ staticMode = false }: { staticMode?: boolean }) {
   const [route, setRoute] = useState(() => typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('course') || '');
   const [states, setStates] = useState<Record<CourseId, CourseState>>(() => shortCourseStates());
+  const [browserMode, setBrowserMode] = useState(staticMode);
 
   useEffect(() => {
     const title = isCourseId(route) ? `${COURSE_BY_ID[route].title} | My Courses` : 'My Courses | AISG';
@@ -69,7 +71,14 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   useEffect(() => {
     if (route !== '') return;
     fetch('/api/bootstrap', { cache: 'no-store' })
-      .then((response) => response.ok ? response.json() : null)
+      .then(async (response) => {
+        if (response.status === 401) {
+          installStaticApi();
+          setBrowserMode(true);
+          return fetch('/api/bootstrap', { cache: 'no-store' }).then((retry) => retry.json());
+        }
+        return response.ok ? response.json() : null;
+      })
       .then((data) => { if (data) setStates((current) => ({ ...current, safeguarding: data as CourseState })); })
       .catch(() => undefined);
   }, [route]);
@@ -107,7 +116,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
     progress: progressFor(course, states[course.id]),
   }));
 
-  if (route === 'safeguarding') return <TrainingApp staticMode={staticMode} />;
+  if (route === 'safeguarding') return <TrainingApp staticMode={browserMode} />;
   if (route === 'engagement') return <><PlatformHeader onPlatformHome={home} activeCourse="engagement" onCourse={open} /><AiTrainingApp key="engagement" onExit={home} course="engagement" /></>;
   if (route === 'mtss') return <><PlatformHeader onPlatformHome={home} activeCourse="mtss" onCourse={open} /><AiTrainingApp key="mtss" onExit={home} course="mtss" /></>;
   if (route === 'ai') return <><PlatformHeader onPlatformHome={home} activeCourse="ai" onCourse={open} /><AiTrainingApp key="ai" onExit={home} /></>;

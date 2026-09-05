@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { COURSE_VERSION_ID, type CourseModule, type Question } from '@/lib/course';
 import { cognitiveLevelFor } from '@/lib/assessment-progression';
 import PlatformHeader from '@/app/platform-header';
+import { installStaticApi } from '@/pages/src/static-api';
 
 type Module = CourseModule;
 type ResponseRecord = { questionId: string; answer: string[]; isCorrect: boolean };
@@ -39,6 +40,7 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
   const [result, setResult] = useState<Result | null>(null);
   const [completedLearningModules, setCompletedLearningModules] = useState<string[]>([]);
   const [learningStages, setLearningStages] = useState<Record<string, number>>({});
+  const [browserMode, setBrowserMode] = useState(staticMode);
   const responseMap = useMemo(() => new Map(data?.responses.map((r) => [r.questionId, r]) ?? []), [data]);
   const completedCount = Math.max(data?.progress?.completed ?? 0, responseMap.size);
   const partialLearningUnits = data?.modules.reduce((total, module) => completedLearningModules.includes(module.id) ? total : total + Math.min(0.99, (learningStages[module.id] ?? 0) / (module.learningSteps.length + 1)), 0) ?? 0;
@@ -50,6 +52,15 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
   useEffect(() => {
     fetch('/api/bootstrap', { cache: 'no-store' })
       .then(async (response) => {
+        if (response.status === 401) {
+          installStaticApi();
+          setBrowserMode(true);
+          return fetch('/api/bootstrap', { cache: 'no-store' }).then(async (retry) => {
+            const retryPayload = await retry.json() as Bootstrap & { error?: string };
+            if (!retry.ok) throw new Error(retryPayload.error || 'Training could not be loaded.');
+            return retryPayload as Bootstrap;
+          });
+        }
         const payload = await response.json() as Bootstrap & { error?: string };
         if (!response.ok) throw new Error(payload.error || 'Training could not be loaded.');
         return payload as Bootstrap;
@@ -165,10 +176,10 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
   }
 
   const header = <AppHeader user={data.user} onHome={() => setView('dashboard')} onPlatformHome={() => { window.location.href = new URL('./', window.location.href).toString(); }} />;
-  if (view === 'results' && result) return <>{header}<ResultsScreen data={data} result={result} responses={[...responseMap.values()]} onRetake={retake} busy={busy} staticMode={staticMode} /></>;
+  if (view === 'results' && result) return <>{header}<ResultsScreen data={data} result={result} responses={[...responseMap.values()]} onRetake={retake} busy={busy} staticMode={browserMode} /></>;
   if (view === 'intro' && currentModule) return <>{header}<ModuleLearning key={`${currentModule.id}-${learningStages[currentModule.id] === FIRST_CHECK_BLOCK_COMPLETE_STAGE ? 'second' : 'first'}`} module={currentModule} progress={progressPercent} initialStage={learningStages[currentModule.id] ?? 0} onStageChange={(stage) => saveLearningStage(currentModule.id, stage)} onBack={() => setView('dashboard')} onFirstCheck={() => beginFirstCheck(currentModule.id)} onStart={() => completeLearning(currentModule.id)} /></>;
   if (view === 'question' && question && currentModule) return <>{header}<QuestionScreen question={question} module={currentModule} index={questionIndex} courseProgress={progressPercent} selected={selected} setSelected={setSelected} feedback={feedback} onSubmit={submit} onContinue={continueAfterFeedback} busy={busy} error={error} remediationConfirmed={remediationConfirmed} setRemediationConfirmed={setRemediationConfirmed} /></>;
-  return <>{header}<Dashboard data={data} progressPercent={progressPercent} completedCount={completedCount} activeModuleNumber={Math.min(6, Math.floor(questionIndex / 5) + 1)} hasStarted={hasStarted} onContinue={beginOrResume} staticMode={staticMode} /></>;
+  return <>{header}<Dashboard data={data} progressPercent={progressPercent} completedCount={completedCount} activeModuleNumber={Math.min(6, Math.floor(questionIndex / 5) + 1)} hasStarted={hasStarted} onContinue={beginOrResume} staticMode={browserMode} /></>;
 }
 
 function AppHeader({ user, onHome, onPlatformHome }: { user: Bootstrap['user']; onHome: () => void; onPlatformHome: () => void }) {

@@ -22,6 +22,7 @@ type StoredState = {
 };
 
 const STORAGE_KEY = 'aisg-safeguarding-pages-test-v1';
+const INSTALL_MARKER = '__aisgBrowserLearningApiInstalled';
 const QUESTIONS = [...(questionSource as Question[])].sort((a, b) => a.questionNumber - b.questionNumber);
 const LEARNER_QUESTIONS = QUESTIONS.map((question) => {
   const {
@@ -110,6 +111,9 @@ async function requestBody(input: RequestInfo | URL, init?: RequestInit) {
 }
 
 export function installStaticApi() {
+  const markedWindow = window as Window & { [INSTALL_MARKER]?: boolean };
+  if (markedWindow[INSTALL_MARKER]) return;
+  markedWindow[INSTALL_MARKER] = true;
   const networkFetch = window.fetch.bind(window);
 
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
