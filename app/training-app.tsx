@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { AlertCircle, ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Download, Lightbulb, ListChecks, LockKeyhole, MessageCircle, RotateCcw, Save, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -9,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { COURSE_VERSION_ID, type CourseModule, type Question } from '@/lib/course';
 import { cognitiveLevelFor } from '@/lib/assessment-progression';
-import { COURSE_CATALOG } from '@/lib/course-catalog';
+import PlatformHeader from '@/app/platform-header';
 
 type Module = CourseModule;
 type ResponseRecord = { questionId: string; answer: string[]; isCorrect: boolean };
@@ -173,17 +172,18 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
 }
 
 function AppHeader({ user, onHome, onPlatformHome }: { user: Bootstrap['user']; onHome: () => void; onPlatformHome: () => void }) {
-  const initials = user.name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
-  return <header className="app-header print:hidden"><div className="app-header-inner">
-    <button className="brand-button" onClick={onPlatformHome} aria-label="Learning Platform home"><AisgLogo decorative variant="header" /><span className="brand-copy"><strong>AISG Learning Platform</strong><small>Student Safeguarding · SY2026–27</small></span></button>
-    <nav className="platform-nav safeguarding-nav" aria-label="Course and account navigation">
-      <button className="admin-link" onClick={onPlatformHome}>Home</button>
-      <button className="admin-link" onClick={onHome}>Course home</button>
-      <label className="course-switcher"><span className="sr-only">Switch course</span><select aria-label="Switch course" value="safeguarding" onChange={(event) => { if (event.target.value !== 'safeguarding') window.location.href = `${new URL('./', window.location.href).toString()}?course=${event.target.value}`; }}><option value="" disabled>Courses</option>{COURSE_CATALOG.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}</select></label>
-      {user.role === 'ADMIN' && <Link href="/admin" className="admin-link">Admin workspace</Link>}
-      <span className="hidden text-sm text-muted-foreground md:inline">{user.name}</span><span className="avatar">{initials}</span>
-    </nav>
-  </div></header>;
+  return <PlatformHeader
+    activeCourse="safeguarding"
+    onPlatformHome={onPlatformHome}
+    onCourses={onPlatformHome}
+    onCourseHome={onHome}
+    onCourse={(course) => {
+      if (course !== 'safeguarding') window.location.href = `${new URL('./', window.location.href).toString()}?course=${course}`;
+    }}
+    userName={user.name}
+    adminHref={user.role === 'ADMIN' ? '/admin' : undefined}
+    context="Student Safeguarding · SY2026–27"
+  />;
 }
 
 function AisgLogo({ variant, decorative = false }: { variant: 'header' | 'welcome' | 'certificate' | 'loading'; decorative?: boolean }) {
@@ -194,7 +194,7 @@ function AisgLogo({ variant, decorative = false }: { variant: 'header' | 'welcom
 
 function Dashboard({ data, progressPercent, completedCount, activeModuleNumber, hasStarted, onContinue, staticMode }: { data: Bootstrap; progressPercent: number; completedCount: number; activeModuleNumber: number; hasStarted: boolean; onContinue: () => void; staticMode: boolean }) {
   const completeModules = Math.floor(completedCount / 5);
-  return <main className="dashboard-shell"><section className="dashboard-main"><div className="max-w-3xl">
+  return <main id="main-content" className="dashboard-shell"><section className="dashboard-main"><div className="max-w-3xl">
     <AisgLogo variant="welcome" />
     <div className="eyebrow"><ShieldCheck aria-hidden="true" /> Required annual learning</div>
     <h1 className="hero-title">Safeguarding is<br />everyone’s responsibility.</h1>
@@ -223,7 +223,7 @@ function ModuleLearning({ module, progress, initialStage, onStageChange, onBack,
   const learningProgress = Math.round((stage / takeawayStage) * 100);
   const moveToStage = (nextStage: number) => { setStage(nextStage); onStageChange(nextStage); };
 
-  return <main className="learning-shell">
+  return <main id="main-content" className="learning-shell">
     <div className="learning-top"><Button variant="ghost" onClick={onBack}><ArrowLeft /> Course home</Button><span className="section-position">Section {module.number} of 6</span></div>
     <div className="dual-progress" aria-label="Course and section progress">
       <ProgressLine label="Overall course" value={progress} detail={`${progress}%`} />
@@ -273,7 +273,7 @@ function QuestionScreen({ question, module, index, courseProgress, selected, set
   const sectionProgress = Math.round((checkInBlock + (feedback ? 1 : 0)) / (checksInBlock + 1) * 100);
   const toggle = (id: string) => setSelected(selected.includes(id) ? selected.filter((item) => item !== id) : [...selected, id]);
   const chooseSequence = (id: string) => { if (!selected.includes(id)) setSelected([...selected, id]); };
-  return <main className="learning-shell"><div className="learning-top"><span className="text-sm font-semibold text-navy">Section {module.number} of 6 — {module.title}</span><span className="text-sm text-muted-foreground">Check {checkInBlock} of {checksInBlock}</span></div>
+  return <main id="main-content" className="learning-shell"><div className="learning-top"><span className="text-sm font-semibold text-navy">Section {module.number} of 6 — {module.title}</span><span className="text-sm text-muted-foreground">Check {checkInBlock} of {checksInBlock}</span></div>
     <div className="dual-progress" aria-label="Course and section progress"><ProgressLine label="Overall course" value={courseProgress} detail={`${courseProgress}%`} /><ProgressLine label="Current check block" value={sectionProgress} detail={`Check ${checkInBlock} of ${checksInBlock}`} /></div>
     <section className="question-layout"><div className="question-number">{String(index + 1).padStart(2, '0')}</div><article className="question-card" data-cognitive-level={cognitiveLevelFor('safeguarding', question.id)}><div className="flex flex-wrap items-center gap-2"><span className="question-kind">Check your understanding • {question.questionType === 'multiple_response' ? 'Select all that apply' : question.questionType === 'sequence' ? 'Choose in order' : 'Choose one'}</span>{question.criticalSafeguarding && <span className="critical-chip"><ShieldCheck /> Critical safeguarding</span>}</div>
       <h1>{question.question}</h1>{question.scenario && <div className="scenario"><span>Scenario</span><p>{question.scenario}</p></div>}
@@ -295,7 +295,7 @@ function ResultsScreen({ data, result, responses, onRetake, busy, staticMode }: 
   const correctByModule = data.modules.map((module) => { const ids = data.questions.filter((q) => q.module === module.id).map((q) => q.id); return { ...module, correct: responses.filter((r) => ids.includes(r.questionId) && r.isCorrect).length }; });
   const strongest = [...correctByModule].sort((a, b) => b.correct - a.correct).slice(0, 2);
   const review = correctByModule.filter((m) => m.correct < 4);
-  return <main className="results-shell"><section className="results-card"><div className={`result-seal ${result.passed ? 'result-pass' : 'result-review'}`}>{result.passed ? <ShieldCheck /> : <RotateCcw />}</div><p className="tiny-eyebrow">Learning attempt {data.attempt?.attemptNumber ?? 1} complete</p><h1>{result.passed ? 'Course complete' : 'Review and learn again'}</h1><p className="results-lead">{result.passed ? 'You have completed the learning and demonstrated the current AISG safeguarding threshold.' : `Your score is below the current ${result.threshold}% threshold. Revisit the suggested learning sections before another attempt.`}</p>
+  return <main id="main-content" className="results-shell"><section className="results-card"><div className={`result-seal ${result.passed ? 'result-pass' : 'result-review'}`}>{result.passed ? <ShieldCheck /> : <RotateCcw />}</div><p className="tiny-eyebrow">Learning attempt {data.attempt?.attemptNumber ?? 1} complete</p><h1>{result.passed ? 'Course complete' : 'Review and learn again'}</h1><p className="results-lead">{result.passed ? 'You have completed the learning and demonstrated the current AISG safeguarding threshold.' : `Your score is below the current ${result.threshold}% threshold. Revisit the suggested learning sections before another attempt.`}</p>
     <div className="score-grid"><div><span>Score</span><strong>{result.score}/30</strong></div><div><span>Percentage</span><strong>{result.percentage}%</strong></div><div><span>Status</span><strong>{result.passed ? 'Passed' : 'Another attempt'}</strong></div></div>
     <div className="results-columns"><div><h2>Areas answered well</h2>{strongest.map((m) => <p key={m.id}><CheckCircle2 /> {m.title} <span>{m.correct}/5</span></p>)}</div><div><h2>Review next</h2>{review.length ? review.map((m) => <p key={m.id}><BookOpen /> {m.title} <span>{m.correct}/5</span></p>) : <p><CheckCircle2 /> No priority review areas</p>}</div></div>
     <div className="result-actions">{result.passed ? <Button className="primary-pill" size="lg" onClick={() => window.print()}><Download /> Print or save certificate</Button> : <Button className="primary-pill" size="lg" onClick={onRetake} disabled={busy}><RotateCcw /> {busy ? 'Starting…' : 'Start another attempt'}</Button>}</div>
