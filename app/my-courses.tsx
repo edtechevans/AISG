@@ -6,13 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import TrainingApp from '@/app/training-app';
 import AiTrainingApp from '@/app/ai-training-app';
+import { COURSE_CATALOG } from '@/lib/course-catalog';
 
-export const COURSE_CATALOG = [
-  { id: 'safeguarding', title: 'Safeguarding at AISG' },
-  { id: 'ai', title: 'AI in Education' },
-  { id: 'teams', title: 'Microsoft Teams for Communication' },
-  { id: 'mtss', title: 'Multi-Tiered System of Supports (MTSS)' },
-] as const;
+export { COURSE_CATALOG } from '@/lib/course-catalog';
 
 type CourseStatus = 'Completed' | 'In Progress' | 'Not Started';
 type SafeguardingState = { status?: string; responses?: unknown[]; progress?: { completed?: number; percentage?: number } | null; attempt?: { completedAt?: number | null } };
@@ -64,6 +60,6 @@ function PlatformHeader({ onHome, activeCourse, onCourse }: { onHome: () => void
       <img className="aisg-logo aisg-logo-header" src="aisg-logo.png" alt="" />
       <span className="brand-copy"><strong>AISG Learning Platform</strong><small>Professional development</small></span>
     </button>
-    <nav className="platform-nav" aria-label="Platform navigation"><Button variant="ghost" onClick={onHome}>Home</Button><label className="course-switcher"><span className="sr-only">Switch course</span><select aria-label="Switch course" value={activeCourse || ''} onChange={(event) => onCourse?.(event.target.value)}><option value="" disabled>Courses</option>{COURSE_CATALOG.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}</select></label></nav>
+    <nav className="platform-nav" aria-label="Platform navigation"><Button className="nav-link" variant="ghost" onClick={onHome}>Home</Button><label className="course-switcher"><span className="sr-only">Switch course</span><select aria-label="Switch course" value={activeCourse || ''} onChange={(event) => onCourse?.(event.target.value)}><option value="" disabled>Courses</option>{COURSE_CATALOG.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}</select></label></nav>
   </div></header>;
 }

@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { COURSE_VERSION_ID, type CourseModule, type Question } from '@/lib/course';
 import { cognitiveLevelFor } from '@/lib/assessment-progression';
+import { COURSE_CATALOG } from '@/lib/course-catalog';
 
 type Module = CourseModule;
 type ResponseRecord = { questionId: string; answer: string[]; isCorrect: boolean };
@@ -175,9 +176,10 @@ function AppHeader({ user, onHome, onPlatformHome }: { user: Bootstrap['user']; 
   const initials = user.name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
   return <header className="app-header print:hidden"><div className="app-header-inner">
     <button className="brand-button" onClick={onPlatformHome} aria-label="Learning Platform home"><AisgLogo decorative variant="header" /><span className="brand-copy"><strong>AISG Learning Platform</strong><small>Student Safeguarding · SY2026–27</small></span></button>
-    <nav className="flex items-center gap-2" aria-label="Account and administration">
+    <nav className="platform-nav safeguarding-nav" aria-label="Course and account navigation">
       <button className="admin-link" onClick={onPlatformHome}>Home</button>
       <button className="admin-link" onClick={onHome}>Course home</button>
+      <label className="course-switcher"><span className="sr-only">Switch course</span><select aria-label="Switch course" value="safeguarding" onChange={(event) => { if (event.target.value !== 'safeguarding') window.location.href = `${new URL('./', window.location.href).toString()}?course=${event.target.value}`; }}><option value="" disabled>Courses</option>{COURSE_CATALOG.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}</select></label>
       {user.role === 'ADMIN' && <Link href="/admin" className="admin-link">Admin workspace</Link>}
       <span className="hidden text-sm text-muted-foreground md:inline">{user.name}</span><span className="avatar">{initials}</span>
     </nav>
