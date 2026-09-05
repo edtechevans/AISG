@@ -1,4 +1,4 @@
-export type CourseId = 'safeguarding' | 'engagement' | 'mtss' | 'ai' | 'teams';
+export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'engagement' | 'mtss' | 'ai';
 
 export type CourseCatalogItem = {
   id: CourseId;
@@ -7,6 +7,7 @@ export type CourseCatalogItem = {
   intro?: string;
   category: string;
   designation: 'Required' | 'Foundation' | 'Recommended';
+  audience?: string;
   duration: string;
   sectionCount: number;
   checkCount: number;
@@ -14,6 +15,15 @@ export type CourseCatalogItem = {
 };
 
 export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
+  { id: 'elementary', title: 'Elementary Faculty Essentials', description: 'A practical guide to the expectations, routines and shared responsibilities that shape Elementary at AISG.', category: 'Elementary School', designation: 'Required', audience: 'Elementary Faculty', duration: '90–120 minutes', sectionCount: 10, checkCount: 50, storageKey: 'my-courses-elementary-faculty-progress-sy2627' },
+  { id: 'secondary', title: 'Secondary Faculty Essentials', description: 'A comprehensive guide to the expectations, routines, professional practices and shared responsibilities that shape Secondary at AISG.', category: 'Secondary School', designation: 'Required', audience: 'Secondary Faculty', duration: '90–120 minutes', sectionCount: 10, checkCount: 50, storageKey: 'my-courses-secondary-faculty-progress-sy2627' },
+  {
+    id: 'teams',
+    title: 'Employee Communication Guidelines',
+    description: 'Practical guidance for purposeful, professional and responsible communication at AISG.',
+    intro: 'Good communication helps us share information, identify patterns, coordinate support and make better decisions. The challenge is not whether we communicate. It is how we communicate well. Throughout this course, you will consider the purpose, audience, information, evidence, language and confidentiality behind everyday professional communication at AISG. This course is about professional judgement, not simply memorising rules.',
+    category: 'Professional Practice', designation: 'Required', duration: '30–40 minutes', sectionCount: 6, checkCount: 14, storageKey: 'my-courses-communication-progress-v2',
+  },
   {
     id: 'safeguarding',
     title: 'Safeguarding at AISG',
@@ -23,18 +33,6 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     duration: '35–45 minutes',
     sectionCount: 6,
     checkCount: 30,
-  },
-  {
-    id: 'teams',
-    title: 'Employee Communication Guidelines',
-    description: 'Practical guidance for purposeful, professional and responsible communication at AISG.',
-    intro: 'Good communication helps us share information, identify patterns, coordinate support and make better decisions. The challenge is not whether we communicate. It is how we communicate well. Throughout this course, you will consider the purpose, audience, information, evidence, language and confidentiality behind everyday professional communication at AISG. This course is about professional judgement, not simply memorising rules.',
-    category: 'Professional Practice',
-    designation: 'Required',
-    duration: '30–40 minutes',
-    sectionCount: 6,
-    checkCount: 14,
-    storageKey: 'my-courses-communication-progress-v2',
   },
   {
     id: 'engagement',

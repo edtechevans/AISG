@@ -7,6 +7,11 @@ export type AiQuestion = {
   answer: string;
   correctFeedback: string;
   incorrectFeedback: string;
+  assessmentLevel?: string;
+  handbookSection?: string;
+  handbookPage?: string;
+  criticalSafeguarding?: boolean;
+  reviewStatus?: string;
 };
 
 export type AiSection = {

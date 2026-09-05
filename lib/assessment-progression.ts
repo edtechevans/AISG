@@ -1,9 +1,11 @@
-export type CourseAssessmentId = 'safeguarding' | 'engagement' | 'ai' | 'teams' | 'mtss';
+export type CourseAssessmentId = 'safeguarding' | 'engagement' | 'ai' | 'teams' | 'mtss' | 'elementary' | 'secondary';
 export type CognitiveLevel = 2 | 3 | 4 | 5;
 
 // This authoring map is intentionally not shown to learners. It makes the intended
 // progression reviewable as courses grow, while keeping question wording clear.
 export const assessmentProgression: Record<CourseAssessmentId, Record<string, CognitiveLevel>> = {
+  elementary: Object.fromEntries(Array.from({ length: 50 }, (_, i) => [`elementary-${i + 1}`, i % 5 === 4 ? 5 : i % 5 >= 2 ? 4 : 2])) as Record<string, CognitiveLevel>,
+  secondary: Object.fromEntries(Array.from({ length: 50 }, (_, i) => [`secondary-${i + 1}`, i % 5 === 4 ? 5 : i % 5 >= 2 ? 4 : 2])) as Record<string, CognitiveLevel>,
   safeguarding: {
     'aisg-sg-2627-001': 2, 'aisg-sg-2627-002': 2, 'aisg-sg-2627-003': 2, 'aisg-sg-2627-004': 3, 'aisg-sg-2627-005': 2,
     'aisg-sg-2627-006': 2, 'aisg-sg-2627-007': 3, 'aisg-sg-2627-008': 3, 'aisg-sg-2627-009': 3, 'aisg-sg-2627-010': 3,

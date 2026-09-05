@@ -8,6 +8,7 @@ import { aiQuestions, aiSections, AI_COURSE_VERSION } from '@/lib/ai-course';
 import { teamsQuestions, teamsSections, TEAMS_COURSE_VERSION } from '@/lib/teams-course';
 import { mtssQuestions, mtssSections, MTSS_COURSE_VERSION } from '@/lib/mtss-course';
 import { tlfQuestions, tlfSections, TLF_COURSE_VERSION } from '@/lib/tlf-course';
+import { elementaryQuestions, elementarySections, secondaryQuestions, secondarySections, FACULTY_COURSE_VERSION } from '@/lib/faculty-courses';
 import { cognitiveLevelFor } from '@/lib/assessment-progression';
 import { COURSE_BY_ID, type CourseId } from '@/lib/course-catalog';
 
@@ -26,6 +27,8 @@ type CourseKey = Exclude<CourseId, 'safeguarding'>;
 const emptyProgress: CourseProgress = { position: 0, completedSections: [], responses: {} };
 
 const courses = {
+  elementary: { storageKey: 'my-courses-elementary-faculty-progress-sy2627', catalog: COURSE_BY_ID.elementary, version: FACULTY_COURSE_VERSION, sections: elementarySections, questions: elementaryQuestions, practiceOptions: ['Elementary routines and responsibilities', 'Assessment and reporting', 'Student support and wellbeing', 'Communication and collaboration', 'Professional growth', 'Something else'] },
+  secondary: { storageKey: 'my-courses-secondary-faculty-progress-sy2627', catalog: COURSE_BY_ID.secondary, version: FACULTY_COURSE_VERSION, sections: secondarySections, questions: secondaryQuestions, practiceOptions: ['Secondary routines and responsibilities', 'Assessment and grading', 'Student support and advisory', 'Academic integrity and AI', 'Student behaviour and safety', 'Something else'] },
   engagement: {
     storageKey: 'my-courses-engagement-progress-v1',
     catalog: COURSE_BY_ID.engagement,
@@ -206,15 +209,15 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     });
     setIsCorrect(correct);
     setFeedback(correct ? question.correctFeedback : question.incorrectFeedback);
-    setRemediationRead(correct || course !== 'teams');
+    setRemediationRead(correct || !question.criticalSafeguarding);
   }
 
   function continueAfterFeedback() {
+    if (question.criticalSafeguarding && !feedbackIsCorrectAndRemediated) return;
     if (questionIndex === config.questions.length - 1) {
       setStage('practice');
       return;
     }
-    if (course === 'teams' && !feedbackIsCorrectAndRemediated) return;
     const nextQuestion = questionIndex + 1;
     const nextSection = sectionIndexForQuestion(nextQuestion);
     setQuestionIndex(nextQuestion);
@@ -292,7 +295,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     <div className="dual-progress"><Progress value={completionPercent} aria-label={`Overall course: ${completionPercent}%`} /><span className="text-sm text-muted-foreground">Section {section.number} of {config.sections.length} · {completionPercent}% overall</span></div>
     <section className="question-layout"><div className="question-number">{String(questionIndex + 1).padStart(2, '0')}</div><article className="question-card" data-cognitive-level={cognitiveLevelFor(course, question.id)}><span className="question-kind">Check {checkInSection} of {checksInCurrentSection} · Check your understanding</span><h1>{question.question}</h1><div className="scenario"><span>Scenario</span><p>{question.scenario}</p></div>
       <fieldset className="answers"><legend className="sr-only">Choose one answer</legend>{question.options.map((option) => <label key={option.id} className={`answer-option ${selected === option.id ? 'answer-selected' : ''} ${answered && answered.answer === option.id && !answered.correct ? 'answer-wrong' : ''} ${answered && question.answer === option.id ? 'answer-correct' : ''}`}><input type="radio" name={question.id} value={option.id} checked={selected === option.id} disabled={Boolean(answered)} onChange={() => setSelected(option.id)} /><span><b>{option.id.toUpperCase()}</b>{option.text}</span>{answered && question.answer === option.id && <CheckCircle2 className="answer-icon" aria-label="Correct answer" />}</label>)}</fieldset>
-      {feedback && <output className={`feedback-card ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`} aria-live="polite"><div><Lightbulb /></div><div><strong>{isCorrect ? 'Correct — apply the principle' : 'Not quite — review the principle'}</strong><p>{feedback}</p>{!isCorrect && course === 'teams' && <label className="remediation-check"><input type="checkbox" checked={remediationRead} onChange={(event) => setRemediationRead(event.target.checked)} /> <span>Stop · Understand · Continue: I understand the stronger communication principle.</span></label>}</div></output>}
+      {feedback && <output className={`feedback-card ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`} aria-live="polite"><div><Lightbulb /></div><div><strong>{isCorrect ? 'Correct — apply the principle' : 'Not quite — review the principle'}</strong><p>{feedback}</p>{!isCorrect && question.criticalSafeguarding && <label className="remediation-check"><input type="checkbox" checked={remediationRead} onChange={(event) => setRemediationRead(event.target.checked)} /> <span>Stop · Understand · Continue: I understand the stronger principle before continuing.</span></label>}</div></output>}
       <div className="question-actions"><span className="autosave"><Save /> Progress saved in this browser</span>{feedback ? <Button className="primary-pill" size="lg" disabled={!feedbackIsCorrectAndRemediated} onClick={continueAfterFeedback}>{questionIndex === config.questions.length - 1 ? 'Take it into practice' : checkInSection === checksInCurrentSection ? 'Next section' : 'Continue'} <ArrowRight /></Button> : <Button className="primary-pill" size="lg" disabled={!selected} onClick={submitResponse}>Check response</Button>}</div>
     </article></section>
   </main>;

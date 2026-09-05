@@ -117,6 +117,8 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   }));
 
   if (route === 'safeguarding') return <TrainingApp staticMode={browserMode} />;
+  if (route === 'elementary') return <><PlatformHeader onPlatformHome={home} activeCourse="elementary" onCourse={open} /><AiTrainingApp key="elementary" onExit={home} course="elementary" /></>;
+  if (route === 'secondary') return <><PlatformHeader onPlatformHome={home} activeCourse="secondary" onCourse={open} /><AiTrainingApp key="secondary" onExit={home} course="secondary" /></>;
   if (route === 'engagement') return <><PlatformHeader onPlatformHome={home} activeCourse="engagement" onCourse={open} /><AiTrainingApp key="engagement" onExit={home} course="engagement" /></>;
   if (route === 'mtss') return <><PlatformHeader onPlatformHome={home} activeCourse="mtss" onCourse={open} /><AiTrainingApp key="mtss" onExit={home} course="mtss" /></>;
   if (route === 'ai') return <><PlatformHeader onPlatformHome={home} activeCourse="ai" onCourse={open} /><AiTrainingApp key="ai" onExit={home} /></>;
@@ -159,10 +161,10 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
       </section>}
 
       <section id="courses" className="course-library" aria-labelledby="courses-title">
-        <div className="section-heading"><div><p className="tiny-eyebrow">Courses</p><h2 id="courses-title">Learning for your AISG practice</h2></div><p>Five courses · Self-paced</p></div>
+        <div className="section-heading"><div><p className="tiny-eyebrow">Courses</p><h2 id="courses-title">Learning for your AISG practice</h2></div><p>{courses.length} courses · Self-paced</p></div>
         <div className="course-grid">
           {courses.map((course) => <article className="course-card" key={course.id} aria-labelledby={`course-${course.id}`}>
-            <div className="course-card-top"><span className="course-category">{course.category}</span><span className="course-designation">{course.designation}</span></div>
+            <div className="course-card-top"><span className="course-category">{course.category}{course.audience ? ` · ${course.audience}` : ''}</span><span className="course-designation">{course.designation}</span></div>
             <h3 id={`course-${course.id}`}>{course.title}</h3>
             <p>{course.description}</p>
             <div className="course-meta"><span><Clock3 aria-hidden="true" /> {course.duration}</span><span>{course.sectionCount} sections · {course.checkCount} learning checks</span></div>
