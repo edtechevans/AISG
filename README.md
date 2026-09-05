@@ -1,6 +1,8 @@
-# AISG Student Safeguarding Training
+# My Courses — AISG Professional Development
 
-Production-ready MVP for AISG's SY2026-27 annual safeguarding course. It provides a six-module learner journey, 30 assessed questions, immediate explanatory feedback, autosaved progress, retakes, completion records, a printable certificate, administrator reporting, CSV export, and a question-review workspace.
+My Courses is an educator-centred AISG professional learning hub. It connects the existing six-module Safeguarding at AISG course (30 checks) with AI in Education (five sections, 10 judgement-focused checks), while showing independent progress, exact resume positions and a personal course record.
+
+Courses follow Learn → Check → Apply → Reflect where appropriate. AI in Education includes immediate explanatory feedback, a private “Take it into practice” selection and an optional commitment. Safeguarding retains its handbook-grounded learning, remediation, attempts, certificates, reporting and question-review workspace.
 
 ## Content governance
 
@@ -16,6 +18,8 @@ The administrator question-bank workspace allows safeguarding reviewers to edit 
 - Platform authentication adapter in `app/chatgpt-auth.ts`
 - Server-side role checks for administrator pages and write endpoints
 - Relational entities for users, courses, versions, modules, questions, attempts, responses, progress, completions and audit events
+- Course-specific browser progress keys support independent self-paced demo courses and exact resume positions. Course versions preserve historical completions.
+- The catalogue is data-driven so future courses can be added without redesigning the hub.
 
 The first authenticated user on a new, owner-only deployment is bootstrapped as the administrator. Later users default to learner. This makes the development build usable without AISG identity-provider credentials while leaving a single authentication adapter for future Microsoft/AISG SSO integration.
 
@@ -57,6 +61,22 @@ or server API routes. The Pages version therefore uses a demo learner and stores
 assessment progress only in that browser's local storage. It does not provide the
 administrator workspace or shared training records. The full Sites deployment
 continues to use the original Vinext build and server-backed features.
+
+The Pages hub also stores AI practice commitments and the local My Course Record
+in that browser. It does not claim to provide shared reporting or named reflection
+analytics; the server-backed Sites deployment remains the place for administrator
+filtering, aggregate insights and question review.
+
+## Adding courses and assessment quality
+
+Register catalogue metadata and a course-specific data/component module for a new
+course. Categories and Required / Optional / Recommended designations are ready
+for future filtering. Questions favour realistic scenarios, plausible distractors,
+application and professional judgement. Feedback explains the strongest response
+and what an incorrect choice misses. Safeguarding content remains grounded in the
+handbook and begins as `draft_for_safeguarding_team_review` until AISG reviewers
+approve it in the admin workspace. Critical errors require remediation but do not
+automatically fail an attempt.
 
 ## Seed accounts and data
 

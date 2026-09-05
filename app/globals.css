@@ -474,3 +474,59 @@ button, a { -webkit-tap-highlight-color: transparent; }
     @apply font-sans;
   }
 }
+
+/* My Courses platform shell */
+.my-courses-shell { max-width: 1180px; margin: 0 auto; padding: 3rem 1.25rem 5rem; }
+.my-courses-hero { display: flex; align-items: end; justify-content: space-between; gap: 2rem; padding: 2rem 0 3.5rem; }
+.my-courses-hero h1 { margin-top: .7rem; color: #0b294b; font-size: clamp(2.4rem, 5vw, 4.5rem); letter-spacing: -.055em; line-height: 1.02; }
+.my-courses-hero > div:first-child > p:last-child { margin-top: 1rem; max-width: 36rem; color: #617086; font-size: 1.15rem; line-height: 1.65; }
+.hero-mark { display: flex; align-items: center; gap: .65rem; color: #0b294b; font-size: .82rem; font-weight: 700; white-space: nowrap; }
+.hero-mark svg { color: #c81e35; }
+.progress-summary, .record-card { border: 1px solid #dfe6ed; border-radius: 1.35rem; background: #fff; padding: 1.5rem; box-shadow: 0 12px 32px #0b294b0b; }
+.progress-summary h2, .course-library h2, .record-card h2 { margin-top: .35rem; color: #0b294b; font-size: 1.55rem; letter-spacing: -.025em; }
+.progress-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin-top: 1.5rem; }
+.progress-stats > div { display: flex; flex-direction: column; gap: .2rem; border-radius: 1rem; background: #f4f7fa; padding: 1rem; }
+.progress-stats strong { color: #0b294b; font-size: 2rem; letter-spacing: -.04em; }
+.progress-stats span { color: #718095; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.continue-card { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1.25rem; border-radius: 1.25rem; background: #0b294b; padding: 1.5rem; color: #fff; }
+.continue-card h2 { margin-top: .35rem; font-size: 1.45rem; }
+.continue-card p:last-child { margin-top: .3rem; color: #c8d6e4; font-size: .9rem; }
+.course-library { padding-top: 3.75rem; }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; }
+.section-heading > svg { color: #c81e35; }
+.course-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+.course-card { display: flex; min-height: 22rem; flex-direction: column; border: 1px solid #dfe6ed; border-radius: 1.25rem; background: #fff; padding: 1.35rem; box-shadow: 0 12px 30px #0b294b08; }
+.course-card-top, .course-card-footer { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.course-category, .course-designation { color: #718095; font-size: .72rem; font-weight: 750; text-transform: uppercase; letter-spacing: .08em; }
+.course-designation { color: #c81e35; }
+.course-card h3 { margin-top: 1.1rem; color: #0b294b; font-size: 1.55rem; letter-spacing: -.03em; }
+.course-card > p { margin-top: .55rem; color: #617086; line-height: 1.6; }
+.course-meta { display: flex; flex-wrap: wrap; gap: .55rem 1rem; margin-top: 1.25rem; color: #718095; font-size: .78rem; }
+.course-meta span { display: inline-flex; align-items: center; gap: .35rem; }
+.course-meta svg { width: .9rem; color: #c81e35; }
+.course-card-footer { margin-top: auto; padding-top: 1.25rem; }
+.course-status { display: inline-flex; align-items: center; gap: .35rem; color: #718095; font-size: .78rem; font-weight: 700; }
+.course-status svg { width: 1rem; }
+.status-completed { color: #1c684c; }
+.status-in-progress { color: #2f557d; }
+.record-card { margin-top: 3.5rem; }
+.record-card > p { margin-top: .45rem; color: #718095; }
+.record-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-top: 1px solid #e7edf2; margin-top: 1rem; padding-top: 1rem; color: #0b294b; }
+.record-row span { color: #718095; font-size: .82rem; }
+.record-empty { font-size: .9rem; }
+.practice-options { margin-top: 1.2rem; }
+.practice-options input { accent-color: #c81e35; }
+
+@media (max-width: 760px) {
+  .my-courses-hero { align-items: start; flex-direction: column; padding-top: 1rem; }
+  .hero-mark { white-space: normal; }
+  .progress-summary > div:first-child { align-items: start; flex-direction: column; }
+  .progress-summary > div:first-child button { margin-top: 1rem; }
+  .continue-card { align-items: start; flex-direction: column; }
+  .course-grid { grid-template-columns: 1fr; }
+  .course-card-footer, .record-row { align-items: start; flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
