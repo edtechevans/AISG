@@ -49,4 +49,13 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
 }
 
 function Stat({ label, value }: { label: string; value: string }) { return <div><strong>{value}</strong><span>{label}</span></div>; }
-function PlatformHeader({ onHome, activeCourse, onCourse }: { onHome: () => void; activeCourse?: string; onCourse?: (course: string) => void }) { return <header className="app-header print:hidden"><div className="app-header-inner"><button className="brand-button" onClick={onHome} aria-label="Learning Platform home"><img className="aisg-logo aisg-logo-header" src="aisg-logo.png" alt="" /><span className="brand-copy"><strong>AISG Learning Platform</strong><small>Professional development</small></span></button><nav className="platform-nav" aria-label="Platform navigation"><Button variant="ghost" onClick={onHome}>Home</Button><label className="course-switcher"><span className="sr-only">Switch course</span><select aria-label="Switch course" value={activeCourse || ''} onChange={(event) => onCourse?.(event.target.value)}><option value="" disabled>Courses</option>{COURSE_CATALOG.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}</select></label></nav></div></header>; }
+function PlatformHeader({ onHome, activeCourse, onCourse }: { onHome: () => void; activeCourse?: string; onCourse?: (course: string) => void }) {
+  return <header className="app-header print:hidden"><div className="app-header-inner">
+    <button className="brand-button" onClick={onHome} aria-label="Learning Platform home">
+      {/* oxlint-disable-next-line next/no-img-element -- static asset works in the Pages subdirectory and server build. */}
+      <img className="aisg-logo aisg-logo-header" src="aisg-logo.png" alt="" />
+      <span className="brand-copy"><strong>AISG Learning Platform</strong><small>Professional development</small></span>
+    </button>
+    <nav className="platform-nav" aria-label="Platform navigation"><Button variant="ghost" onClick={onHome}>Home</Button><label className="course-switcher"><span className="sr-only">Switch course</span><select aria-label="Switch course" value={activeCourse || ''} onChange={(event) => onCourse?.(event.target.value)}><option value="" disabled>Courses</option>{COURSE_CATALOG.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}</select></label></nav>
+  </div></header>;
+}

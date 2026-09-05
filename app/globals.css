@@ -519,6 +519,14 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .record-empty { font-size: .9rem; }
 .practice-options { margin-top: 1.2rem; }
 .practice-options input { accent-color: #c81e35; }
+.course-home-card { max-width: 980px; }
+.course-home-progress { margin-top: 1.75rem; display: grid; gap: .6rem; border: 1px solid #dfe6ed; border-radius: 1rem; background: #f8fafc; padding: 1rem; }
+.course-home-progress span { color: #5f6e82; font-size: .85rem; font-weight: 650; }
+.course-home-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; margin-top: 1.5rem; }
+.course-home-sections > div { display: flex; align-items: center; gap: .65rem; min-height: 3.25rem; border-bottom: 1px solid #e5ebf1; color: #30445b; font-size: .9rem; font-weight: 650; }
+.section-complete-dot, .section-pending-dot { display: grid; width: 1.6rem; height: 1.6rem; flex: 0 0 1.6rem; place-items: center; border-radius: 50%; font-size: .72rem; font-weight: 800; }
+.section-complete-dot { background: #0b294b; color: white; }
+.section-pending-dot { border: 1px solid #c9d5e0; background: white; color: #647287; }
 
 @media (max-width: 760px) {
   .app-header-inner { min-height: 70px; padding-inline: .75rem; }
@@ -533,6 +541,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .continue-card { align-items: start; flex-direction: column; }
   .course-grid { grid-template-columns: 1fr; }
   .course-card-footer, .record-row { align-items: start; flex-direction: column; }
+  .course-home-sections { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
