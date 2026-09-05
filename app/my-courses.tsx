@@ -33,11 +33,19 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   useEffect(() => { if (route !== '') return; fetch('/api/bootstrap', { cache: 'no-store' }).then((response) => response.ok ? response.json() : null).then((data) => { if (data) setSafeguarding(data); }).catch(() => undefined); }, [route]);
   useEffect(() => { const timer = window.setInterval(() => { setAi(aiState()); setTeams(teamsState()); setMtss(mtssState()); }, 1000); return () => window.clearInterval(timer); }, []);
   function open(course: string) { const url = new URL(window.location.href); url.searchParams.set('course', course); window.history.pushState({}, '', url); setRoute(course); }
-  function home() { const url = new URL(window.location.href); url.searchParams.delete('course'); window.history.pushState({}, '', url); setRoute(''); setAi(aiState()); }
+  function home() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('course');
+    window.history.pushState({}, '', url);
+    setRoute('');
+    setAi(aiState());
+    setTeams(teamsState());
+    setMtss(mtssState());
+  }
   if (route === 'safeguarding') return <TrainingApp staticMode={staticMode} />;
-  if (route === 'ai') return <><PlatformHeader onHome={home} activeCourse="ai" onCourse={(course) => open(course)} /><AiTrainingApp onExit={home} /></>;
-  if (route === 'teams') return <><PlatformHeader onHome={home} activeCourse="teams" onCourse={(course) => open(course)} /><AiTrainingApp onExit={home} course="teams" /></>;
-  if (route === 'mtss') return <><PlatformHeader onHome={home} activeCourse="mtss" onCourse={(course) => open(course)} /><AiTrainingApp onExit={home} course="mtss" /></>;
+  if (route === 'ai') return <><PlatformHeader onHome={home} activeCourse="ai" onCourse={(course) => open(course)} /><AiTrainingApp key="ai" onExit={home} /></>;
+  if (route === 'teams') return <><PlatformHeader onHome={home} activeCourse="teams" onCourse={(course) => open(course)} /><AiTrainingApp key="teams" onExit={home} course="teams" /></>;
+  if (route === 'mtss') return <><PlatformHeader onHome={home} activeCourse="mtss" onCourse={(course) => open(course)} /><AiTrainingApp key="mtss" onExit={home} course="mtss" /></>;
   const safeguardingStatus = statusFor(safeguarding, 30);
   const aiStatus = statusFor(ai, 10);
   const teamsStatus = statusFor(teams, 10);
