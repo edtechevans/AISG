@@ -7,6 +7,12 @@ import { Progress } from '@/components/ui/progress';
 import TrainingApp from '@/app/training-app';
 import AiTrainingApp from '@/app/ai-training-app';
 
+export const COURSE_CATALOG = [
+  { id: 'safeguarding', title: 'Safeguarding at AISG' },
+  { id: 'ai', title: 'AI in Education' },
+  { id: 'teams', title: 'Microsoft Teams for Communication' },
+] as const;
+
 type CourseStatus = 'Completed' | 'In Progress' | 'Not Started';
 type SafeguardingState = { status?: string; responses?: unknown[]; progress?: { completed?: number; percentage?: number } | null; attempt?: { completedAt?: number | null } };
 
@@ -26,8 +32,8 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   function open(course: string) { const url = new URL(window.location.href); url.searchParams.set('course', course); window.history.pushState({}, '', url); setRoute(course); }
   function home() { const url = new URL(window.location.href); url.searchParams.delete('course'); window.history.pushState({}, '', url); setRoute(''); setAi(aiState()); }
   if (route === 'safeguarding') return <TrainingApp staticMode={staticMode} />;
-  if (route === 'ai') return <><PlatformHeader onHome={home} /><AiTrainingApp onExit={home} /></>;
-  if (route === 'teams') return <><PlatformHeader onHome={home} /><AiTrainingApp onExit={home} course="teams" /></>;
+  if (route === 'ai') return <><PlatformHeader onHome={home} activeCourse="ai" onCourse={(course) => open(course)} /><AiTrainingApp onExit={home} /></>;
+  if (route === 'teams') return <><PlatformHeader onHome={home} activeCourse="teams" onCourse={(course) => open(course)} /><AiTrainingApp onExit={home} course="teams" /></>;
   const safeguardingStatus = statusFor(safeguarding, 30);
   const aiStatus = statusFor(ai, 10);
   const teamsStatus = statusFor(teams, 10);
@@ -38,4 +44,4 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
 }
 
 function Stat({ label, value }: { label: string; value: string }) { return <div><strong>{value}</strong><span>{label}</span></div>; }
-function PlatformHeader({ onHome }: { onHome: () => void }) { return <header className="app-header print:hidden"><div className="app-header-inner"><button className="brand-button" onClick={onHome} aria-label="My Courses home"><img className="aisg-logo aisg-logo-header" src="aisg-logo.png" alt="" /><span className="brand-copy"><strong>My Courses</strong><small>AISG professional development</small></span></button><nav aria-label="Platform navigation"><Button variant="ghost" onClick={onHome}>My Courses</Button></nav></div></header>; }
+function PlatformHeader({ onHome, activeCourse, onCourse }: { onHome: () => void; activeCourse?: string; onCourse?: (course: string) => void }) { return <header className="app-header print:hidden"><div className="app-header-inner"><button className="brand-button" onClick={onHome} aria-label="Learning Platform home"><img className="aisg-logo aisg-logo-header" src="aisg-logo.png" alt="" /><span className="brand-copy"><strong>AISG Learning Platform</strong><small>Professional development</small></span></button><nav className="platform-nav" aria-label="Platform navigation"><Button variant="ghost" onClick={onHome}>Home</Button><label className="course-switcher"><span className="sr-only">Switch course</span><select aria-label="Switch course" value={activeCourse || ''} onChange={(event) => onCourse?.(event.target.value)}><option value="" disabled>Courses</option>{COURSE_CATALOG.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}</select></label></nav></div></header>; }

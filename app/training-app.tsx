@@ -153,18 +153,20 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
     finally { setBusy(false); }
   }
 
-  const header = <AppHeader user={data.user} onHome={() => setView('dashboard')} />;
+  const header = <AppHeader user={data.user} onHome={() => setView('dashboard')} onPlatformHome={() => { window.location.href = new URL('./', window.location.href).toString(); }} />;
   if (view === 'results' && result) return <>{header}<ResultsScreen data={data} result={result} responses={[...responseMap.values()]} onRetake={retake} busy={busy} staticMode={staticMode} /></>;
   if (view === 'intro' && currentModule) return <>{header}<ModuleLearning key={currentModule.id} module={currentModule} progress={progressPercent} initialStage={learningStages[currentModule.id] ?? 0} onStageChange={(stage) => saveLearningStage(currentModule.id, stage)} onBack={() => setView('dashboard')} onStart={() => completeLearning(currentModule.id)} /></>;
   if (view === 'question' && question && currentModule) return <>{header}<QuestionScreen question={question} module={currentModule} index={questionIndex} courseProgress={progressPercent} selected={selected} setSelected={setSelected} feedback={feedback} onSubmit={submit} onContinue={continueAfterFeedback} busy={busy} error={error} remediationConfirmed={remediationConfirmed} setRemediationConfirmed={setRemediationConfirmed} /></>;
   return <>{header}<Dashboard data={data} progressPercent={progressPercent} completedCount={completedCount} activeModuleNumber={Math.min(6, Math.floor(questionIndex / 5) + 1)} hasStarted={hasStarted} onContinue={beginOrResume} staticMode={staticMode} /></>;
 }
 
-function AppHeader({ user, onHome }: { user: Bootstrap['user']; onHome: () => void }) {
+function AppHeader({ user, onHome, onPlatformHome }: { user: Bootstrap['user']; onHome: () => void; onPlatformHome: () => void }) {
   const initials = user.name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
   return <header className="app-header print:hidden"><div className="app-header-inner">
-    <button className="brand-button" onClick={onHome} aria-label="AISG safeguarding course home"><AisgLogo decorative variant="header" /><span className="brand-copy"><strong>Student Safeguarding</strong><small>Untimed annual learning • SY2026–27</small></span></button>
+    <button className="brand-button" onClick={onPlatformHome} aria-label="Learning Platform home"><AisgLogo decorative variant="header" /><span className="brand-copy"><strong>AISG Learning Platform</strong><small>Student Safeguarding · SY2026–27</small></span></button>
     <nav className="flex items-center gap-2" aria-label="Account and administration">
+      <button className="admin-link" onClick={onPlatformHome}>Home</button>
+      <button className="admin-link" onClick={onHome}>Course home</button>
       {user.role === 'ADMIN' && <Link href="/admin" className="admin-link">Admin workspace</Link>}
       <span className="hidden text-sm text-muted-foreground md:inline">{user.name}</span><span className="avatar">{initials}</span>
     </nav>

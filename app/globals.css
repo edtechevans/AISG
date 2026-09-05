@@ -123,6 +123,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .brand-copy strong, .brand-copy small { display: block; }
 .brand-copy strong { font-size: .875rem; color: #0b294b; }
 .brand-copy small { margin-top: .125rem; font-size: .75rem; color: #667488; }
+.platform-nav { display: flex; align-items: center; gap: .35rem; }
+.course-switcher select { min-height: 2.5rem; max-width: 15rem; border: 1px solid var(--border); border-radius: 999px; background: white; padding: 0 2rem 0 .9rem; color: #0b294b; font-size: .82rem; font-weight: 700; }
+.course-switcher select:focus-visible { outline: 3px solid #0b294b; outline-offset: 2px; }
 .avatar { display: grid; height: 2.5rem; width: 2.5rem; place-items: center; border-radius: 999px; background: #0b294b; color: white; font-size: .78rem; font-weight: 750; }
 .admin-link { min-height: 2.5rem; display: inline-flex; align-items: center; border-radius: 999px; padding: 0 .85rem; color: #0b294b; font-size: .8rem; font-weight: 700; }
 .admin-link:hover { background: #edf3f8; }
@@ -518,6 +521,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .practice-options input { accent-color: #c81e35; }
 
 @media (max-width: 760px) {
+  .app-header-inner { min-height: 70px; padding-inline: .75rem; }
+  .aisg-logo-header { width: 108px; }
+  .platform-nav { gap: .15rem; }
+  .platform-nav button { padding-inline: .65rem !important; }
+  .course-switcher select { max-width: 9.5rem; font-size: .75rem; }
   .my-courses-hero { align-items: start; flex-direction: column; padding-top: 1rem; }
   .hero-mark { white-space: normal; }
   .progress-summary > div:first-child { align-items: start; flex-direction: column; }
