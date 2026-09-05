@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { aiQuestions, aiSections, AI_COURSE_VERSION } from '@/lib/ai-course';
 import { teamsQuestions, teamsSections, TEAMS_COURSE_VERSION } from '@/lib/teams-course';
 import { mtssQuestions, mtssSections, MTSS_COURSE_VERSION } from '@/lib/mtss-course';
+import { tlfQuestions, tlfSections, TLF_COURSE_VERSION } from '@/lib/tlf-course';
 import { cognitiveLevelFor } from '@/lib/assessment-progression';
 
 type CourseProgress = {
@@ -19,11 +20,20 @@ type CourseProgress = {
 };
 
 type LearningStage = 'course-home' | 'learn' | 'question' | 'practice' | 'complete';
-type CourseKey = 'ai' | 'teams' | 'mtss';
+type CourseKey = 'engagement' | 'ai' | 'teams' | 'mtss';
 
 const emptyProgress: CourseProgress = { position: 0, completedSections: [], responses: {} };
 
 const courses = {
+  engagement: {
+    storageKey: 'my-courses-engagement-progress-v1',
+    title: 'Engagement for All: The AISG Learning Framework',
+    description: 'A practical gateway to AISG’s shared language for designing, noticing and improving learning experiences.',
+    version: TLF_COURSE_VERSION,
+    sections: tlfSections,
+    questions: tlfQuestions,
+    practiceOptions: ['Use the framework as a lens in an upcoming learning design.', 'Select a small set of indicators for a coaching or reflection conversation.', 'Notice student experience through talk, choices, work, relationships and action.', 'Invite students to describe what deepens their engagement.', 'Something else'],
+  },
   ai: {
     storageKey: 'my-courses-ai-progress-v1',
     title: 'AI in Education',

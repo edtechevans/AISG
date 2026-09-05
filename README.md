@@ -1,10 +1,10 @@
 # My Courses — AISG Professional Development
 
-My Courses is an educator-centred AISG professional learning hub. It connects the existing six-module Safeguarding at AISG course (30 checks) with AI in Education and Microsoft Teams for Communication (five sections and 10 judgement-focused checks each), while showing independent progress, exact resume positions and a personal course record.
+My Courses is an educator-centred AISG professional learning hub. It connects the existing six-module Safeguarding at AISG course (30 checks) with Engagement for All: The AISG Learning Framework, AI in Education, Microsoft Teams for Communication, and MTSS (five sections and 10 judgement-focused checks each), while showing independent progress, exact resume positions and a personal course record.
 
 Courses follow a consistent Course Home → Learn → Check → Apply → Reflect rhythm. AI in Education, Microsoft Teams for Communication and MTSS present each section across short learning screens before two aligned checks. Safeguarding uses two learning pages → a three-check retrieval block → two further learning pages → a final two-check application block. Every route provides immediate explanatory feedback; the short courses also provide a private “Take it into practice” selection and optional commitment.
 
-The catalogue currently includes four courses: Safeguarding at AISG, AI in Education, Microsoft Teams for Communication, and Multi-Tiered System of Supports (MTSS). MTSS is an original synthesis of the MTSS Center’s essential-components framework: screening, a multi-level prevention system, progress monitoring, and data-based decision making.
+The catalogue currently includes five courses in the shared learner order: Safeguarding at AISG; Engagement for All: The AISG Learning Framework; Multi-Tiered System of Supports (MTSS); AI in Education; and Microsoft Teams for Communication. Engagement for All is grounded in AISG’s Being, Connecting, and Doing framework, its six learning-engagement facets, and the official 38-indicator reference set. MTSS is an original synthesis of the MTSS Center’s essential-components framework: screening, a multi-level prevention system, progress monitoring, and data-based decision making.
 
 Typography uses the Geist family bundled at build time by `next/font`, with a system fallback stack; no runtime font CDN is required.
 
