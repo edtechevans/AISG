@@ -89,6 +89,7 @@ const courseTitles = [
   'Designing for Learner Variability',
   'Engagement for All: The AISG Learning Framework',
   'Multi-Tiered System of Supports (MTSS)',
+  'Supporting Multilingual Learners',
   'Technology for Transformative Learning',
   'Domain 1: Purposeful & Inclusive Learning Design',
   'Domain 2: Inclusive Learning Culture & Environment',
