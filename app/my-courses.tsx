@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import TrainingApp from '@/app/training-app';
 import AiTrainingApp from '@/app/ai-training-app';
 import PlatformHeader from '@/app/platform-header';
+import CourseMark from '@/app/course-mark';
 import { COURSE_BY_ID, COURSE_CATALOG, isCourseId, type CourseCatalogItem, type CourseId } from '@/lib/course-catalog';
 import { installStaticApi } from '@/pages/src/static-api';
 
@@ -207,9 +208,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
 
       {inProgress && <section className="continue-card continue-feature" aria-labelledby="continue-title">
         <div className="continue-copy">
-          <p className="tiny-eyebrow">Continue learning</p>
-          <h2 id="continue-title">{inProgress.title}</h2>
-          <p>{inProgress.progress}% complete · Resume exactly where you left off.</p>
+          <div className="continue-course-identity"><CourseMark course={inProgress.id} size="card" tone="inverse" /><div><p className="tiny-eyebrow">Continue learning</p><h2 id="continue-title">{inProgress.title}</h2><p>{inProgress.progress}% complete · Resume exactly where you left off.</p></div></div>
           <Progress value={inProgress.progress} aria-label={`${inProgress.title}: ${inProgress.progress}% complete`} />
         </div>
         <Button className="primary-pill" size="lg" onClick={() => open(inProgress.id)}>Continue learning <ArrowRight aria-hidden="true" /></Button>
@@ -264,7 +263,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
           const score = correctResponseCount(states[course.id]);
           const date = completionDate(states[course.id]);
           return <article className="record-row capability-row" key={course.id}>
-            <div><strong>{course.title}</strong><span>{date ? `${date} · ` : ''}{score === undefined ? '' : `${score}/${course.checkCount} · `}SY2026–27 · Completed</span></div>
+            <div className="capability-row-main"><CourseMark course={course.id} size="record" /><div><strong>{course.title}</strong><span>{date ? `${date} · ` : ''}{score === undefined ? '' : `${score}/${course.checkCount} · `}SY2026–27 · Completed</span></div></div>
             <ul aria-label={`${course.title} capabilities`}>{course.capabilities.map((capability) => <li key={capability}>{capability}</li>)}</ul>
           </article>;
         })}
@@ -317,7 +316,7 @@ function ExploreCourseGroup({ teacherGrowthCourses, otherCourses, onOpen, favour
 function CourseCard({ course, onOpen, isFavourite, onToggleFavourite }: { course: DisplayCourse; onOpen: (id: CourseId) => void; isFavourite: boolean; onToggleFavourite: (id: CourseId) => void }) {
   const favouriteLabel = isFavourite ? `Remove ${course.title} from favourites` : `Add ${course.title} to favourites`;
   return <article className="course-card premium-course-card" data-course={course.id} aria-labelledby={`course-${course.id}`}>
-    <div className="course-identity-mark" aria-hidden="true"><span /><span /><span /></div>
+    <CourseMark course={course.id} size="card" />
     <div className="course-card-top">
       <span className="course-category">{course.audience || course.category}</span>
       <div className="course-card-actions">
