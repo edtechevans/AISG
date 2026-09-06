@@ -297,7 +297,7 @@ function ExploreCourseGroup({ teacherGrowthCourses, otherCourses, onOpen, favour
 
     {teacherGrowthCourses.length > 0 && <div className="mt-8 rounded-[28px] border border-navy/10 bg-white/75 p-5 sm:p-7">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-        <div><p className="tiny-eyebrow">Growth pathway</p><h3 className="mt-1 text-2xl font-semibold tracking-tight text-navy">Teacher Growth & Reflection</h3><p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Short, continuum-based learning that helps you recognise student evidence, reflect on where practice is deepening, and identify a realistic next move. Starting with Domains 1 and 2.</p></div>
+        <div><p className="tiny-eyebrow">Growth pathway</p><h3 className="mt-1 text-2xl font-semibold tracking-tight text-navy">Teacher Growth & Reflection</h3><p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Four short, continuum-based courses that help you recognise learner evidence, reflect on where practice is deepening, and identify a realistic next move across all four AISG Teacher Growth domains.</p></div>
         <span className="text-sm font-semibold text-muted-foreground">{teacherGrowthCourses.length} courses</span>
       </div>
       <div className="course-grid premium-course-grid">
