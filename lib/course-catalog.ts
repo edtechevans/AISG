@@ -1,4 +1,4 @@
-export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'ai' | 'assessment' | 'data' | 'udl' | 'engagement' | 'mtss' | 'technology' | 'growth-domain1' | 'growth-domain2' | 'growth-domain3' | 'growth-domain4';
+export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'ai' | 'assessment' | 'data' | 'udl' | 'engagement' | 'mtss' | 'multilingual' | 'technology' | 'growth-domain1' | 'growth-domain2' | 'growth-domain3' | 'growth-domain4';
 
 export type CourseCatalogItem = {
   id: CourseId;
@@ -143,6 +143,19 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     checkCount: 16,
     storageKey: 'my-courses-mtss-progress-v1',
     capabilities: ['Tiered support', 'Evidence-informed decisions', 'Progress monitoring', 'Equity & fidelity'],
+  },
+  {
+    id: 'multilingual',
+    title: 'Supporting Multilingual Learners',
+    description: 'Use asset-based, language-conscious classroom practices to strengthen access, participation, English development and learner independence.',
+    intro: 'Supporting multilingual learners is not specialist-only work. At AISG, language development is primarily embedded within the core learning environment and strengthened through collaboration with EAL specialists. This short course focuses on practical Tier 1 classroom moves: start with learner assets, make disciplinary language demands visible, design meaningful interaction, use home languages strategically, scaffold access without lowering challenge, and use evidence with specialist colleagues to decide what support should change next. The aim is equitable participation in worthwhile learning while English continues to develop.',
+    category: 'Inclusive Learning',
+    designation: 'Recommended',
+    duration: '25–30 minutes',
+    sectionCount: 5,
+    checkCount: 12,
+    storageKey: 'my-courses-multilingual-learners-progress-v1',
+    capabilities: ['Asset-based multilingual practice', 'Content & language integration', 'Scaffolding & translanguaging', 'Evidence & collaborative support'],
   },
   {
     id: 'technology',
