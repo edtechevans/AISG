@@ -186,6 +186,8 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   const hasActivity = courses.some((course) => course.status !== 'Not Started');
   const favouriteCourses = courses.filter((course) => favourites.includes(course.id));
   const explore = courses.filter((course) => course.designation !== 'Required');
+  const teacherGrowthExplore = explore.filter((course) => course.category === 'Teacher Growth & Reflection').sort((a, b) => a.title.localeCompare(b.title));
+  const otherExplore = explore.filter((course) => course.category !== 'Teacher Growth & Reflection').sort((a, b) => a.title.localeCompare(b.title));
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -245,11 +247,9 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
         onToggleFavourite={toggleFavourite}
       />
 
-      <CourseGroup
-        title="Explore next"
-        eyebrow="Build capacity"
-        description="Choose the learning that best connects with your role, goals and current practice."
-        courses={explore}
+      <ExploreCourseGroup
+        teacherGrowthCourses={teacherGrowthExplore}
+        otherCourses={otherExplore}
         onOpen={open}
         favourites={favourites}
         onToggleFavourite={toggleFavourite}
@@ -284,6 +284,33 @@ function CourseGroup({ title, eyebrow, description, courses, onOpen, favourites,
     <div className="course-grid premium-course-grid">
       {courses.map((course) => <CourseCard key={course.id} course={course} onOpen={onOpen} isFavourite={favourites.includes(course.id)} onToggleFavourite={onToggleFavourite} />)}
     </div>
+  </section>;
+}
+
+function ExploreCourseGroup({ teacherGrowthCourses, otherCourses, onOpen, favourites, onToggleFavourite }: { teacherGrowthCourses: DisplayCourse[]; otherCourses: DisplayCourse[]; onOpen: (id: CourseId) => void; favourites: CourseId[]; onToggleFavourite: (id: CourseId) => void }) {
+  const total = teacherGrowthCourses.length + otherCourses.length;
+  return <section id="explore" className="course-library course-group" aria-labelledby="group-explore-next">
+    <div className="section-heading group-heading">
+      <div><p className="tiny-eyebrow">Build capacity</p><h2 id="group-explore-next">Explore next</h2><p>Choose the learning that best connects with your role, goals and current practice.</p></div>
+      <span>{total} {total === 1 ? 'course' : 'courses'}</span>
+    </div>
+
+    {teacherGrowthCourses.length > 0 && <div className="mt-8 rounded-[28px] border border-navy/10 bg-white/75 p-5 sm:p-7">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+        <div><p className="tiny-eyebrow">Growth pathway</p><h3 className="mt-1 text-2xl font-semibold tracking-tight text-navy">Teacher Growth & Reflection</h3><p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Short, continuum-based learning that helps you recognise student evidence, reflect on where practice is deepening, and identify a realistic next move. Starting with Domains 1 and 2.</p></div>
+        <span className="text-sm font-semibold text-muted-foreground">{teacherGrowthCourses.length} courses</span>
+      </div>
+      <div className="course-grid premium-course-grid">
+        {teacherGrowthCourses.map((course) => <CourseCard key={course.id} course={course} onOpen={onOpen} isFavourite={favourites.includes(course.id)} onToggleFavourite={onToggleFavourite} />)}
+      </div>
+    </div>}
+
+    {otherCourses.length > 0 && <div className="mt-10">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-4"><div><p className="tiny-eyebrow">More learning</p><h3 className="mt-1 text-xl font-semibold tracking-tight text-navy">Explore all</h3></div><span className="text-sm font-semibold text-muted-foreground">Alphabetical</span></div>
+      <div className="course-grid premium-course-grid">
+        {otherCourses.map((course) => <CourseCard key={course.id} course={course} onOpen={onOpen} isFavourite={favourites.includes(course.id)} onToggleFavourite={onToggleFavourite} />)}
+      </div>
+    </div>}
   </section>;
 }
 
