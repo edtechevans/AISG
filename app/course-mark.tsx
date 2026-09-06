@@ -81,10 +81,10 @@ function CourseMarkGlyph({ course }: { course: CourseId }) {
 
     case 'secondary':
       return <>
-        <path d="M9 26.5 17.8 18 27.5 9.2" />
-        <rect x="5.5" y="23" width="7" height="7" rx="2" fill="white" />
-        <rect x="14.3" y="14.5" width="7" height="7" rx="2" fill="white" />
-        <rect x="24" y="5.7" width="7" height="7" rx="2" fill="white" />
+        <path d="M12.5 23 14.3 21.5M21.3 14.5 24 12.2" />
+        <rect x="5.5" y="23" width="7" height="7" rx="2" />
+        <rect x="14.3" y="14.5" width="7" height="7" rx="2" />
+        <rect x="24" y="5.7" width="7" height="7" rx="2" />
       </>;
 
     case 'teams':
