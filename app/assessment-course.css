@@ -1,0 +1,34 @@
+/* Assessment for Learning — course identity within the shared My Courses visual system. */
+.premium-course-card[data-course='assessment'] { --course-accent: #7a5f32; }
+
+/* Three evidence-to-action steps rising toward the learning goal. */
+.premium-course-card[data-course='assessment'] .course-identity-mark {
+  position: relative;
+  display: block;
+}
+
+.premium-course-card[data-course='assessment'] .course-identity-mark span {
+  position: absolute;
+  left: 0;
+  height: .3rem;
+  border-radius: 999px;
+  background: var(--course-accent);
+}
+
+.premium-course-card[data-course='assessment'] .course-identity-mark span:nth-child(1) {
+  top: 1.34rem;
+  width: 1.7rem;
+  opacity: .42;
+}
+
+.premium-course-card[data-course='assessment'] .course-identity-mark span:nth-child(2) {
+  top: .88rem;
+  width: 2.35rem;
+  opacity: .68;
+}
+
+.premium-course-card[data-course='assessment'] .course-identity-mark span:nth-child(3) {
+  top: .42rem;
+  width: 3rem;
+  opacity: 1;
+}
