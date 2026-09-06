@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type SyntheticEvent } from 'react';
 import { ArrowRight, BookOpen, Bot, Compass, Lightbulb, MessageCircle, Send, ShieldCheck, Sparkles, X } from 'lucide-react';
 import CourseMark from '@/app/course-mark';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ type CompanionContext = {
 
 type Message = {
   id: number;
+  course: CourseId;
   role: 'user' | 'assistant';
   text: string;
   source?: string;
@@ -140,7 +141,7 @@ const QUICK_ACTIONS: { id: QuickAction; label: string; icon: typeof Lightbulb }[
   { id: 'culture', label: 'Cultural lens', icon: ShieldCheck },
 ];
 
-function textOf(selector: string, root: ParentNode = document) {
+function textOf(selector: string, root: Document | Element = document) {
   return root.querySelector(selector)?.textContent?.trim() || '';
 }
 
@@ -247,7 +248,6 @@ export default function LearningCompanion() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const messageId = useRef(0);
-  const lastCourse = useRef<CourseId | null>(null);
 
   useEffect(() => {
     if (!FEATURE_FLAGS.learningCompanion) return;
@@ -275,18 +275,6 @@ export default function LearningCompanion() {
   }, []);
 
   useEffect(() => {
-    if (!context) {
-      setOpen(false);
-      return;
-    }
-    if (lastCourse.current !== context.course) {
-      lastCourse.current = context.course;
-      setMessages([]);
-      setInput('');
-    }
-  }, [context]);
-
-  useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpen(false); };
     window.addEventListener('keydown', onKey);
@@ -297,32 +285,34 @@ export default function LearningCompanion() {
   const courseTitle = context ? COURSE_BY_ID[context.course].title : '';
   const intro = useMemo(() => {
     if (!context) return '';
-    if (locked) return 'This is a learning check. I will not choose or reveal an answer. Finish the check using your own judgement; then return to the course learning if you want help unpacking the principle.';
+    if (context.stage === 'check') return 'This is a learning check. I will not choose or reveal an answer. Finish the check using your own judgement; then return to the course learning if you want help unpacking the principle.';
     if (context.stage === 'practice') return 'Use me to turn the course into a small, realistic next move. I stay grounded in the course and AISG learning lens.';
     return 'Ask about the learning on this page, connect it to AISG’s TLF, test an assumption or turn the idea into something you could try.';
-  }, [context, locked]);
+  }, [context]);
 
   if (!FEATURE_FLAGS.learningCompanion || !context) return null;
+  const currentContext = context;
+  const visibleMessages = messages.filter((message) => message.course === currentContext.course);
 
   function addExchange(userText: string, assistantText: string) {
     const id = ++messageId.current;
     setMessages((current) => [
       ...current,
-      { id: id * 2, role: 'user', text: userText },
-      { id: id * 2 + 1, role: 'assistant', text: assistantText, source: sourceLabel(context) },
+      { id: id * 2, course: currentContext.course, role: 'user', text: userText },
+      { id: id * 2 + 1, course: currentContext.course, role: 'assistant', text: assistantText, source: sourceLabel(currentContext) },
     ]);
   }
 
-  function useAction(action: QuickAction, label: string) {
+  function handleAction(action: QuickAction, label: string) {
     if (locked) return;
-    addExchange(label, answerFor(action, context));
+    addExchange(label, answerFor(action, currentContext));
   }
 
-  function submit(event: FormEvent) {
+  function submit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     const prompt = input.trim();
     if (!prompt || locked) return;
-    addExchange(prompt, answerForPrompt(prompt, context));
+    addExchange(prompt, answerForPrompt(prompt, currentContext));
     setInput('');
   }
 
@@ -332,23 +322,23 @@ export default function LearningCompanion() {
       <span><strong>Learning Companion</strong><small>Course-grounded preview</small></span>
     </button>
 
-    {open && <aside id="learning-companion-panel" className="learning-companion-panel" role="dialog" aria-label={`Learning Companion for ${courseTitle}`}>
+    {open && <dialog id="learning-companion-panel" className="learning-companion-panel" open aria-label={`Learning Companion for ${courseTitle}`}>
       <header className="learning-companion-header">
-        <div className="learning-companion-course"><CourseMark course={context.course} size="record" /><div><p className="tiny-eyebrow">Learning Companion · Preview</p><strong>{courseTitle}</strong></div></div>
+        <div className="learning-companion-course"><CourseMark course={currentContext.course} size="record" /><div><p className="tiny-eyebrow">Learning Companion · Preview</p><strong>{courseTitle}</strong></div></div>
         <button type="button" className="learning-companion-close" onClick={() => setOpen(false)} aria-label="Close Learning Companion"><X aria-hidden="true" /></button>
       </header>
 
       <div className="learning-companion-context">
         <div className="learning-companion-context-icon"><Bot aria-hidden="true" /></div>
-        <div><strong>{context.sectionTitle}</strong><p>{intro}</p></div>
+        <div><strong>{currentContext.sectionTitle}</strong><p>{intro}</p></div>
       </div>
 
       <div className="learning-companion-privacy"><ShieldCheck aria-hidden="true" /><span>This public preview runs in your browser. Your text is not sent to an AI model. Do not enter student names or identifying information.</span></div>
 
       <div className="learning-companion-messages" aria-live="polite">
-        {messages.length === 0 ? <div className="learning-companion-empty">
+        {visibleMessages.length === 0 ? <div className="learning-companion-empty">
           {locked ? <><BookOpen aria-hidden="true" /><strong>Your judgement comes first.</strong><p>The companion is intentionally paused during formal checks so it cannot give away the answer.</p></> : <><Sparkles aria-hidden="true" /><strong>Think with the course, not around it.</strong><p>Choose a grounded prompt below or ask a short professional question.</p></>}
-        </div> : messages.map((message) => <div key={message.id} className={`learning-companion-message message-${message.role}`}>
+        </div> : visibleMessages.map((message) => <div key={message.id} className={`learning-companion-message message-${message.role}`}>
           <p>{message.text}</p>
           {message.source && <span>{message.source}</span>}
         </div>)}
@@ -357,7 +347,7 @@ export default function LearningCompanion() {
       {!locked && <div className="learning-companion-actions" aria-label="Suggested prompts">
         {QUICK_ACTIONS.map((action) => {
           const Icon = action.icon;
-          return <button key={action.id} type="button" onClick={() => useAction(action.id, action.label)}><Icon aria-hidden="true" /><span>{action.label}</span></button>;
+          return <button key={action.id} type="button" onClick={() => handleAction(action.id, action.label)}><Icon aria-hidden="true" /><span>{action.label}</span></button>;
         })}
       </div>}
 
@@ -367,6 +357,6 @@ export default function LearningCompanion() {
         <Button type="submit" className="learning-companion-send" disabled={locked || !input.trim()} aria-label="Send question"><Send aria-hidden="true" /></Button>
       </form>
       <footer className="learning-companion-footer"><Lightbulb aria-hidden="true" /><span>Grounded in the current course page and AISG course lens. A secure server-backed version can later add true generative conversation and source citations.</span></footer>
-    </aside>}
+    </dialog>}
   </>;
 }
