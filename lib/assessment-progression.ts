@@ -1,4 +1,4 @@
-export type CourseAssessmentId = 'safeguarding' | 'engagement' | 'udl' | 'data' | 'ai' | 'technology' | 'teams' | 'mtss' | 'elementary' | 'secondary';
+export type CourseAssessmentId = 'safeguarding' | 'engagement' | 'udl' | 'data' | 'assessment' | 'ai' | 'technology' | 'teams' | 'mtss' | 'elementary' | 'secondary';
 export type CognitiveLevel = 2 | 3 | 4 | 5;
 
 // This authoring map is intentionally not shown to learners. It makes the intended
@@ -31,6 +31,13 @@ export const assessmentProgression: Record<CourseAssessmentId, Record<string, Co
     'data-5': 3, 'data-6': 4,
     'data-7': 4, 'data-8': 4,
     'data-9': 5, 'data-10': 5,
+  },
+  assessment: {
+    'afl-1': 2, 'afl-2': 2,
+    'afl-3': 2, 'afl-4': 3,
+    'afl-5': 3, 'afl-6': 3, 'afl-7': 3,
+    'afl-8': 3, 'afl-9': 4,
+    'afl-10': 4, 'afl-11': 4, 'afl-12': 5,
   },
   ai: {
     'ai-1': 2, 'ai-2': 2,
