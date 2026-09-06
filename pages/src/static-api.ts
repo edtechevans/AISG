@@ -34,6 +34,7 @@ const LEARNER_QUESTIONS = QUESTIONS.map((question) => {
   } = question;
   return learnerQuestion;
 });
+let memoryState: StoredState | null = null;
 
 const freshState = (attemptNumber = 1): StoredState => ({
   attemptNumber,
@@ -108,17 +109,23 @@ function browserLearningProgress(state: StoredState) {
 function readState(): StoredState {
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (!stored) return freshState();
+    if (!stored) return memoryState ?? freshState();
     const parsed = JSON.parse(stored) as StoredState;
-    if (!Array.isArray(parsed.responses)) return freshState();
+    if (!Array.isArray(parsed.responses)) return memoryState ?? freshState();
+    memoryState = parsed;
     return parsed;
   } catch {
-    return freshState();
+    return memoryState ?? freshState();
   }
 }
 
 function writeState(state: StoredState) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  memoryState = state;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Keep the current browser session usable when persistent storage is blocked.
+  }
 }
 
 function json(data: unknown, status = 200) {
