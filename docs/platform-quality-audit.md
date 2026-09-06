@@ -43,10 +43,13 @@ Scope: learner hub, all seven courses, handbook-course architecture, progress an
 - Self-hosted the Latin Geist variable font for Pages and verified the generated `/AISG/fonts/` reference.
 - Versioned the corrected handbook-course progress keys so invalid earlier test attempts are not reinterpreted as completion.
 - Updated catalogue metadata and documentation for seven courses, audience labels and annual handbook versions.
+- Standardised the learner-facing platform identity as **AISG My Courses** across application metadata, header and hero branding.
+- Strengthened the public test page metadata with a consistent title/description, social metadata, theme colour, a JavaScript fallback message and `noindex, nofollow, noarchive` so the GitHub Pages test environment is shareable without being intentionally promoted for search indexing.
+- Strengthened the GitHub Pages deployment gate so every publish now runs `pnpm lint`, `pnpm build` and `pnpm build:pages` before Pages is configured, uploaded or deployed.
 
 ## What was deliberately not changed
 
-- The Vinext/React/TypeScript/Tailwind stack, D1 production architecture and existing GitHub Pages workflow were preserved.
+- The Vinext/React/TypeScript/Tailwind stack, D1 production architecture and existing GitHub Pages deployment model were preserved.
 - Safeguarding policy answers and the current communication, MTSS, AI and learning-framework course sources were not rewritten during this platform pass.
 - GitHub Pages remains a transparent browser-only test environment; fake SSO and fake central reporting were not introduced.
 - Content marked `draft_for_elementary_leadership_review`, `draft_for_secondary_leadership_review` or `draft_for_safeguarding_team_review` is not presented as policy-approved merely because it was generated or technically validated.
@@ -56,15 +59,18 @@ Scope: learner hub, all seven courses, handbook-course architecture, progress an
 - The static bundle could later be split by course if the catalogue grows materially; this is not currently a reliability blocker.
 - The server-backed administrator database currently has richer reporting for Safeguarding than for browser-only courses. Production-wide Faculty Essentials analytics should be added when those courses move from local test progress to central assignment records.
 - Human content owners must complete policy approval of draft handbook questions before production assignment.
+- GitHub Pages remains publicly reachable by anyone with the URL. The added `noindex` directive reduces deliberate search indexing but is not an access-control mechanism.
 
 ## Verification evidence
 
 - Static data audit: all seven catalogue entries are present in the intended order; Safeguarding contains 30 checks; Communication 14; Engagement 10; MTSS 16; AI 10; Elementary 50; Secondary 50.
 - Faculty Essentials data audit: both courses contain 10 sections, four learning cards per section, 50 unique scenarios, 50 unique strongest actions, valid four-option answer keys and complete version/source/owner/review metadata.
-- Browser QA: direct course links hydrate without errors; all seven course homes open; Safeguarding and administrator review surfaces load; incorrect option-specific feedback and critical remediation work; learning-card and feedback-state reloads resume exactly.
-- Long-course browser run: a 12/50 attempt correctly produced “Another attempt needed”; a subsequent 50/50 attempt completed; attempt history was retained and Course Record displayed completion date, 50/50 and SY2026–27.
-- Responsive QA: narrow mobile rendering showed no horizontal document overflow; semantic radio controls, live feedback, disabled remediation progression, skip navigation and visible focus styling were retained.
-- Public exposure review: no credential signatures, private keys, tracked environment files, real learner records, AISG employee email addresses, phone numbers, local filesystem paths or localhost URLs were found in the publication inputs/output.
+- Browser QA from the prior platform pass: direct course links hydrate without errors; all seven course homes open; Safeguarding and administrator review surfaces load; incorrect option-specific feedback and critical remediation work; learning-card and feedback-state reloads resume exactly.
+- Long-course browser run from the prior platform pass: a 12/50 attempt correctly produced “Another attempt needed”; a subsequent 50/50 attempt completed; attempt history was retained and Course Record displayed completion date, 50/50 and SY2026–27.
+- Responsive QA from the prior platform pass: narrow mobile rendering showed no horizontal document overflow; semantic radio controls, live feedback, disabled remediation progression, skip navigation and visible focus styling were retained.
+- Public exposure review of the latest GitHub Pages artifact: no private keys, API credentials, AISG employee email addresses, Chinese mobile numbers, local filesystem paths or real learner records were detected. The only learner email in the artifact is the reserved fictional `demo@example.invalid` address.
+- Published artifact audit: the Pages bundle contains all seven courses in the intended order, includes the locally hosted Geist font, uses `/AISG/` asset paths, and does not expose a separate Microsoft Teams course card; Teams remains a section of Employee Communication Guidelines.
+- Latest successful Pages artifact sizes are approximately 484 KB JavaScript, 236 KB CSS, 32 KB Geist font and 164 KB AISG logo. These are acceptable for the current testing hub, with course-level code splitting remaining a future optimisation if the catalogue grows substantially.
 
 ## Final internal score
 
@@ -86,4 +92,8 @@ Final gate: **0 Critical unresolved issues; 0 High unresolved issues.**
 
 ## Deployment verification
 
-Complete after the final validated commit is pushed: record the GitHub Actions result, deployed commit, Pages URL smoke test, route/asset checks and browser-storage resume test here.
+The most recent pre-audit branding deployment, commit `7ba2bde510cb46d03bed9519a88967a5d43c6da5`, completed successfully through the GitHub Pages workflow. The workflow installed dependencies, built the static site, configured Pages, uploaded the artifact and deployed successfully.
+
+This quality-control update adds a stricter CI gate before deployment. Record the final post-audit commit and workflow result after the updated workflow completes; the public testing URL remains:
+
+`https://edtechevans.github.io/AISG/`

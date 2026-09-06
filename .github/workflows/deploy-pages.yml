@@ -38,6 +38,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Run static checks
+        run: pnpm lint
+
+      - name: Build production application
+        run: pnpm build
+
       - name: Build static website
         run: pnpm build:pages
         env:
