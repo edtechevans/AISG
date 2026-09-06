@@ -20,9 +20,9 @@
 
 .course-favourite-button {
   display: inline-grid;
-  width: 2.45rem;
-  height: 2.45rem;
-  flex: 0 0 2.45rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 2.75rem;
   cursor: pointer;
   place-items: center;
   border: 1px solid #d8e0e8;
@@ -70,12 +70,6 @@
 
   .course-card-actions {
     gap: .4rem;
-  }
-
-  .course-favourite-button {
-    width: 2.35rem;
-    height: 2.35rem;
-    flex-basis: 2.35rem;
   }
 }
 
