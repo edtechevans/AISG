@@ -1,4 +1,4 @@
-export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'engagement' | 'mtss' | 'ai';
+export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'engagement' | 'mtss' | 'ai' | 'technology';
 
 export type CourseCatalogItem = {
   id: CourseId;
@@ -103,6 +103,19 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     checkCount: 10,
     storageKey: 'my-courses-ai-progress-v1',
     capabilities: ['Privacy & data', 'Human judgement', 'Verification & bias', 'Authentic learning design'],
+  },
+  {
+    id: 'technology',
+    title: 'Technology for Transformative Learning',
+    description: 'Use technology purposefully to amplify the learner experiences at the heart of AISG’s Transformative Learning Framework.',
+    intro: 'Technology is most powerful when it amplifies learning rather than simply digitising a task. In this course, use AISG’s Transformative Learning Framework as a design lens to decide when technology can deepen Personalisation, Agency, Authenticity, Creativity, Taking Action and Collaboration—and when the better choice is to keep the technology out of the way.',
+    category: 'Digital Practice',
+    designation: 'Recommended',
+    duration: '30–40 minutes',
+    sectionCount: 6,
+    checkCount: 18,
+    storageKey: 'my-courses-technology-tlf-progress-v1',
+    capabilities: ['Purposeful technology', 'TLF amplification', 'Learner agency & access', 'Authentic creation & collaboration'],
   },
 ];
 
