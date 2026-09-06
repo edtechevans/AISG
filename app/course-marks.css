@@ -95,14 +95,15 @@
   margin-bottom: .6rem;
 }
 
-/* Four linked domains should read as one intentional pathway rather than a 3 + 1 card wrap. */
-@media (min-width: 1100px) {
+/* Keep the four linked growth domains visually coherent without forcing four narrow cards
+   onto laptop widths. Two-by-two is calmer until there is enough room for a true four-column row. */
+@media (min-width: 1280px) {
   #explore > .mt-8 > .premium-course-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 700px) and (max-width: 1099px) {
+@media (min-width: 700px) and (max-width: 1279px) {
   #explore > .mt-8 > .premium-course-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -216,15 +217,15 @@
 
 .course-category,
 .course-designation {
-  font-size: .74rem;
+  font-size: .76rem;
 }
 
 .roadmap-desktop .tiny-eyebrow {
-  font-size: .72rem !important;
+  font-size: .75rem !important;
 }
 
 .course-roadmap li > span {
-  font-size: .72rem;
+  font-size: .75rem;
 }
 
 .course-roadmap li strong {
