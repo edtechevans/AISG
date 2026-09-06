@@ -1,6 +1,8 @@
 /* Teacher Growth & Reflection — restrained identities based on the framework's navy/red domain system. */
 .premium-course-card[data-course='growth-domain1'] { --course-accent: #173d68; }
 .premium-course-card[data-course='growth-domain2'] { --course-accent: #b51f32; }
+.premium-course-card[data-course='growth-domain3'] { --course-accent: #9d2639; }
+.premium-course-card[data-course='growth-domain4'] { --course-accent: #234d74; }
 
 /* Domain 1: purposeful design deepening across three steps. */
 .premium-course-card[data-course='growth-domain1'] .course-identity-mark {
@@ -28,3 +30,36 @@
 .premium-course-card[data-course='growth-domain2'] .course-identity-mark span:nth-child(1) { opacity: .46; }
 .premium-course-card[data-course='growth-domain2'] .course-identity-mark span:nth-child(2) { width: .74rem; height: .74rem; }
 .premium-course-card[data-course='growth-domain2'] .course-identity-mark span:nth-child(3) { opacity: .7; }
+
+/* Domain 3: three ascending moves — thinking, inquiry and authentic action. */
+.premium-course-card[data-course='growth-domain3'] .course-identity-mark {
+  align-items: end;
+  gap: .18rem;
+}
+.premium-course-card[data-course='growth-domain3'] .course-identity-mark span {
+  width: .32rem;
+  border-radius: 999px 999px .1rem .1rem;
+  transform: rotate(9deg);
+}
+.premium-course-card[data-course='growth-domain3'] .course-identity-mark span:nth-child(1) { height: .68rem; opacity: .4; }
+.premium-course-card[data-course='growth-domain3'] .course-identity-mark span:nth-child(2) { height: 1rem; opacity: .68; }
+.premium-course-card[data-course='growth-domain3'] .course-identity-mark span:nth-child(3) { height: 1.34rem; }
+
+/* Domain 4: overlapping professional influence — individual, team and wider community. */
+.premium-course-card[data-course='growth-domain4'] .course-identity-mark {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.premium-course-card[data-course='growth-domain4'] .course-identity-mark span {
+  position: absolute;
+  width: .78rem;
+  height: .78rem;
+  border-radius: 999px;
+  background: transparent;
+  border: 2px solid var(--course-accent);
+}
+.premium-course-card[data-course='growth-domain4'] .course-identity-mark span:nth-child(1) { transform: translateX(-.42rem); opacity: .45; }
+.premium-course-card[data-course='growth-domain4'] .course-identity-mark span:nth-child(2) { transform: translateY(-.28rem); opacity: .72; }
+.premium-course-card[data-course='growth-domain4'] .course-identity-mark span:nth-child(3) { transform: translateX(.42rem); }
