@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowRight, CheckCircle2, Clock3, GraduationCap, History } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Clock3, Compass, GraduationCap, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import TrainingApp from '@/app/training-app';
@@ -24,6 +24,8 @@ type CourseState = {
   progress?: { completed?: number; percentage?: number } | null;
   attempt?: { completedAt?: number | null };
 };
+
+type DisplayCourse = CourseCatalogItem & { status: CourseStatus; progress: number };
 
 function readCourseState(course: CourseCatalogItem): CourseState {
   if (!course.storageKey || typeof window === 'undefined') return {};
@@ -128,82 +130,130 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
     setStates((current) => ({ ...current, ...shortCourseStates(), safeguarding: current.safeguarding }));
   }
 
-  const courses = COURSE_CATALOG.map((course) => ({
+  const courses: DisplayCourse[] = COURSE_CATALOG.map((course) => ({
     ...course,
     status: statusFor(states[course.id]),
     progress: progressFor(course, states[course.id]),
   }));
 
   if (route === 'safeguarding') return <TrainingApp staticMode={browserMode} />;
-  if (route === 'elementary') return <><PlatformHeader onPlatformHome={home} activeCourse="elementary" onCourse={open} /><AiTrainingApp key="elementary" onExit={home} course="elementary" /></>;
-  if (route === 'secondary') return <><PlatformHeader onPlatformHome={home} activeCourse="secondary" onCourse={open} /><AiTrainingApp key="secondary" onExit={home} course="secondary" /></>;
-  if (route === 'engagement') return <><PlatformHeader onPlatformHome={home} activeCourse="engagement" onCourse={open} /><AiTrainingApp key="engagement" onExit={home} course="engagement" /></>;
-  if (route === 'mtss') return <><PlatformHeader onPlatformHome={home} activeCourse="mtss" onCourse={open} /><AiTrainingApp key="mtss" onExit={home} course="mtss" /></>;
-  if (route === 'ai') return <><PlatformHeader onPlatformHome={home} activeCourse="ai" onCourse={open} /><AiTrainingApp key="ai" onExit={home} /></>;
-  if (route === 'teams') return <><PlatformHeader onPlatformHome={home} activeCourse="teams" onCourse={open} /><AiTrainingApp key="teams" onExit={home} course="teams" /></>;
+  if (route === 'elementary') return <><PlatformHeader onPlatformHome={home} activeCourse="elementary" onCourse={open} onCourses={home} /><AiTrainingApp key="elementary" onExit={home} course="elementary" /></>;
+  if (route === 'secondary') return <><PlatformHeader onPlatformHome={home} activeCourse="secondary" onCourse={open} onCourses={home} /><AiTrainingApp key="secondary" onExit={home} course="secondary" /></>;
+  if (route === 'engagement') return <><PlatformHeader onPlatformHome={home} activeCourse="engagement" onCourse={open} onCourses={home} /><AiTrainingApp key="engagement" onExit={home} course="engagement" /></>;
+  if (route === 'mtss') return <><PlatformHeader onPlatformHome={home} activeCourse="mtss" onCourse={open} onCourses={home} /><AiTrainingApp key="mtss" onExit={home} course="mtss" /></>;
+  if (route === 'ai') return <><PlatformHeader onPlatformHome={home} activeCourse="ai" onCourse={open} onCourses={home} /><AiTrainingApp key="ai" onExit={home} /></>;
+  if (route === 'teams') return <><PlatformHeader onPlatformHome={home} activeCourse="teams" onCourse={open} onCourses={home} /><AiTrainingApp key="teams" onExit={home} course="teams" /></>;
 
   const inProgress = courses
     .filter((course) => course.status === 'In Progress')
     .sort((a, b) => (states[b.id].updatedAt || 0) - (states[a.id].updatedAt || 0))[0];
   const completed = courses.filter((course) => course.status === 'Completed').length;
+  const required = courses.filter((course) => course.designation === 'Required');
+  const requiredCompleted = required.filter((course) => course.status === 'Completed').length;
+  const hasActivity = courses.some((course) => course.status !== 'Not Started');
+  const explore = courses.filter((course) => course.designation !== 'Required');
 
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   return <>
-    <PlatformHeader onPlatformHome={home} onCourse={open} onCourses={() => scrollTo('courses')} onProgress={() => scrollTo('progress')} />
-    <main id="main-content" className="my-courses-shell">
-      <section className="my-courses-hero">
+    <PlatformHeader onPlatformHome={home} onCourse={open} onCourses={() => scrollTo('courses')} onProgress={() => scrollTo('record')} />
+    <main id="main-content" className="my-courses-shell premium-learning-home">
+      <section className="my-courses-hero premium-hero">
         <div>
           <p className="eyebrow"><GraduationCap aria-hidden="true" /> AISG My Courses</p>
-          <h1>Professional learning,<br />all in one place.</h1>
-          <p>Build shared understanding, apply it to authentic AISG decisions, and return whenever your practice is ready for the next step.</p>
+          <h1>{hasActivity ? 'Welcome back.' : 'Welcome to My Courses.'}</h1>
+          <p>Your professional learning, in one place. Build shared understanding, apply it to authentic AISG decisions, and return when your practice is ready for the next step.</p>
         </div>
         <p className="learning-rhythm" aria-label="Learning rhythm">Learn <span>→</span> Check <span>→</span> Apply <span>→</span> Reflect</p>
       </section>
 
-      <section id="progress" className="progress-summary" aria-labelledby="progress-title">
-        <div className="progress-summary-heading">
-          <div><p className="tiny-eyebrow">Your progress</p><h2 id="progress-title">Your learning at a glance</h2></div>
-          <Button variant="outline" onClick={() => scrollTo('record')}><History aria-hidden="true" /> View course record</Button>
+      {inProgress && <section className="continue-card continue-feature" aria-labelledby="continue-title">
+        <div className="continue-copy">
+          <p className="tiny-eyebrow">Continue learning</p>
+          <h2 id="continue-title">{inProgress.title}</h2>
+          <p>{inProgress.progress}% complete · Resume exactly where you left off.</p>
+          <Progress value={inProgress.progress} aria-label={`${inProgress.title}: ${inProgress.progress}% complete`} />
         </div>
-        <div className="progress-stats" aria-live="polite">
-          <Stat label="Completed" value={String(completed)} />
-          <Stat label="In progress" value={String(courses.filter((course) => course.status === 'In Progress').length)} />
-          <Stat label="Available" value={String(courses.filter((course) => course.status === 'Not Started').length)} />
-        </div>
-      </section>
-
-      {inProgress && <section className="continue-card" aria-labelledby="continue-title">
-        <div><p className="tiny-eyebrow">Continue learning</p><h2 id="continue-title">{inProgress.title}</h2><p>{inProgress.progress}% complete · Resume from your saved place.</p></div>
-        <Button className="primary-pill" size="lg" onClick={() => open(inProgress.id)}>Continue course <ArrowRight aria-hidden="true" /></Button>
+        <Button className="primary-pill" size="lg" onClick={() => open(inProgress.id)}>Continue learning <ArrowRight aria-hidden="true" /></Button>
       </section>}
 
-      <section id="courses" className="course-library" aria-labelledby="courses-title">
-        <div className="section-heading"><div><p className="tiny-eyebrow">Courses</p><h2 id="courses-title">Learning for your AISG practice</h2></div><p>{courses.length} courses · Self-paced</p></div>
-        <div className="course-grid">
-          {courses.map((course) => <article className="course-card" key={course.id} aria-labelledby={`course-${course.id}`}>
-            <div className="course-card-top"><span className="course-category">{course.category}{course.audience ? ` · ${course.audience}` : ''}</span><span className="course-designation">{course.designation}</span></div>
-            <h3 id={`course-${course.id}`}>{course.title}</h3>
-            <p>{course.description}</p>
-            <div className="course-meta"><span><Clock3 aria-hidden="true" /> {course.duration}</span><span>{course.sectionCount} sections · {course.checkCount} learning checks</span></div>
-            {course.status !== 'Not Started' && <div className="course-card-progress"><Progress value={course.progress} aria-label={`${course.title}: ${course.progress}% complete`} /><span>{course.progress}%</span></div>}
-            <div className="course-card-footer">
-              <span className={`course-status status-${course.status.toLowerCase().replaceAll(' ', '-')}`}><CheckCircle2 aria-hidden="true" /> {course.status}</span>
-              <Button className="primary-pill" onClick={() => open(course.id)}>{course.status === 'Completed' ? 'Review course' : course.status === 'In Progress' ? 'Continue course' : 'Start course'} <ArrowRight aria-hidden="true" /></Button>
-            </div>
-          </article>)}
+      <section id="progress" className="progress-summary learning-summary" aria-labelledby="progress-title">
+        <div className="progress-summary-heading">
+          <div><p className="tiny-eyebrow">Your learning</p><h2 id="progress-title">A clear view of what matters next</h2></div>
+          <Button variant="outline" onClick={() => scrollTo('record')}><History aria-hidden="true" /> My learning record</Button>
+        </div>
+        <div className="progress-stats" aria-live="polite">
+          <Stat label="Required learning" value={`${requiredCompleted}/${required.length}`} />
+          <Stat label="In progress" value={String(courses.filter((course) => course.status === 'In Progress').length)} />
+          <Stat label="Completed this year" value={String(completed)} />
         </div>
       </section>
 
-      <section id="record" className="record-card" aria-labelledby="record-title">
-        <div><p className="tiny-eyebrow">Course record</p><h2 id="record-title">Your professional learning history</h2><p>Course progress and reflections are saved in this browser for this test environment.</p></div>
-        {courses.filter((course) => course.status === 'Completed').map((course) => { const score = correctResponseCount(states[course.id]); const date = completionDate(states[course.id]); return <div className="record-row" key={course.id}><strong>{course.title}</strong><span>{date ? `${date} · ` : ''}{score === undefined ? '' : `${score}/${course.checkCount} · `}SY2026–27 · Completed</span></div>; })}
-        {completed === 0 && <p className="record-empty">Completed courses will appear here.</p>}
+      <CourseGroup
+        title="Required learning"
+        eyebrow="Core learning"
+        description="The shared knowledge and expectations that underpin safe, consistent and effective practice at AISG."
+        courses={required}
+        onOpen={open}
+      />
+
+      <CourseGroup
+        title="Explore next"
+        eyebrow="Build capacity"
+        description="Choose the learning that best connects with your role, goals and current practice."
+        courses={explore}
+        onOpen={open}
+      />
+
+      <section id="record" className="record-card capability-record" aria-labelledby="record-title">
+        <div className="record-heading">
+          <div><p className="tiny-eyebrow">My learning record</p><h2 id="record-title">The capacity you are building</h2><p>Completed learning is more than a score. This record highlights the professional capabilities each course develops.</p></div>
+          <Compass aria-hidden="true" />
+        </div>
+        {courses.filter((course) => course.status === 'Completed').map((course) => {
+          const score = correctResponseCount(states[course.id]);
+          const date = completionDate(states[course.id]);
+          return <article className="record-row capability-row" key={course.id}>
+            <div><strong>{course.title}</strong><span>{date ? `${date} · ` : ''}{score === undefined ? '' : `${score}/${course.checkCount} · `}SY2026–27 · Completed</span></div>
+            <ul aria-label={`${course.title} capabilities`}>{course.capabilities.map((capability) => <li key={capability}>{capability}</li>)}</ul>
+          </article>;
+        })}
+        {completed === 0 && <p className="record-empty">Complete a course and the capabilities you have developed will appear here.</p>}
       </section>
     </main>
   </>;
+}
+
+function CourseGroup({ title, eyebrow, description, courses, onOpen }: { title: string; eyebrow: string; description: string; courses: DisplayCourse[]; onOpen: (id: CourseId) => void }) {
+  return <section id={title === 'Required learning' ? 'courses' : undefined} className="course-library course-group" aria-labelledby={`group-${title.replaceAll(' ', '-').toLowerCase()}`}>
+    <div className="section-heading group-heading">
+      <div><p className="tiny-eyebrow">{eyebrow}</p><h2 id={`group-${title.replaceAll(' ', '-').toLowerCase()}`}>{title}</h2><p>{description}</p></div>
+      <span>{courses.length} {courses.length === 1 ? 'course' : 'courses'}</span>
+    </div>
+    <div className="course-grid premium-course-grid">
+      {courses.map((course) => <CourseCard key={course.id} course={course} onOpen={onOpen} />)}
+    </div>
+  </section>;
+}
+
+function CourseCard({ course, onOpen }: { course: DisplayCourse; onOpen: (id: CourseId) => void }) {
+  return <article className="course-card premium-course-card" data-course={course.id} aria-labelledby={`course-${course.id}`}>
+    <div className="course-identity-mark" aria-hidden="true"><span /><span /><span /></div>
+    <div className="course-card-top">
+      <span className="course-category">{course.audience || course.category}</span>
+      <span className="course-designation">{course.designation}</span>
+    </div>
+    <h3 id={`course-${course.id}`}>{course.title}</h3>
+    <p>{course.description}</p>
+    <div className="course-meta simplified-meta"><span><Clock3 aria-hidden="true" /> {course.duration}</span></div>
+    {course.status !== 'Not Started' && <div className="course-card-progress"><Progress value={course.progress} aria-label={`${course.title}: ${course.progress}% complete`} /><span>{course.progress}%</span></div>}
+    <div className="course-card-footer">
+      <span className={`course-status status-${course.status.toLowerCase().replaceAll(' ', '-')}`}><CheckCircle2 aria-hidden="true" /> {course.status}</span>
+      <Button className="primary-pill" onClick={() => onOpen(course.id)}>{course.status === 'Completed' ? 'Review' : course.status === 'In Progress' ? 'Continue' : 'Start'} <ArrowRight aria-hidden="true" /></Button>
+    </div>
+  </article>;
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
