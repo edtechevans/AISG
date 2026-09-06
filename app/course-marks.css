@@ -112,6 +112,7 @@
    repeatable visual grid even when category labels or course titles vary in length. */
 .premium-course-card {
   padding: 1.4rem 1.4rem 1.35rem;
+  container-type: inline-size;
 }
 
 .premium-course-card .course-mark-card {
@@ -143,6 +144,24 @@
   justify-self: end;
   gap: .55rem;
   margin: 0;
+}
+
+/* Keep the audience label and its controls in separate lanes when a tile is
+   too narrow to hold both comfortably (including at enlarged text sizes). */
+@container (max-width: 28.75rem) {
+  .premium-course-card .course-card-top {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    min-height: 6.25rem;
+  }
+
+  .premium-course-card .course-category {
+    max-width: none;
+  }
+
+  .premium-course-card .course-card-actions {
+    justify-self: end;
+  }
 }
 
 .premium-course-card .course-designation {
