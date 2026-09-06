@@ -12,9 +12,17 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+const siteTitle = 'AISG My Courses';
+const siteDescription = 'Professional learning for AISG — learn, check, apply and reflect.';
+
 export const metadata: Metadata = {
-  title: 'AISG My Courses',
-  description: 'Professional learning for AISG — learn, check, apply and reflect.',
+  title: siteTitle,
+  description: siteDescription,
+  openGraph: {
+    title: siteTitle,
+    description: siteDescription,
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
