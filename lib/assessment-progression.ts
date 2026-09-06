@@ -1,4 +1,4 @@
-export type CourseAssessmentId = 'safeguarding' | 'engagement' | 'udl' | 'data' | 'assessment' | 'ai' | 'technology' | 'teams' | 'mtss' | 'elementary' | 'secondary';
+export type CourseAssessmentId = 'safeguarding' | 'engagement' | 'udl' | 'data' | 'assessment' | 'growth-domain1' | 'growth-domain2' | 'ai' | 'technology' | 'teams' | 'mtss' | 'elementary' | 'secondary';
 export type CognitiveLevel = 2 | 3 | 4 | 5;
 
 // This authoring map is intentionally not shown to learners. It makes the intended
@@ -38,6 +38,20 @@ export const assessmentProgression: Record<CourseAssessmentId, Record<string, Co
     'afl-5': 3, 'afl-6': 3, 'afl-7': 3,
     'afl-8': 3, 'afl-9': 4,
     'afl-10': 4, 'afl-11': 4, 'afl-12': 5,
+  },
+  'growth-domain1': {
+    'growth-d1-1': 2, 'growth-d1-2': 2,
+    'growth-d1-3': 2, 'growth-d1-4': 3,
+    'growth-d1-5': 3, 'growth-d1-6': 4,
+    'growth-d1-7': 3, 'growth-d1-8': 4,
+    'growth-d1-9': 3, 'growth-d1-10': 3, 'growth-d1-11': 4, 'growth-d1-12': 5,
+  },
+  'growth-domain2': {
+    'growth-d2-1': 2, 'growth-d2-2': 2,
+    'growth-d2-3': 2, 'growth-d2-4': 4,
+    'growth-d2-5': 3, 'growth-d2-6': 4,
+    'growth-d2-7': 3, 'growth-d2-8': 4,
+    'growth-d2-9': 3, 'growth-d2-10': 3, 'growth-d2-11': 4, 'growth-d2-12': 5,
   },
   ai: {
     'ai-1': 2, 'ai-2': 2,
