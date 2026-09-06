@@ -9,6 +9,7 @@ import './data-course.css';
 import './assessment-course.css';
 import './teacher-growth.css';
 import './favourites.css';
+import './course-marks.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
