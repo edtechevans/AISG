@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import PlatformHeader from '@/app/platform-header';
 import CourseMark from '@/app/course-mark';
+import FindYourFocus from '@/app/find-your-focus';
 import { COURSE_BY_ID, COURSE_CATALOG, isCourseId, type CourseCatalogItem, type CourseId } from '@/lib/course-catalog';
 import { installStaticApi } from '@/pages/src/static-api';
 
@@ -221,6 +222,8 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
         <Button className="primary-pill" size="lg" onClick={() => open(inProgress.id)}>Continue learning <ArrowRight aria-hidden="true" /></Button>
       </section>}
 
+      <FindYourFocus favourites={favourites} onToggleFavourite={toggleFavourite} onOpenCourse={open} />
+
       <section id="progress" className="progress-summary learning-summary" aria-labelledby="progress-title">
         <div className="progress-summary-heading">
           <div><p className="tiny-eyebrow">Your learning</p><h2 id="progress-title">A clear view of what matters next</h2></div>
@@ -234,9 +237,9 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
       </section>
 
       {favouriteCourses.length > 0 && <CourseGroup
-        title="Your Favourites"
+        title="Your Starred Courses"
         eyebrow="Saved learning"
-        description="Courses you’ve saved for easy access."
+        description="Courses you’ve starred for easy access, including recommendations from Find Your Focus."
         courses={favouriteCourses}
         onOpen={open}
         favourites={favourites}
@@ -281,7 +284,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
 }
 
 function CourseGroup({ title, eyebrow, description, courses, onOpen, favourites, onToggleFavourite }: { title: string; eyebrow: string; description: string; courses: DisplayCourse[]; onOpen: (id: CourseId) => void; favourites: CourseId[]; onToggleFavourite: (id: CourseId) => void }) {
-  const sectionId = title === 'Required learning' ? 'courses' : title === 'Your Favourites' ? 'favourites' : undefined;
+  const sectionId = title === 'Required learning' ? 'courses' : title === 'Your Starred Courses' ? 'favourites' : undefined;
   return <section id={sectionId} className="course-library course-group" aria-labelledby={`group-${title.replaceAll(' ', '-').toLowerCase()}`}>
     <div className="section-heading group-heading">
       <div><p className="tiny-eyebrow">{eyebrow}</p><h2 id={`group-${title.replaceAll(' ', '-').toLowerCase()}`}>{title}</h2><p>{description}</p></div>
@@ -322,14 +325,14 @@ function ExploreCourseGroup({ teacherGrowthCourses, otherCourses, onOpen, favour
 
 function CourseCard({ course, onOpen, isFavourite, onToggleFavourite }: { course: DisplayCourse; onOpen: (id: CourseId) => void; isFavourite: boolean; onToggleFavourite: (id: CourseId) => void }) {
   const headingId = useId();
-  const favouriteLabel = isFavourite ? `Remove ${course.title} from favourites` : `Add ${course.title} to favourites`;
+  const favouriteLabel = isFavourite ? `Remove ${course.title} from starred courses` : `Star ${course.title}`;
   return <article className="course-card premium-course-card" data-course={course.id} aria-labelledby={headingId}>
     <CourseMark course={course.id} size="card" />
     <div className="course-card-top">
       <span className="course-category">{course.audience || course.category}</span>
       <div className="course-card-actions">
         <span className="course-designation">{course.designation}</span>
-        <button type="button" className={`course-favourite-button ${isFavourite ? 'is-favourite' : ''}`} aria-pressed={isFavourite} aria-label={favouriteLabel} title={isFavourite ? 'Remove from favourites' : 'Add to favourites'} onClick={() => onToggleFavourite(course.id)}>
+        <button type="button" className={`course-favourite-button ${isFavourite ? 'is-favourite' : ''}`} aria-pressed={isFavourite} aria-label={favouriteLabel} title={isFavourite ? 'Remove star' : 'Star course'} onClick={() => onToggleFavourite(course.id)}>
           <Star aria-hidden="true" />
         </button>
       </div>
