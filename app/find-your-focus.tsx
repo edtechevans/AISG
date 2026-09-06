@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, CheckCircle2, Compass, RotateCcw, Star } from 'lucide-react';
 import CourseMark from '@/app/course-mark';
 import { Button } from '@/components/ui/button';
@@ -180,16 +180,10 @@ function reasonFor(course: FocusCourseId, signals: string[]) {
 }
 
 export default function FindYourFocus({ favourites, onToggleFavourite, onOpenCourse }: { favourites: CourseId[]; onToggleFavourite: (id: CourseId) => void; onOpenCourse: (id: CourseId) => void }) {
-  const [saved, setSaved] = useState<FocusResult | null>(null);
+  const [saved, setSaved] = useState<FocusResult | null>(() => readSavedResult());
   const [active, setActive] = useState(false);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    const result = readSavedResult();
-    setSaved(result);
-    if (result) setAnswers(result.answers || {});
-  }, []);
 
   const current = questions[step];
   const selected = current ? answers[current.id] : undefined;
