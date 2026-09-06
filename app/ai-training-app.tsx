@@ -28,6 +28,7 @@ import MultilingualLearningExperience from '@/app/multilingual-learning-experien
 import TeacherGrowthLearningExperience from '@/app/teacher-growth-learning-experience';
 import TeacherGrowthDomain34LearningExperience from '@/app/teacher-growth-domain34-learning-experience';
 import CourseMark from '@/app/course-mark';
+import { CourseLearningLens, CourseSectionQualityNote } from '@/app/course-quality-context';
 
 type CourseProgress = {
   position: number;
@@ -309,6 +310,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     return <main id="main-content" className="learning-shell"><section className="intro-card course-home-card">
       <div className="course-home-heading"><CourseMark course={course} size="hero" /><div className="course-home-heading-copy"><p className="tiny-eyebrow">Course home</p><h1>{config.catalog.title}</h1><p className="intro-summary">{config.catalog.intro ?? config.catalog.description}</p></div></div>
       <dl className="course-facts"><div><dt>Time</dt><dd>{config.catalog.duration}</dd></div><div><dt>Learning path</dt><dd>{config.sections.length} sections</dd></div><div><dt>Checks</dt><dd>{config.questions.length} applied questions</dd></div></dl>
+      <CourseLearningLens course={course} />
       {practiceLabCount > 0 && <div className="principle-card"><CheckCircle2 aria-hidden="true" /><div><strong>Practice before the checks</strong><p>{practiceLabCount} unscored practice labs are woven through this course. Make a judgement, compare it with course-grounded guidance, and then continue to the formal learning checks.</p></div></div>}
       <div className="course-home-progress"><div><strong>Your progress</strong><span>{completionPercent}% complete</span></div><Progress value={completionPercent} aria-label={`${config.catalog.title}: ${completionPercent}% complete`} /><p>{completedChecks} of {config.questions.length} checks completed · Progress saved in this browser</p></div>
       <div className="course-home-sections" aria-label="Course sections">{config.sections.map((item, index) => { const complete = progress.completedSections.includes(item.id); const current = index === sectionIndex && !progress.completedAt; return <div key={item.id} className={current ? 'section-current' : ''} aria-current={current ? 'step' : undefined}><span className={complete ? 'section-complete-dot' : 'section-pending-dot'}>{complete ? '✓' : item.number}</span><span>{item.title}</span>{current && <small>Next</small>}</div>; })}</div>
@@ -331,6 +333,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
       <div className="learning-top"><Button variant="ghost" onClick={() => setStage(progress.completedAt ? 'complete' : 'course-home')}><ArrowLeft /> {reviewMode ? 'Completion' : 'Course home'}</Button><span className="section-position">Section {section.number} of {config.sections.length}</span></div>
       <div className="dual-progress"><Progress value={completionPercent} aria-label={`Overall course: ${completionPercent}%`} /><span className="text-sm text-muted-foreground">{completionPercent}% overall</span></div>
       <div className="course-experience">{roadmap}<section className="intro-card lesson-card"><div className="module-orbit">{String(section.number).padStart(2, '0')}</div><p className="tiny-eyebrow">Learn · {learningLens} · Part {learnPage + 1} of {section.learn.length}</p><h1>{section.title}</h1><p className="intro-summary">{section.summary}</p><p className="lesson-copy">{section.learn[learnPage]}</p>
+        <CourseSectionQualityNote course={course} sectionId={section.id} learnPage={learnPage} />
         {facultyCourse && <FacultyLearningExperience key={`${facultyCourse}-${section.id}-${learnPage}`} course={facultyCourse} sectionId={section.id} learnPage={learnPage} />}
         {enrichedCourse && <CommunicationMtssLearningExperience key={`${enrichedCourse}-${section.id}-${learnPage}`} course={enrichedCourse} sectionId={section.id} learnPage={learnPage} />}
         {tlfTechnologyAiCourse && <TlfTechnologyAiLearningExperience key={`${tlfTechnologyAiCourse}-${section.id}-${learnPage}`} course={tlfTechnologyAiCourse} sectionId={section.id} learnPage={learnPage} />}
