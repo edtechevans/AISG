@@ -1,4 +1,4 @@
-export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'ai' | 'assessment' | 'data' | 'udl' | 'engagement' | 'mtss' | 'technology' | 'growth-domain1' | 'growth-domain2';
+export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'ai' | 'assessment' | 'data' | 'udl' | 'engagement' | 'mtss' | 'technology' | 'growth-domain1' | 'growth-domain2' | 'growth-domain3' | 'growth-domain4';
 
 export type CourseCatalogItem = {
   id: CourseId;
@@ -182,6 +182,32 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     checkCount: 12,
     storageKey: 'my-courses-teacher-growth-domain2-progress-v1',
     capabilities: ['Belonging & psychological safety', 'Student voice & advocacy', 'Equity & learner autonomy', 'Purposeful space, time & tools'],
+  },
+  {
+    id: 'growth-domain3',
+    title: 'Domain 3: Transformative, Culturally Responsive Learning in Action',
+    description: 'Use the AISG Teacher Growth Continuum to deepen thinking, inclusive discourse, inquiry, creativity and authentic application.',
+    intro: 'Domain 3 focuses on what transformative learning looks like in action. This course follows the continuum from recall, teacher-led participation and prescribed pathways toward deeper thinking, learner-led knowledge-building, independent inquiry, transfer and meaningful real-world application. The emphasis remains on student evidence: what learners justify, question, create, decide, transfer and contribute as the teacher increasingly designs conditions for ownership rather than carrying all of the thinking.',
+    category: 'Teacher Growth & Reflection',
+    designation: 'Recommended',
+    duration: '25–30 minutes',
+    sectionCount: 5,
+    checkCount: 12,
+    storageKey: 'my-courses-teacher-growth-domain3-progress-v1',
+    capabilities: ['Cognitive demand & thinking', 'Inclusive discourse & collaboration', 'Choice, inquiry & creativity', 'Authentic application & social impact'],
+  },
+  {
+    id: 'growth-domain4',
+    title: 'Domain 4: Collaborative Planning, Reflection & Professional Impact',
+    description: 'Use the AISG Teacher Growth Continuum to strengthen feedback, evidence use, learner reflection, collaboration and community partnership.',
+    intro: 'Domain 4 connects professional learning with student impact and, at later levels, increasing influence across teams and the school. This course follows the continuum through feedback, evidence and responsive planning, learner reflection, professional collaboration and community partnership. The aim is not to accumulate professional activity. It is to notice how reflection, shared evidence and collaboration increasingly improve learner experience, build collective capacity and create coherent practice across contexts.',
+    category: 'Teacher Growth & Reflection',
+    designation: 'Recommended',
+    duration: '25–30 minutes',
+    sectionCount: 6,
+    checkCount: 12,
+    storageKey: 'my-courses-teacher-growth-domain4-progress-v1',
+    capabilities: ['Feedback & inclusive growth', 'Evidence & responsive planning', 'Learner reflection & ownership', 'Collective capacity & partnership'],
   },
 ];
 
