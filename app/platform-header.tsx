@@ -36,10 +36,10 @@ export default function PlatformHeader({
   return <header className="app-header print:hidden">
     <a className="skip-link" href="#main-content">Skip to main content</a>
     <div className="app-header-inner">
-      <button className="brand-button" onClick={onPlatformHome} aria-label="AISG Learning Platform home">
+      <button className="brand-button" onClick={onPlatformHome} aria-label="AISG My Courses home">
         {/* oxlint-disable-next-line next/no-img-element -- relative asset supports Sites and the GitHub Pages base path. */}
         <img className="aisg-logo aisg-logo-header" src="aisg-logo.png" alt="" />
-        <span className="brand-copy"><strong>AISG Learning Platform</strong><small>{context}</small></span>
+        <span className="brand-copy"><strong>AISG My Courses</strong><small>{context}</small></span>
       </button>
       <nav className="platform-nav" aria-label="Learning platform navigation">
         {onCourseHome && <button className="nav-link" onClick={onCourseHome}>Course home</button>}
