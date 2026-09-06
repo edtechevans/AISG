@@ -108,6 +108,89 @@
   }
 }
 
+/* Homepage course cards: keep marks, metadata, favourite controls and titles on a calm,
+   repeatable visual grid even when category labels or course titles vary in length. */
+.premium-course-card {
+  padding: 1.4rem 1.4rem 1.35rem;
+}
+
+.premium-course-card .course-mark-card {
+  margin-bottom: 1.05rem;
+}
+
+.premium-course-card .course-card-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: .9rem;
+  width: 100%;
+  min-height: 4.25rem;
+}
+
+.premium-course-card .course-category {
+  display: block;
+  min-width: 0;
+  max-width: 10.75rem;
+  padding-top: .28rem;
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.premium-course-card .course-card-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  justify-self: end;
+  gap: .55rem;
+  margin: 0;
+}
+
+.premium-course-card .course-designation {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.2rem;
+  padding: .4rem .62rem;
+  border-radius: .48rem;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: inset 0 0 0 1px rgb(80 97 120 / 7%);
+}
+
+.premium-course-card .course-favourite-button {
+  flex: 0 0 2.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0;
+  align-self: flex-start;
+}
+
+.premium-course-card h3 {
+  margin-top: .65rem;
+  text-wrap: balance;
+}
+
+.premium-course-card > p {
+  margin-top: .75rem;
+  text-wrap: pretty;
+}
+
+.premium-course-card .simplified-meta {
+  margin-top: 1.1rem;
+}
+
+.premium-course-card .course-card-footer {
+  align-items: center;
+  gap: .85rem;
+}
+
+/* The four Domain cards share a deliberately dense pathway row. Slightly quieter title
+   sizing keeps long official domain names readable without dominating the marks or metadata. */
+.premium-course-card[data-course^='growth-domain'] h3 {
+  font-size: clamp(1.3rem, 1.45vw, 1.58rem);
+  line-height: 1.1;
+}
+
 /* Final interaction and legibility pass. Keep common touch targets at or above 44px. */
 .mobile-nav > summary {
   width: 2.75rem;
@@ -153,6 +236,29 @@
   .continue-course-identity .course-mark-card {
     width: 34px;
     height: 34px;
+  }
+
+  .premium-course-card {
+    padding: 1.25rem;
+  }
+
+  .premium-course-card .course-card-top {
+    gap: .65rem;
+    min-height: 4rem;
+  }
+
+  .premium-course-card .course-category {
+    max-width: 8rem;
+    padding-top: .2rem;
+  }
+
+  .premium-course-card .course-card-actions {
+    gap: .4rem;
+  }
+
+  .premium-course-card .course-designation {
+    min-height: 2rem;
+    padding-inline: .5rem;
   }
 }
 
