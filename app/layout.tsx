@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'My Courses | AISG',
-  description: 'Short, practical professional learning designed for the AISG context.',
+  title: 'AISG My Courses',
+  description: 'Professional learning for AISG — learn, check, apply and reflect.',
 };
 
 export default function RootLayout({
