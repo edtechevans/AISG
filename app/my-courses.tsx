@@ -185,14 +185,15 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
     return <><PlatformHeader onPlatformHome={home} activeCourse={route} onCourse={open} onCourses={home} /><Suspense fallback={<CourseLoading title={COURSE_BY_ID[route].title} />}><AiTrainingApp key={route} onExit={home} course={route} /></Suspense></>;
   }
 
-  const inProgress = courses
+  const inProgressCourses = courses
     .filter((course) => course.status === 'In Progress')
-    .sort((a, b) => (states[b.id].updatedAt || 0) - (states[a.id].updatedAt || 0))[0];
+    .sort((a, b) => (states[b.id].updatedAt || 0) - (states[a.id].updatedAt || 0));
+  const inProgress = inProgressCourses[0];
   const completed = courses.filter((course) => course.status === 'Completed').length;
   const required = courses.filter((course) => course.designation === 'Required');
   const requiredCompleted = required.filter((course) => course.status === 'Completed').length;
-  const hasActivity = courses.some((course) => course.status !== 'Not Started');
   const favouriteCourses = courses.filter((course) => favourites.includes(course.id));
+  const hasActivity = courses.some((course) => course.status !== 'Not Started') || favouriteCourses.length > 0;
   const explore = courses.filter((course) => course.designation !== 'Required');
   const teacherGrowthExplore = explore.filter((course) => course.category === 'Teacher Growth & Reflection').sort((a, b) => a.title.localeCompare(b.title));
   const otherExplore = explore.filter((course) => course.category !== 'Teacher Growth & Reflection').sort((a, b) => a.title.localeCompare(b.title));
@@ -206,35 +207,47 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
     <PlatformHeader onPlatformHome={home} onCourse={open} onCourses={() => scrollTo('courses')} onProgress={() => scrollTo('record')} />
     <main id="main-content" className="my-courses-shell premium-learning-home">
       <section className="my-courses-hero premium-hero">
-        <div>
+        <div className="premium-hero-copy">
           <p className="eyebrow"><GraduationCap aria-hidden="true" /> AISG My Courses</p>
           <h1>{hasActivity ? 'Welcome back.' : 'Welcome to My Courses.'}</h1>
-          <p>Your professional learning, in one place. Build shared understanding, apply it to authentic AISG decisions, and return when your practice is ready for the next step.</p>
+          <p className="hero-intro">Your professional learning, in one place. Build shared understanding, apply it to authentic AISG decisions, and return when your practice is ready for the next step.</p>
+          <p className="learning-rhythm" aria-label="Learning rhythm">Learn <span>→</span> Check <span>→</span> Apply <span>→</span> Reflect</p>
         </div>
-        <p className="learning-rhythm" aria-label="Learning rhythm">Learn <span>→</span> Check <span>→</span> Apply <span>→</span> Reflect</p>
-      </section>
 
-      {inProgress && <section className="continue-card continue-feature" aria-labelledby="continue-title">
-        <div className="continue-copy">
-          <div className="continue-course-identity"><CourseMark course={inProgress.id} size="card" tone="inverse" /><div><p className="tiny-eyebrow">Continue learning</p><h2 id="continue-title">{inProgress.title}</h2><p>{inProgress.progress}% complete · Resume exactly where you left off.</p></div></div>
-          <Progress value={inProgress.progress} aria-label={`${inProgress.title}: ${inProgress.progress}% complete`} />
-        </div>
-        <Button className="primary-pill" size="lg" onClick={() => open(inProgress.id)}>Continue learning <ArrowRight aria-hidden="true" /></Button>
-      </section>}
+        <aside className="hero-learning-panel" aria-labelledby="hero-learning-title">
+          <div className="hero-learning-heading">
+            <div><p className="tiny-eyebrow">Your learning</p><h2 id="hero-learning-title">A clear view of what matters next</h2></div>
+            <Button variant="ghost" className="hero-record-link" onClick={() => scrollTo('record')}><History aria-hidden="true" /> Record</Button>
+          </div>
+          <div className="hero-learning-stats" aria-live="polite">
+            <Stat label="Required" value={`${requiredCompleted}/${required.length}`} />
+            <Stat label="In progress" value={String(inProgressCourses.length)} />
+            <Stat label="Completed" value={String(completed)} />
+          </div>
+          <div className="hero-next-move">
+            {inProgress ? <>
+              <div className="hero-next-course">
+                <CourseMark course={inProgress.id} size="record" />
+                <div><p className="tiny-eyebrow">Continue learning</p><strong>{inProgress.title}</strong><span>{inProgress.progress}% complete · Resume where you left off.</span></div>
+              </div>
+              <Progress value={inProgress.progress} aria-label={`${inProgress.title}: ${inProgress.progress}% complete`} />
+              <Button className="primary-pill hero-next-action" onClick={() => open(inProgress.id)}>Continue <ArrowRight aria-hidden="true" /></Button>
+            </> : favouriteCourses.length > 0 ? <>
+              <p className="tiny-eyebrow">Ready when you are</p>
+              <strong>{favouriteCourses.length} starred {favouriteCourses.length === 1 ? 'course' : 'courses'} saved for later.</strong>
+              <p>Return to the learning you chose when it connects with your next professional question.</p>
+              <Button variant="outline" className="hero-next-action" onClick={() => scrollTo('favourites')}>View starred courses <ArrowRight aria-hidden="true" /></Button>
+            </> : <>
+              <p className="tiny-eyebrow">Not sure where to begin?</p>
+              <strong>Turn a current professional question into a useful next step.</strong>
+              <p>Find Your Focus uses six reflective questions to suggest learning that may be useful right now.</p>
+              <Button variant="outline" className="hero-next-action" onClick={() => scrollTo('find-your-focus')}>Find my focus <ArrowRight aria-hidden="true" /></Button>
+            </>}
+          </div>
+        </aside>
+      </section>
 
       <FindYourFocus favourites={favourites} onToggleFavourite={toggleFavourite} onOpenCourse={open} />
-
-      <section id="progress" className="progress-summary learning-summary" aria-labelledby="progress-title">
-        <div className="progress-summary-heading">
-          <div><p className="tiny-eyebrow">Your learning</p><h2 id="progress-title">A clear view of what matters next</h2></div>
-          <Button variant="outline" onClick={() => scrollTo('record')}><History aria-hidden="true" /> My learning record</Button>
-        </div>
-        <div className="progress-stats" aria-live="polite">
-          <Stat label="Required learning" value={`${requiredCompleted}/${required.length}`} />
-          <Stat label="In progress" value={String(courses.filter((course) => course.status === 'In Progress').length)} />
-          <Stat label="Completed this year" value={String(completed)} />
-        </div>
-      </section>
 
       {favouriteCourses.length > 0 && <CourseGroup
         title="Your Starred Courses"
