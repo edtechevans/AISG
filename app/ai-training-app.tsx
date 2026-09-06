@@ -14,28 +14,33 @@ import { COURSE_BY_ID, type CourseId } from '@/lib/course-catalog';
 
 type CourseProgress = {
   position: number;
+  learnPage?: number;
+  learningStage?: 'learn' | 'question';
   completedSections: string[];
   responses: Record<string, { answer: string; correct: boolean }>;
   completedAt?: number;
   practice?: string;
   commitment?: string;
+  attempts?: { score: number; completedAt: number; passed: boolean }[];
+  lastAttempt?: { score: number; completedAt: number; passed: boolean };
+  updatedAt?: number;
 };
 
-type LearningStage = 'course-home' | 'learn' | 'question' | 'practice' | 'complete';
+type LearningStage = 'course-home' | 'learn' | 'question' | 'practice' | 'complete' | 'result';
 type CourseKey = Exclude<CourseId, 'safeguarding'>;
 
 const emptyProgress: CourseProgress = { position: 0, completedSections: [], responses: {} };
 
 const courses = {
-  elementary: { storageKey: 'my-courses-elementary-faculty-progress-sy2627', catalog: COURSE_BY_ID.elementary, version: FACULTY_COURSE_VERSION, sections: elementarySections, questions: elementaryQuestions, practiceOptions: ['Elementary routines and responsibilities', 'Assessment and reporting', 'Student support and wellbeing', 'Communication and collaboration', 'Professional growth', 'Something else'] },
-  secondary: { storageKey: 'my-courses-secondary-faculty-progress-sy2627', catalog: COURSE_BY_ID.secondary, version: FACULTY_COURSE_VERSION, sections: secondarySections, questions: secondaryQuestions, practiceOptions: ['Secondary routines and responsibilities', 'Assessment and grading', 'Student support and advisory', 'Academic integrity and AI', 'Student behaviour and safety', 'Something else'] },
+  elementary: { storageKey: 'my-courses-elementary-faculty-progress-sy2627-v2', catalog: COURSE_BY_ID.elementary, version: FACULTY_COURSE_VERSION, passingScore: 80, sections: elementarySections, questions: elementaryQuestions, practiceOptions: ['Elementary routines and responsibilities', 'Assessment and reporting', 'Student support and wellbeing', 'Communication and collaboration', 'Professional growth', 'Something else'] },
+  secondary: { storageKey: 'my-courses-secondary-faculty-progress-sy2627-v2', catalog: COURSE_BY_ID.secondary, version: FACULTY_COURSE_VERSION, passingScore: 80, sections: secondarySections, questions: secondaryQuestions, practiceOptions: ['Secondary routines and responsibilities', 'Assessment and grading', 'Student support and advisory', 'Academic integrity and AI', 'Student behaviour and safety', 'Something else'] },
   engagement: {
     storageKey: 'my-courses-engagement-progress-v1',
     catalog: COURSE_BY_ID.engagement,
     version: TLF_COURSE_VERSION,
     sections: tlfSections,
     questions: tlfQuestions,
-    practiceOptions: ['Use the framework as a lens in an upcoming learning design.', 'Select a small set of indicators for a coaching or reflection conversation.', 'Notice student experience through talk, choices, work, relationships and action.', 'Invite students to describe what deepens their engagement.', 'Something else'],
+    passingScore: 0, practiceOptions: ['Use the framework as a lens in an upcoming learning design.', 'Select a small set of indicators for a coaching or reflection conversation.', 'Notice student experience through talk, choices, work, relationships and action.', 'Invite students to describe what deepens their engagement.', 'Something else'],
   },
   ai: {
     storageKey: 'my-courses-ai-progress-v1',
@@ -43,7 +48,7 @@ const courses = {
     version: AI_COURSE_VERSION,
     sections: aiSections,
     questions: aiQuestions,
-    practiceOptions: [
+    passingScore: 0, practiceOptions: [
       'Be more deliberate about what student information I share with AI.',
       'Keep the human in the loop when using AI for feedback.',
       'Verify AI-generated information before using it.',
@@ -58,7 +63,7 @@ const courses = {
     version: TEAMS_COURSE_VERSION,
     sections: teamsSections,
     questions: teamsQuestions,
-    practiceOptions: [
+    passingScore: 0, practiceOptions: [
       'Be more intentional about who actually needs information.',
       'Share only what colleagues need to support the student.',
       'Describe observable behaviour rather than label students.',
@@ -75,7 +80,7 @@ const courses = {
     version: MTSS_COURSE_VERSION,
     sections: mtssSections,
     questions: mtssQuestions,
-    practiceOptions: [
+    passingScore: 0, practiceOptions: [
       'Use the complete MTSS decision cycle.',
       'Bring multiple evidence sources to decisions.',
       'Check Tier 1 before intensifying support.',
@@ -90,7 +95,14 @@ const courses = {
 function readProgress(storageKey: string): CourseProgress {
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
-    return saved && typeof saved === 'object' ? { ...emptyProgress, ...saved } : emptyProgress;
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return emptyProgress;
+    return {
+      ...emptyProgress,
+      ...saved,
+      position: Number.isFinite(saved.position) ? Math.max(0, saved.position) : 0,
+      completedSections: Array.isArray(saved.completedSections) ? saved.completedSections.filter((id: unknown) => typeof id === 'string') : [],
+      responses: saved.responses && typeof saved.responses === 'object' && !Array.isArray(saved.responses) ? saved.responses : {},
+    };
   } catch {
     return emptyProgress;
   }
@@ -109,7 +121,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   const initialProgress = readProgress(config.storageKey);
   const initialQuestion = Math.min(config.questions.length - 1, initialProgress.position);
   const [progress, setProgress] = useState<CourseProgress>(initialProgress);
-  const [stage, setStage] = useState<LearningStage>(initialProgress.completedAt ? 'complete' : 'course-home');
+  const [stage, setStage] = useState<LearningStage>(initialProgress.completedAt ? 'complete' : initialProgress.lastAttempt ? 'result' : 'course-home');
   const [questionIndex, setQuestionIndex] = useState(initialQuestion);
   const [sectionIndex, setSectionIndex] = useState(() => {
     let index = 0;
@@ -117,7 +129,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     config.sections.forEach((item, itemIndex) => { if (start <= initialQuestion) index = itemIndex; start += item.questions.length; });
     return index;
   });
-  const [learnPage, setLearnPage] = useState(0);
+  const [learnPage, setLearnPage] = useState(() => Math.max(0, initialProgress.learnPage || 0));
   const [selected, setSelected] = useState('');
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -132,7 +144,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   const completedChecks = Object.keys(progress.responses).length;
   const totalSteps = config.questions.length + config.sections.length;
   const completionPercent = Math.round((completedChecks + progress.completedSections.length) / totalSteps * 100);
-  const hasProgress = completedChecks > 0 || progress.completedSections.length > 0;
+  const hasProgress = completedChecks > 0 || progress.completedSections.length > 0 || Boolean(progress.learningStage) || (progress.learnPage || 0) > 0;
   const sectionStarts = useMemo(() => {
     const starts: number[] = [];
     let total = 0;
@@ -154,8 +166,9 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   }, [config.catalog.title]);
 
   function updateProgress(next: CourseProgress) {
-    setProgress(next);
-    saveProgress(config.storageKey, next);
+    const saved = { ...next, updatedAt: Date.now() };
+    setProgress(saved);
+    saveProgress(config.storageKey, saved);
   }
 
   function startOrResume() {
@@ -167,17 +180,21 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
       setStage('practice');
       return;
     }
-    setLearnPage(0);
-    setSelected('');
-    setFeedback(null);
-    setIsCorrect(null);
-    setRemediationRead(false);
-    setStage(progress.completedSections.includes(section.id) ? 'question' : 'learn');
+    const savedLearnPage = Math.min(section.learn.length - 1, Math.max(0, progress.learnPage || 0));
+    setLearnPage(savedLearnPage);
+    const savedAnswer = progress.responses[question.id];
+    setSelected(savedAnswer?.answer || '');
+    setFeedback(savedAnswer ? (savedAnswer.correct ? question.correctFeedback : question.optionFeedback?.[savedAnswer.answer] ?? question.incorrectFeedback) : null);
+    setIsCorrect(savedAnswer ? savedAnswer.correct : null);
+    setRemediationRead(Boolean(savedAnswer?.correct || (savedAnswer && !question.criticalSafeguarding)));
+    setStage(progress.learningStage === 'question' || progress.completedSections.includes(section.id) ? 'question' : 'learn');
   }
 
   function continueLearning() {
     if (learnPage < section.learn.length - 1) {
-      setLearnPage((page) => page + 1);
+      const nextPage = learnPage + 1;
+      setLearnPage(nextPage);
+      if (!reviewMode) updateProgress({ ...progress, learnPage: nextPage, learningStage: 'learn' });
       return;
     }
     if (reviewMode) {
@@ -195,7 +212,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     const completedSections = progress.completedSections.includes(section.id)
       ? progress.completedSections
       : [...progress.completedSections, section.id];
-    updateProgress({ ...progress, completedSections, position: Math.max(progress.position, questionIndex) });
+    updateProgress({ ...progress, completedSections, position: Math.max(progress.position, questionIndex), learnPage: 0, learningStage: 'question' });
     setStage('question');
   }
 
@@ -205,10 +222,11 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     updateProgress({
       ...progress,
       responses: { ...progress.responses, [question.id]: { answer: selected, correct } },
-      position: Math.max(progress.position, questionIndex + 1),
+      position: questionIndex,
+      learningStage: 'question',
     });
     setIsCorrect(correct);
-    setFeedback(correct ? question.correctFeedback : question.incorrectFeedback);
+    setFeedback(correct ? question.correctFeedback : question.optionFeedback?.[selected] ?? question.incorrectFeedback);
     setRemediationRead(correct || !question.criticalSafeguarding);
   }
 
@@ -221,6 +239,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     const nextQuestion = questionIndex + 1;
     const nextSection = sectionIndexForQuestion(nextQuestion);
     setQuestionIndex(nextQuestion);
+    updateProgress({ ...progress, position: nextQuestion, learnPage: 0, learningStage: nextSection !== sectionIndex ? 'learn' : 'question' });
     setSelected('');
     setFeedback(null);
     setIsCorrect(null);
@@ -233,8 +252,17 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   }
 
   function completeCourse() {
-    updateProgress({ ...progress, practice, commitment, completedAt: Date.now() });
-    setStage('complete');
+    const score = Object.values(progress.responses).filter((response) => response.correct).length;
+    const passed = config.passingScore === 0 || Math.round(score / config.questions.length * 100) >= config.passingScore;
+    const attempt = { score, completedAt: Date.now(), passed };
+    updateProgress({ ...progress, practice, commitment, attempts: [...(progress.attempts || []), attempt], lastAttempt: attempt, completedAt: passed ? attempt.completedAt : undefined });
+    setStage(passed ? 'complete' : 'result');
+  }
+
+  function retryCourse() {
+    const next = { ...progress, position: 0, learnPage: 0, learningStage: 'learn' as const, completedSections: [], responses: {}, completedAt: undefined, lastAttempt: undefined };
+    updateProgress(next);
+    setSectionIndex(0); setQuestionIndex(0); setLearnPage(0); setSelected(''); setFeedback(null); setIsCorrect(null); setStage('course-home');
   }
 
   function beginReview() {
@@ -248,13 +276,15 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     setStage('learn');
   }
 
-  if (stage === 'complete') {
+  if (stage === 'complete' || stage === 'result') {
+    const score = progress.lastAttempt?.score ?? Object.values(progress.responses).filter((response) => response.correct).length;
+    const passed = Boolean(progress.completedAt);
     return <main id="main-content" className="learning-shell"><section className="results-card">
-      <p className="tiny-eyebrow">My Courses · {config.catalog.title}</p><h1>Course complete</h1>
-      <p className="results-lead">You completed the learning and applied the principles to realistic professional decisions.</p>
-      <div className="score-grid"><div><span>Score</span><strong>{Object.values(progress.responses).filter((response) => response.correct).length}/{config.questions.length}</strong></div><div><span>Version</span><strong>{config.version}</strong></div><div><span>Status</span><strong>Completed</strong></div></div>
+      <p className="tiny-eyebrow">My Courses · {config.catalog.title}</p><h1>{passed ? 'Course complete' : 'Review and try again'}</h1>
+      <p className="results-lead">{passed ? 'You completed the learning and applied the principles to realistic professional decisions.' : `You completed this attempt. Review the learning before another attempt; ${config.passingScore}% is required for completion.`}</p>
+      <div className="score-grid"><div><span>Score</span><strong>{score}/{config.questions.length}</strong></div><div><span>Version</span><strong>{config.version}</strong></div><div><span>Status</span><strong>{passed ? 'Completed' : 'Another attempt needed'}</strong></div></div>
       <div className="principle-card"><CheckCircle2 aria-hidden="true" /><div><strong>Take it into practice</strong><p>{practice || 'No practice idea selected.'}</p>{commitment && <p className="mt-2"><strong>My commitment:</strong> {commitment}</p>}</div></div>
-      <div className="result-actions"><Button className="primary-pill" size="lg" onClick={beginReview}>Review learning <ArrowRight /></Button><Button variant="outline" size="lg" onClick={onExit}><ArrowLeft /> Back to courses</Button></div>
+      <div className="result-actions">{passed ? <Button className="primary-pill" size="lg" onClick={beginReview}>Review learning <ArrowRight /></Button> : <Button className="primary-pill" size="lg" onClick={retryCourse}>Review and try again <ArrowRight /></Button>}<Button variant="outline" size="lg" onClick={onExit}><ArrowLeft /> Back to courses</Button></div>
     </section></main>;
   }
 
@@ -291,7 +321,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   const checkInSection = questionIndexInSection + 1;
   const checksInCurrentSection = section.questions.length;
   const feedbackIsCorrectAndRemediated = Boolean(feedback && (isCorrect || remediationRead));
-  return <main id="main-content" className="learning-shell"><div className="learning-top"><Button variant="ghost" onClick={() => setStage('course-home')}><ArrowLeft /> Course home</Button><span className="text-sm text-muted-foreground">Check {checkInSection} of 2</span></div>
+  return <main id="main-content" className="learning-shell"><div className="learning-top"><Button variant="ghost" onClick={() => setStage('course-home')}><ArrowLeft /> Course home</Button><span className="text-sm text-muted-foreground">Check {checkInSection} of {checksInCurrentSection}</span></div>
     <div className="dual-progress"><Progress value={completionPercent} aria-label={`Overall course: ${completionPercent}%`} /><span className="text-sm text-muted-foreground">Section {section.number} of {config.sections.length} · {completionPercent}% overall</span></div>
     <section className="question-layout"><div className="question-number">{String(questionIndex + 1).padStart(2, '0')}</div><article className="question-card" data-cognitive-level={cognitiveLevelFor(course, question.id)}><span className="question-kind">Check {checkInSection} of {checksInCurrentSection} · Check your understanding</span><h1>{question.question}</h1><div className="scenario"><span>Scenario</span><p>{question.scenario}</p></div>
       <fieldset className="answers"><legend className="sr-only">Choose one answer</legend>{question.options.map((option) => <label key={option.id} className={`answer-option ${selected === option.id ? 'answer-selected' : ''} ${answered && answered.answer === option.id && !answered.correct ? 'answer-wrong' : ''} ${answered && question.answer === option.id ? 'answer-correct' : ''}`}><input type="radio" name={question.id} value={option.id} checked={selected === option.id} disabled={Boolean(answered)} onChange={() => setSelected(option.id)} /><span><b>{option.id.toUpperCase()}</b>{option.text}</span>{answered && question.answer === option.id && <CheckCircle2 className="answer-icon" aria-label="Correct answer" />}</label>)}</fieldset>

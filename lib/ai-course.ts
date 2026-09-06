@@ -1,17 +1,28 @@
 export type AiQuestion = {
   id: string;
   section: string;
+  courseVersion?: string;
+  module?: string;
+  questionNumber?: number;
+  title?: string;
+  questionType?: 'single_choice';
+  learningObjective?: string;
   question: string;
   scenario: string;
   options: { id: string; text: string }[];
   answer: string;
+  correctAnswer?: string[];
   correctFeedback: string;
   incorrectFeedback: string;
   assessmentLevel?: string;
   handbookSection?: string;
   handbookPage?: string;
+  contentTags?: string[];
+  contentOwner?: string;
+  status?: string;
   criticalSafeguarding?: boolean;
   reviewStatus?: string;
+  optionFeedback?: Record<string, string>;
 };
 
 export type AiSection = {

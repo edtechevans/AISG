@@ -18,6 +18,9 @@ type CourseState = {
   responses?: unknown[] | Record<string, unknown>;
   completedSections?: unknown[];
   completedAt?: number;
+  updatedAt?: number;
+  learnPage?: number;
+  learningStage?: 'learn' | 'question';
   progress?: { completed?: number; percentage?: number } | null;
   attempt?: { completedAt?: number | null };
 };
@@ -36,9 +39,19 @@ function responseCount(state: CourseState) {
   return Object.keys(state.responses || {}).length;
 }
 
+function correctResponseCount(state: CourseState) {
+  if (!state.responses || Array.isArray(state.responses)) return undefined;
+  return Object.values(state.responses).filter((response) => Boolean(response && typeof response === 'object' && 'correct' in response && response.correct)).length;
+}
+
+function completionDate(state: CourseState) {
+  const timestamp = state.completedAt || state.attempt?.completedAt;
+  return timestamp ? new Date(timestamp).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : undefined;
+}
+
 function statusFor(state: CourseState): CourseStatus {
   if (state.status === 'PASSED' || state.attempt?.completedAt || state.completedAt) return 'Completed';
-  if (responseCount(state) > 0 || (state.progress?.completed || 0) > 0 || (state.completedSections?.length || 0) > 0) return 'In Progress';
+  if (responseCount(state) > 0 || (state.progress?.completed || 0) > 0 || (state.completedSections?.length || 0) > 0 || Boolean(state.learningStage) || (state.learnPage || 0) > 0) return 'In Progress';
   return 'Not Started';
 }
 
@@ -53,8 +66,8 @@ function shortCourseStates(): Record<CourseId, CourseState> {
 }
 
 export default function MyCoursesApp({ staticMode = false }: { staticMode?: boolean }) {
-  const [route, setRoute] = useState(() => typeof window === 'undefined' ? '' : new URLSearchParams(window.location.search).get('course') || '');
-  const [states, setStates] = useState<Record<CourseId, CourseState>>(() => shortCourseStates());
+  const [route, setRoute] = useState('');
+  const [states, setStates] = useState<Record<CourseId, CourseState>>(() => Object.fromEntries(COURSE_CATALOG.map((course) => [course.id, {}])) as Record<CourseId, CourseState>);
   const [browserMode, setBrowserMode] = useState(staticMode);
 
   useEffect(() => {
@@ -63,7 +76,12 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   }, [route]);
 
   useEffect(() => {
-    const onPop = () => setRoute(new URLSearchParams(window.location.search).get('course') || '');
+    const syncBrowserState = () => {
+      setRoute(new URLSearchParams(window.location.search).get('course') || '');
+      setStates((current) => ({ ...current, ...shortCourseStates() }));
+    };
+    syncBrowserState();
+    const onPop = () => syncBrowserState();
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
@@ -124,7 +142,9 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   if (route === 'ai') return <><PlatformHeader onPlatformHome={home} activeCourse="ai" onCourse={open} /><AiTrainingApp key="ai" onExit={home} /></>;
   if (route === 'teams') return <><PlatformHeader onPlatformHome={home} activeCourse="teams" onCourse={open} /><AiTrainingApp key="teams" onExit={home} course="teams" /></>;
 
-  const inProgress = courses.find((course) => course.status === 'In Progress');
+  const inProgress = courses
+    .filter((course) => course.status === 'In Progress')
+    .sort((a, b) => (states[b.id].updatedAt || 0) - (states[a.id].updatedAt || 0))[0];
   const completed = courses.filter((course) => course.status === 'Completed').length;
 
   function scrollTo(id: string) {
@@ -179,7 +199,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
 
       <section id="record" className="record-card" aria-labelledby="record-title">
         <div><p className="tiny-eyebrow">Course record</p><h2 id="record-title">Your professional learning history</h2><p>Course progress and reflections are saved in this browser for this test environment.</p></div>
-        {courses.filter((course) => course.status === 'Completed').map((course) => <div className="record-row" key={course.id}><strong>{course.title}</strong><span>SY2026–27 · Completed</span></div>)}
+        {courses.filter((course) => course.status === 'Completed').map((course) => { const score = correctResponseCount(states[course.id]); const date = completionDate(states[course.id]); return <div className="record-row" key={course.id}><strong>{course.title}</strong><span>{date ? `${date} · ` : ''}{score === undefined ? '' : `${score}/${course.checkCount} · `}SY2026–27 · Completed</span></div>; })}
         {completed === 0 && <p className="record-empty">Completed courses will appear here.</p>}
       </section>
     </main>
