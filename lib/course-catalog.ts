@@ -12,17 +12,50 @@ export type CourseCatalogItem = {
   sectionCount: number;
   checkCount: number;
   storageKey?: string;
+  capabilities: readonly string[];
 };
 
 export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
-  { id: 'elementary', title: 'Elementary Faculty Essentials', description: 'A practical guide to the expectations, routines and shared responsibilities that shape Elementary at AISG.', intro: 'Elementary at AISG is shaped by shared approaches to learning, relationships, assessment, student support and community life. Work through this course over one or more sittings; your progress is saved so you can return to the same place.', category: 'Elementary School', designation: 'Required', audience: 'Elementary Faculty', duration: '90–120 minutes', sectionCount: 10, checkCount: 50, storageKey: 'my-courses-elementary-faculty-progress-sy2627-v2' },
-  { id: 'secondary', title: 'Secondary Faculty Essentials', description: 'A comprehensive guide to the expectations, routines, professional practices and shared responsibilities that shape Secondary at AISG.', intro: 'Secondary at AISG is shaped by more than schedules, courses and procedures. Our shared approach to learning, assessment, student support, professional growth, communication and community life creates a coherent experience across Grades 6–12. Complete this course over one or more sittings; your progress is saved so you can return to the same place.', category: 'Secondary School', designation: 'Required', audience: 'Secondary Faculty', duration: '90–120 minutes', sectionCount: 10, checkCount: 50, storageKey: 'my-courses-secondary-faculty-progress-sy2627-v2' },
+  {
+    id: 'elementary',
+    title: 'Elementary Faculty Essentials',
+    description: 'A practical guide to the expectations, routines and shared responsibilities that shape Elementary at AISG.',
+    intro: 'Elementary at AISG is shaped by shared approaches to learning, relationships, assessment, student support and community life. Work through this course over one or more sittings; your progress is saved so you can return to the same place.',
+    category: 'Elementary School',
+    designation: 'Required',
+    audience: 'Elementary Faculty',
+    duration: '90–120 minutes',
+    sectionCount: 10,
+    checkCount: 50,
+    storageKey: 'my-courses-elementary-faculty-progress-sy2627-v2',
+    capabilities: ['Elementary practice', 'Assessment & reporting', 'Student support', 'Professional responsibilities'],
+  },
+  {
+    id: 'secondary',
+    title: 'Secondary Faculty Essentials',
+    description: 'A comprehensive guide to the expectations, routines, professional practices and shared responsibilities that shape Secondary at AISG.',
+    intro: 'Secondary at AISG is shaped by more than schedules, courses and procedures. Our shared approach to learning, assessment, student support, professional growth, communication and community life creates a coherent experience across Grades 6–12. Complete this course over one or more sittings; your progress is saved so you can return to the same place.',
+    category: 'Secondary School',
+    designation: 'Required',
+    audience: 'Secondary Faculty',
+    duration: '90–120 minutes',
+    sectionCount: 10,
+    checkCount: 50,
+    storageKey: 'my-courses-secondary-faculty-progress-sy2627-v2',
+    capabilities: ['Secondary practice', 'Assessment & grading', 'Student support & advisory', 'Academic integrity'],
+  },
   {
     id: 'teams',
     title: 'Employee Communication Guidelines',
     description: 'Practical guidance for purposeful, professional and responsible communication at AISG.',
     intro: 'Good communication helps us share information, identify patterns, coordinate support and make better decisions. The challenge is not whether we communicate. It is how we communicate well. Throughout this course, you will consider the purpose, audience, information, evidence, language and confidentiality behind everyday professional communication at AISG. This course is about professional judgement, not simply memorising rules.',
-    category: 'Professional Practice', designation: 'Required', duration: '30–40 minutes', sectionCount: 6, checkCount: 14, storageKey: 'my-courses-communication-progress-v2',
+    category: 'Professional Practice',
+    designation: 'Required',
+    duration: '30–40 minutes',
+    sectionCount: 6,
+    checkCount: 14,
+    storageKey: 'my-courses-communication-progress-v2',
+    capabilities: ['Purposeful communication', 'Professional language', 'Confidentiality', 'Teams collaboration'],
   },
   {
     id: 'safeguarding',
@@ -33,6 +66,7 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     duration: '35–45 minutes',
     sectionCount: 6,
     checkCount: 30,
+    capabilities: ['Recognising concerns', 'Responding & reporting', 'Professional boundaries', 'Student safety'],
   },
   {
     id: 'engagement',
@@ -44,6 +78,7 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     sectionCount: 5,
     checkCount: 10,
     storageKey: 'my-courses-engagement-progress-v1',
+    capabilities: ['Learning design', 'Student engagement', 'TLF language', 'Reflection & evidence'],
   },
   {
     id: 'mtss',
@@ -55,6 +90,7 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     sectionCount: 8,
     checkCount: 16,
     storageKey: 'my-courses-mtss-progress-v1',
+    capabilities: ['Tiered support', 'Evidence-informed decisions', 'Progress monitoring', 'Equity & fidelity'],
   },
   {
     id: 'ai',
@@ -66,6 +102,7 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     sectionCount: 5,
     checkCount: 10,
     storageKey: 'my-courses-ai-progress-v1',
+    capabilities: ['Privacy & data', 'Human judgement', 'Verification & bias', 'Authentic learning design'],
   },
 ];
 
