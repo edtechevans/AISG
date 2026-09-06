@@ -7,6 +7,8 @@ import '../../app/visual-polish.css';
 import '../../app/flat-learning.css';
 import '../../app/udl-course.css';
 import '../../app/data-course.css';
+import '../../app/assessment-course.css';
+import '../../app/teacher-growth.css';
 import '../../app/favourites.css';
 import { installStaticApi } from './static-api';
 
