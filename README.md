@@ -10,7 +10,7 @@ Typography uses the Geist family throughout. The server build bundles Geist thro
 
 ## Content governance
 
-The AISG Student Safeguarding Handbook - Revised May 2026 is the content source of truth for the safeguarding course. TLF courses are grounded in the AISG Transformative Learning Framework, Learning Engagement Indicators and accompanying faculty guidance. Generated or synthesised learning content is not treated as automatically policy-approved.
+The AISG Student Safeguarding Handbook - Revised May 2026 is the content source of truth for the safeguarding course. The AI in Education course is grounded in the AISG Artificial Intelligence Policy for safety, security, privacy, ethical use, critical evaluation, bias and human oversight, and in the AISG Transformative Learning Framework for purposeful learning design. TLF courses are grounded in the AISG Transformative Learning Framework, Learning Engagement Indicators and accompanying faculty guidance. Generated or synthesised learning content is not treated as automatically policy-approved.
 
 Every safeguarding question stores its learning objective, handbook section, page, tags, correct answer, feedback, critical-safeguarding flag, and review status. All safeguarding seed questions begin as `draft_for_safeguarding_team_review`.
 
@@ -24,7 +24,7 @@ The administrator question-bank workspace allows safeguarding reviewers to edit 
 - Platform authentication adapter in `app/chatgpt-auth.ts`
 - Server-side role checks for administrator pages and write endpoints
 - Relational entities for users, courses, versions, modules, questions, attempts, responses, progress, completions and audit events
-- Course-specific browser progress keys support independent self-paced demo courses and exact resume positions. The corrected annual handbook courses use `my-courses-elementary-faculty-progress-sy2627-v2` and `my-courses-secondary-faculty-progress-sy2627-v2`. Employee Communication Guidelines uses `my-courses-communication-progress-v2`; Technology for Transformative Learning uses `my-courses-technology-tlf-progress-v1`; the former Teams-only key remains untouched. Course versions preserve historical completions.
+- Course-specific browser progress keys support independent self-paced demo courses and exact resume positions. The corrected annual handbook courses use `my-courses-elementary-faculty-progress-sy2627-v2` and `my-courses-secondary-faculty-progress-sy2627-v2`. Employee Communication Guidelines uses `my-courses-communication-progress-v2`; AI in Education uses `my-courses-ai-progress-v1`; Technology for Transformative Learning uses `my-courses-technology-tlf-progress-v1`; the former Teams-only key remains untouched. Course versions preserve historical completions.
 - The catalogue is data-driven so future courses can be added without redesigning the hub.
 
 The first authenticated user on a new, owner-only deployment is bootstrapped as the administrator. Later users default to learner. This makes the development build usable without AISG identity-provider credentials while leaving a single authentication adapter for future Microsoft/AISG SSO integration.
@@ -75,6 +75,14 @@ The public test page uses `noindex, nofollow, noarchive` metadata to discourage 
 ## Employee Communication Guidelines
 
 The required Employee Communication Guidelines course contains six sections and 14 applied checks. Its Teams section retains the authoritative AISG guidance on channels, chats, legitimate educational need, observable evidence, minimum necessary information, confidential records and professional digital records. Content is grounded in the supplied AISG Communication Expectations document; broader professional-learning synthesis is not presented as a new AISG policy. Incorrect responses use explanatory feedback so the assessment continues the learning.
+
+## AI in Education
+
+AI in Education is a Recommended Digital Practice course in the Explore Next catalogue. The revised SY2026-27 v2 course contains seven sections and 16 applied checks and is designed as a 30–40 minute professional-learning experience.
+
+The course remains predominantly about AI literacy and responsible use: understanding AI and Generative AI, safety, security, privacy, data minimisation, critical evaluation, accuracy, bias, verification, intellectual property, human oversight, feedback and authentic evidence of learning. The learning then moves into purposeful AI use through AISG’s Transformative Learning Framework rather than treating AI as a separate initiative or learning goal.
+
+The final three sections explicitly use the TLF as a lens, not a checklist. Learners work with Engagement for All; Being, Connecting and Doing; and the six facets of Personalisation, Agency, Authenticity, Creativity, Taking Action and Collaboration. Scenarios ask educators to judge whether AI removes barriers, preserves meaningful learner decisions, connects work to authentic purposes and audiences, supports original thinking and experimentation, strengthens ethical collaboration, enables purposeful action and produces observable evidence in student talk, choices, work, relationships and action. The central principle is learning first; AI second.
 
 ## Technology for Transformative Learning
 
