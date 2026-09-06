@@ -32,7 +32,7 @@ if (!cssUrl) fail('no bundled stylesheet is referenced by index.html.');
 const cssRelativePath = cssUrl.slice(basePath === '/' ? 1 : basePath.length).split(/[?#]/)[0];
 const css = fs.readFileSync(path.join(outputDir, cssRelativePath), 'utf8');
 
-for (const selector of ['.premium-course-card', '.roadmap-desktop', '.mobile-nav']) {
+for (const selector of ['.premium-course-card', '.roadmap-desktop', '.mobile-nav', '.course-favourite-button', '#favourites']) {
   if (!css.includes(selector)) fail(`critical stylesheet selector ${selector} is missing.`);
 }
 

@@ -7,6 +7,7 @@ import '../../app/visual-polish.css';
 import '../../app/flat-learning.css';
 import '../../app/udl-course.css';
 import '../../app/data-course.css';
+import '../../app/favourites.css';
 import { installStaticApi } from './static-api';
 
 if (typeof window !== 'undefined') {

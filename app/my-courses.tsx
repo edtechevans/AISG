@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ArrowRight, CheckCircle2, Clock3, Compass, GraduationCap, History } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Clock3, Compass, GraduationCap, History, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import TrainingApp from '@/app/training-app';
@@ -11,6 +11,8 @@ import { COURSE_BY_ID, COURSE_CATALOG, isCourseId, type CourseCatalogItem, type 
 import { installStaticApi } from '@/pages/src/static-api';
 
 export { COURSE_CATALOG } from '@/lib/course-catalog';
+
+const FAVOURITES_STORAGE_KEY = 'my-courses-favourites-v1';
 
 type CourseStatus = 'Completed' | 'In Progress' | 'Not Started';
 type CourseState = {
@@ -33,6 +35,26 @@ function readCourseState(course: CourseCatalogItem): CourseState {
     return JSON.parse(localStorage.getItem(course.storageKey) || '{}') as CourseState;
   } catch {
     return {};
+  }
+}
+
+function readFavourites(): CourseId[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const parsed = JSON.parse(localStorage.getItem(FAVOURITES_STORAGE_KEY) || '[]') as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return [...new Set(parsed.filter((value): value is CourseId => typeof value === 'string' && isCourseId(value)))];
+  } catch {
+    return [];
+  }
+}
+
+function writeFavourites(favourites: CourseId[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(FAVOURITES_STORAGE_KEY, JSON.stringify(favourites));
+  } catch {
+    // Favourites still work for the current session if browser storage is unavailable.
   }
 }
 
@@ -71,6 +93,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   const [route, setRoute] = useState('');
   const [states, setStates] = useState<Record<CourseId, CourseState>>(() => Object.fromEntries(COURSE_CATALOG.map((course) => [course.id, {}])) as Record<CourseId, CourseState>);
   const [browserMode, setBrowserMode] = useState(staticMode);
+  const [favourites, setFavourites] = useState<CourseId[]>([]);
 
   useEffect(() => {
     const title = isCourseId(route) ? `${COURSE_BY_ID[route].title} | AISG My Courses` : 'AISG My Courses';
@@ -81,6 +104,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
     const syncBrowserState = () => {
       setRoute(new URLSearchParams(window.location.search).get('course') || '');
       setStates((current) => ({ ...current, ...shortCourseStates() }));
+      setFavourites(readFavourites());
     };
     syncBrowserState();
     const onPop = () => syncBrowserState();
@@ -106,6 +130,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   useEffect(() => {
     const refresh = () => {
       setStates((current) => ({ ...current, ...shortCourseStates(), safeguarding: current.safeguarding }));
+      setFavourites(readFavourites());
     };
     window.addEventListener('focus', refresh);
     window.addEventListener('storage', refresh);
@@ -128,6 +153,17 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
     window.history.pushState({}, '', url);
     setRoute('');
     setStates((current) => ({ ...current, ...shortCourseStates(), safeguarding: current.safeguarding }));
+    setFavourites(readFavourites());
+  }
+
+  function toggleFavourite(course: CourseId) {
+    setFavourites((current) => {
+      const next = current.includes(course)
+        ? current.filter((id) => id !== course)
+        : [...current, course];
+      writeFavourites(next);
+      return next;
+    });
   }
 
   const courses: DisplayCourse[] = COURSE_CATALOG.map((course) => ({
@@ -154,6 +190,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   const required = courses.filter((course) => course.designation === 'Required');
   const requiredCompleted = required.filter((course) => course.status === 'Completed').length;
   const hasActivity = courses.some((course) => course.status !== 'Not Started');
+  const favouriteCourses = courses.filter((course) => favourites.includes(course.id));
   const explore = courses.filter((course) => course.designation !== 'Required');
 
   function scrollTo(id: string) {
@@ -194,12 +231,24 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
         </div>
       </section>
 
+      {favouriteCourses.length > 0 && <CourseGroup
+        title="Your Favourites"
+        eyebrow="Saved learning"
+        description="Courses you’ve saved for easy access."
+        courses={favouriteCourses}
+        onOpen={open}
+        favourites={favourites}
+        onToggleFavourite={toggleFavourite}
+      />}
+
       <CourseGroup
         title="Required learning"
         eyebrow="Core learning"
         description="The shared knowledge and expectations that underpin safe, consistent and effective practice at AISG."
         courses={required}
         onOpen={open}
+        favourites={favourites}
+        onToggleFavourite={toggleFavourite}
       />
 
       <CourseGroup
@@ -208,6 +257,8 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
         description="Choose the learning that best connects with your role, goals and current practice."
         courses={explore}
         onOpen={open}
+        favourites={favourites}
+        onToggleFavourite={toggleFavourite}
       />
 
       <section id="record" className="record-card capability-record" aria-labelledby="record-title">
@@ -229,24 +280,31 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   </>;
 }
 
-function CourseGroup({ title, eyebrow, description, courses, onOpen }: { title: string; eyebrow: string; description: string; courses: DisplayCourse[]; onOpen: (id: CourseId) => void }) {
-  return <section id={title === 'Required learning' ? 'courses' : undefined} className="course-library course-group" aria-labelledby={`group-${title.replaceAll(' ', '-').toLowerCase()}`}>
+function CourseGroup({ title, eyebrow, description, courses, onOpen, favourites, onToggleFavourite }: { title: string; eyebrow: string; description: string; courses: DisplayCourse[]; onOpen: (id: CourseId) => void; favourites: CourseId[]; onToggleFavourite: (id: CourseId) => void }) {
+  const sectionId = title === 'Required learning' ? 'courses' : title === 'Your Favourites' ? 'favourites' : undefined;
+  return <section id={sectionId} className="course-library course-group" aria-labelledby={`group-${title.replaceAll(' ', '-').toLowerCase()}`}>
     <div className="section-heading group-heading">
       <div><p className="tiny-eyebrow">{eyebrow}</p><h2 id={`group-${title.replaceAll(' ', '-').toLowerCase()}`}>{title}</h2><p>{description}</p></div>
       <span>{courses.length} {courses.length === 1 ? 'course' : 'courses'}</span>
     </div>
     <div className="course-grid premium-course-grid">
-      {courses.map((course) => <CourseCard key={course.id} course={course} onOpen={onOpen} />)}
+      {courses.map((course) => <CourseCard key={course.id} course={course} onOpen={onOpen} isFavourite={favourites.includes(course.id)} onToggleFavourite={onToggleFavourite} />)}
     </div>
   </section>;
 }
 
-function CourseCard({ course, onOpen }: { course: DisplayCourse; onOpen: (id: CourseId) => void }) {
+function CourseCard({ course, onOpen, isFavourite, onToggleFavourite }: { course: DisplayCourse; onOpen: (id: CourseId) => void; isFavourite: boolean; onToggleFavourite: (id: CourseId) => void }) {
+  const favouriteLabel = isFavourite ? `Remove ${course.title} from favourites` : `Add ${course.title} to favourites`;
   return <article className="course-card premium-course-card" data-course={course.id} aria-labelledby={`course-${course.id}`}>
     <div className="course-identity-mark" aria-hidden="true"><span /><span /><span /></div>
     <div className="course-card-top">
       <span className="course-category">{course.audience || course.category}</span>
-      <span className="course-designation">{course.designation}</span>
+      <div className="course-card-actions">
+        <span className="course-designation">{course.designation}</span>
+        <button type="button" className={`course-favourite-button ${isFavourite ? 'is-favourite' : ''}`} aria-pressed={isFavourite} aria-label={favouriteLabel} title={isFavourite ? 'Remove from favourites' : 'Add to favourites'} onClick={() => onToggleFavourite(course.id)}>
+          <Star aria-hidden="true" />
+        </button>
+      </div>
     </div>
     <h3 id={`course-${course.id}`}>{course.title}</h3>
     <p>{course.description}</p>

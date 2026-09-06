@@ -1,0 +1,87 @@
+/* Learner-controlled course favourites for AISG My Courses. */
+
+#favourites {
+  margin-top: clamp(2.5rem, 5vw, 4.5rem);
+  border: 1px solid #dfe6ed;
+  border-radius: 1.2rem;
+  background: #fbfcfe;
+  padding: clamp(1.15rem, 2.5vw, 1.7rem);
+}
+
+#favourites .group-heading {
+  margin-top: 0;
+}
+
+.course-card-actions {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+}
+
+.course-favourite-button {
+  display: inline-grid;
+  width: 2.45rem;
+  height: 2.45rem;
+  flex: 0 0 2.45rem;
+  cursor: pointer;
+  place-items: center;
+  border: 1px solid #d8e0e8;
+  border-radius: 999px;
+  background: #fff;
+  color: #68778a;
+  transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+
+.course-favourite-button svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: transparent;
+  transition: transform 140ms ease, fill 140ms ease;
+}
+
+.course-favourite-button:hover {
+  border-color: #9cabb9;
+  background: #f7f9fc;
+  color: #0b294b;
+}
+
+.course-favourite-button:focus-visible {
+  outline: 3px solid #0b294b;
+  outline-offset: 2px;
+}
+
+.course-favourite-button.is-favourite {
+  border-color: #e5bdc5;
+  background: #fff5f7;
+  color: #c81e35;
+  box-shadow: 0 4px 14px rgba(200, 30, 53, .08);
+}
+
+.course-favourite-button.is-favourite svg {
+  fill: currentColor;
+  transform: scale(1.08);
+}
+
+@media (max-width: 620px) {
+  #favourites {
+    border-radius: .85rem;
+    padding: 1rem;
+  }
+
+  .course-card-actions {
+    gap: .4rem;
+  }
+
+  .course-favourite-button {
+    width: 2.35rem;
+    height: 2.35rem;
+    flex-basis: 2.35rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .course-favourite-button,
+  .course-favourite-button svg {
+    transition: none;
+  }
+}
