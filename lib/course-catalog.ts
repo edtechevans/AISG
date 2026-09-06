@@ -1,4 +1,4 @@
-export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'ai' | 'assessment' | 'data' | 'udl' | 'engagement' | 'mtss' | 'technology';
+export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'ai' | 'assessment' | 'data' | 'udl' | 'engagement' | 'mtss' | 'technology' | 'growth-domain1' | 'growth-domain2';
 
 export type CourseCatalogItem = {
   id: CourseId;
@@ -156,6 +156,32 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     checkCount: 18,
     storageKey: 'my-courses-technology-tlf-progress-v1',
     capabilities: ['Purposeful technology', 'TLF amplification', 'Learner agency & access', 'Authentic creation & collaboration'],
+  },
+  {
+    id: 'growth-domain1',
+    title: 'Domain 1: Purposeful & Inclusive Learning Design',
+    description: 'Use the AISG Teacher Growth Continuum to strengthen learning purpose, responsive design, cognitive engagement and assessment for growth.',
+    intro: 'Domain 1 asks what purposeful and inclusive learning design looks like as practice deepens over time. Rather than using the continuum as a label, this course focuses on student evidence: whether learners understand purpose and success, experience responsive access and representation, engage in meaningful thinking, use feedback, and increasingly monitor and transfer their learning independently. Work through the four Domain 1 strands and leave with one realistic next move grounded in learner experience.',
+    category: 'Teacher Growth & Reflection',
+    designation: 'Recommended',
+    duration: '25–30 minutes',
+    sectionCount: 5,
+    checkCount: 12,
+    storageKey: 'my-courses-teacher-growth-domain1-progress-v1',
+    capabilities: ['Learning purpose & outcomes', 'Responsive learner design', 'Inclusive cognitive engagement', 'Assessment for equity & growth'],
+  },
+  {
+    id: 'growth-domain2',
+    title: 'Domain 2: Inclusive Learning Culture & Environment',
+    description: 'Use the AISG Teacher Growth Continuum to strengthen belonging, student voice, learner autonomy and purposeful learning environments.',
+    intro: 'Domain 2 focuses on the conditions learners experience every day: belonging, psychological safety, voice, routines, autonomy, space, time and tools. This course follows the continuum from teacher-established structures toward students increasingly sustaining, adapting and improving the conditions for learning. The emphasis stays on observable learner experience rather than compliance: who participates, who has influence, who can self-manage, and who can use the environment strategically.',
+    category: 'Teacher Growth & Reflection',
+    designation: 'Recommended',
+    duration: '25–30 minutes',
+    sectionCount: 5,
+    checkCount: 12,
+    storageKey: 'my-courses-teacher-growth-domain2-progress-v1',
+    capabilities: ['Belonging & psychological safety', 'Student voice & advocacy', 'Equity & learner autonomy', 'Purposeful space, time & tools'],
   },
 ];
 
