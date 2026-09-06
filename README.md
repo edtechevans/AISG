@@ -6,7 +6,7 @@ Courses follow a consistent Course Home → Learn → Check → Apply → Reflec
 
 The catalogue is intentionally ordered: Elementary Faculty Essentials (Required, Elementary Faculty); Secondary Faculty Essentials (Required, Secondary Faculty); Employee Communication Guidelines (Required); Safeguarding at AISG (Required); Engagement for All (Foundation); MTSS (Recommended); and AI in Education (Recommended). Both divisional handbook courses are SY2026-27, 10 sections and 50 checks, with independent browser progress keys. Secondary-specific learning covers pathways, advisory, assessment, best-fit grading, attendance, academic integrity, Supervised Study, student safety and AI in assessment.
 
-Typography uses the Geist family bundled at build time by `next/font`, with a system fallback stack; no runtime font CDN is required.
+Typography uses the Geist family throughout. The server build bundles Geist through `next/font`; the GitHub Pages build ships a self-hosted `public/fonts/geist-latin.woff2` asset. Neither deployment depends on a runtime font CDN.
 
 ## Content governance
 
@@ -71,6 +71,8 @@ in that browser. It does not claim to provide shared reporting or named reflecti
 analytics; the server-backed Sites deployment remains the place for administrator
 filtering, aggregate insights and question review.
 
+The public test page uses `noindex, nofollow, noarchive` metadata to discourage search indexing. This is not access control: anyone with the GitHub Pages URL can still open the test build, so public-release content must remain suitable for that exposure.
+
 ## Employee Communication Guidelines
 
 The required Employee Communication Guidelines course contains six sections and 14 applied checks (80% threshold, configurable). Its Teams section retains the authoritative AISG guidance on channels, chats, legitimate educational need, observable evidence, minimum necessary information, confidential records and professional digital records. Content is grounded in the supplied AISG Communication Expectations document; broader professional-learning synthesis is not presented as a new AISG policy. The assessment progression is 2 Foundation, 3 Application, 4 Analysis, 4 Professional Judgement and 1 Synthesis check. Incorrect Teams answers require a brief Stop → Understand → Continue acknowledgement before the learner can proceed.
@@ -94,7 +96,4 @@ The database includes eight entirely fictional learners across faculty, educatio
 
 ## Quality checks
 
-Run `pnpm build` for the production Sites build, `pnpm build:pages` for the static
-GitHub Pages build, and `pnpm lint` for static checks. The generated Worker must
-export a callable default `fetch` handler and the Drizzle migration must remain
-schema-only.
+Run `pnpm lint`, `pnpm build` and `pnpm build:pages` before publication. The GitHub Pages workflow enforces all three checks before configuring, uploading or deploying Pages. The generated Worker must export a callable default `fetch` handler and the Drizzle migration must remain schema-only.
