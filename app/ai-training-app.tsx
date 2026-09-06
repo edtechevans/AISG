@@ -25,6 +25,7 @@ import DataLearningExperience from '@/app/data-learning-experience';
 import AssessmentLearningExperience from '@/app/assessment-learning-experience';
 import TeacherGrowthLearningExperience from '@/app/teacher-growth-learning-experience';
 import TeacherGrowthDomain34LearningExperience from '@/app/teacher-growth-domain34-learning-experience';
+import CourseMark from '@/app/course-mark';
 
 type CourseProgress = {
   position: number;
@@ -288,7 +289,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     const score = progress.lastAttempt?.score ?? Object.values(progress.responses).filter((response) => response.correct).length;
     const passed = Boolean(progress.completedAt);
     return <main id="main-content" className="learning-shell"><section className="results-card">
-      <p className="tiny-eyebrow">My Courses · {config.catalog.title}</p><h1>{passed ? 'Course complete' : 'Review and try again'}</h1>
+      <div className="course-result-heading"><CourseMark course={course} size="record" /><p className="tiny-eyebrow">My Courses · {config.catalog.title}</p></div><h1>{passed ? 'Course complete' : 'Review and try again'}</h1>
       <p className="results-lead">{passed ? 'You completed the learning and applied the principles to realistic professional decisions.' : `You completed this attempt. Review the learning before another attempt; ${config.passingScore}% is required for completion.`}</p>
       <div className="score-grid"><div><span>Score</span><strong>{score}/{config.questions.length}</strong></div><div><span>Version</span><strong>{config.version}</strong></div><div><span>Status</span><strong>{passed ? 'Completed' : 'Another attempt needed'}</strong></div></div>
       <div className="principle-card"><CheckCircle2 aria-hidden="true" /><div><strong>Take it into practice</strong><p>{practice || 'No practice idea selected.'}</p>{commitment && <p className="mt-2"><strong>My commitment:</strong> {commitment}</p>}</div></div>
@@ -299,7 +300,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   if (stage === 'course-home') {
     const nextLabel = hasProgress ? 'Continue learning' : 'Start course';
     return <main id="main-content" className="learning-shell"><section className="intro-card course-home-card">
-      <p className="tiny-eyebrow">Course home</p><h1>{config.catalog.title}</h1><p className="intro-summary">{config.catalog.intro ?? config.catalog.description}</p>
+      <div className="course-home-heading"><CourseMark course={course} size="hero" /><div className="course-home-heading-copy"><p className="tiny-eyebrow">Course home</p><h1>{config.catalog.title}</h1><p className="intro-summary">{config.catalog.intro ?? config.catalog.description}</p></div></div>
       <dl className="course-facts"><div><dt>Time</dt><dd>{config.catalog.duration}</dd></div><div><dt>Learning path</dt><dd>{config.sections.length} sections</dd></div><div><dt>Checks</dt><dd>{config.questions.length} applied questions</dd></div></dl>
       {practiceLabCount > 0 && <div className="principle-card"><CheckCircle2 aria-hidden="true" /><div><strong>Practice before the checks</strong><p>{practiceLabCount} unscored practice labs are woven through this course. Make a judgement, compare it with course-grounded guidance, and then continue to the formal learning checks.</p></div></div>}
       <div className="course-home-progress"><div><strong>Your progress</strong><span>{completionPercent}% complete</span></div><Progress value={completionPercent} aria-label={`${config.catalog.title}: ${completionPercent}% complete`} /><p>{completedChecks} of {config.questions.length} checks completed · Progress saved in this browser</p></div>
@@ -309,7 +310,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   }
 
   if (stage === 'practice') {
-    return <main id="main-content" className="learning-shell"><section className="intro-card"><p className="tiny-eyebrow">Apply · Take it into practice</p><h1>What is one practice from this course that you want to strengthen?</h1>
+    return <main id="main-content" className="learning-shell"><section className="intro-card"><div className="course-result-heading"><CourseMark course={course} size="record" /><p className="tiny-eyebrow">Apply · Take it into practice</p></div><h1>What is one practice from this course that you want to strengthen?</h1>
       <div className="answers practice-options">{config.practiceOptions.map((option) => <label key={option} className={`answer-option ${practice === option ? 'answer-selected' : ''}`}><input type="radio" name="practice" checked={practice === option} onChange={() => setPractice(option)} /><span>{option}</span></label>)}</div>
       {practice && <label className="mt-6 block"><span className="meta-label">{practice === 'Something else' ? 'Tell us about your focus' : 'My commitment (optional)'}</span><textarea className="mt-2 w-full rounded-xl border border-navy/15 p-3" value={commitment} onChange={(event) => setCommitment(event.target.value)} placeholder={practice === 'Something else' ? 'What practice do you want to strengthen?' : 'What is one thing you could try?'} rows={3} /></label>}
       <Button className="primary-pill mt-8" size="lg" disabled={!practice} onClick={completeCourse}>Save and complete <ArrowRight /></Button>
