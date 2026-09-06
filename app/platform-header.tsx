@@ -1,12 +1,11 @@
 'use client';
 
-import { type ChangeEvent } from 'react';
-import { COURSE_CATALOG, type CourseId } from '@/lib/course-catalog';
+import { COURSE_BY_ID, type CourseId } from '@/lib/course-catalog';
 
 export default function PlatformHeader({
   activeCourse,
   onPlatformHome,
-  onCourse,
+  onCourse: _onCourse,
   onCourses,
   onProgress,
   onCourseHome,
@@ -27,11 +26,7 @@ export default function PlatformHeader({
   const initials = userName
     ? userName.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase()
     : '';
-
-  function chooseCourse(event: ChangeEvent<HTMLSelectElement>) {
-    const value = event.target.value;
-    if (value) onCourse(value as CourseId);
-  }
+  const activeTitle = activeCourse ? COURSE_BY_ID[activeCourse].title : undefined;
 
   return <header className="app-header print:hidden">
     <a className="skip-link" href="#main-content">Skip to main content</a>
@@ -41,18 +36,17 @@ export default function PlatformHeader({
         <img className="aisg-logo aisg-logo-header" src="aisg-logo.png" alt="" />
         <span className="brand-copy"><strong>AISG My Courses</strong><small>{context}</small></span>
       </button>
+
+      {activeTitle && <div className="header-course-context" aria-label="Current course">
+        <span>My Courses</span><span aria-hidden="true">/</span><strong>{activeTitle}</strong>
+      </div>}
+
       <nav className="platform-nav" aria-label="Learning platform navigation">
+        <button className="nav-link" onClick={onPlatformHome}>Home</button>
         {onCourseHome && <button className="nav-link" onClick={onCourseHome}>Course home</button>}
         <button className="nav-link" onClick={onCourses ?? onPlatformHome}>Courses</button>
-        {onProgress && <button className="nav-link nav-link-secondary" onClick={onProgress}>My progress</button>}
-        <label className="course-switcher">
-          <span>Switch course</span>
-          <select aria-label="Switch course" value={activeCourse ?? ''} onChange={chooseCourse}>
-            <option value="" disabled>Select a course</option>
-            {COURSE_CATALOG.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}
-          </select>
-        </label>
-        {adminHref && <a className="nav-link" href={adminHref}>Admin workspace</a>}
+        {onProgress && <button className="nav-link nav-link-secondary" onClick={onProgress}>My learning</button>}
+        {adminHref && <a className="nav-link" href={adminHref}>Admin</a>}
         {userName && <><span className="user-name">{userName}</span><span className="avatar" aria-hidden="true">{initials}</span></>}
       </nav>
     </div>
