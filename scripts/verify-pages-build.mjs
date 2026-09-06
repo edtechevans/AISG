@@ -97,7 +97,15 @@ const courseTitles = [
   'Domain 4: Collaborative Planning, Reflection & Professional Impact',
 ];
 
-for (const marker of ['course-mark', 'growth-domain4', ...courseTitles]) {
+const qualityMarkers = [
+  'AISG learning lens',
+  'Cultural Responsiveness runs through the framework',
+  'For regular tool adoption, add the SMART-T lens',
+  'Local relevance is part of verification',
+  'Keep a dual lens on language and learning',
+];
+
+for (const marker of ['course-mark', 'growth-domain4', ...courseTitles, ...qualityMarkers]) {
   if (!javascript.includes(marker)) fail(`runtime marker ${marker} is missing from the Pages bundle.`);
 }
 
