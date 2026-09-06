@@ -80,6 +80,13 @@
   align-items: start;
 }
 
+.capability-row-main > div > span {
+  display: block;
+  margin-top: .3rem;
+  color: #748196;
+  font-size: .78rem;
+}
+
 .safeguarding-course-mark {
   margin: 0 0 1rem;
 }
