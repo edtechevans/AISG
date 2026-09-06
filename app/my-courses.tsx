@@ -156,7 +156,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
     <main id="main-content" className="my-courses-shell">
       <section className="my-courses-hero">
         <div>
-          <p className="eyebrow"><GraduationCap aria-hidden="true" /> AISG professional learning</p>
+          <p className="eyebrow"><GraduationCap aria-hidden="true" /> AISG My Courses</p>
           <h1>Professional learning,<br />all in one place.</h1>
           <p>Build shared understanding, apply it to authentic AISG decisions, and return whenever your practice is ready for the next step.</p>
         </div>
