@@ -95,6 +95,19 @@
   margin-bottom: .6rem;
 }
 
+/* Four linked domains should read as one intentional pathway rather than a 3 + 1 card wrap. */
+@media (min-width: 1100px) {
+  #explore > .mt-8 > .premium-course-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1099px) {
+  #explore > .mt-8 > .premium-course-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* Final interaction and legibility pass. Keep common touch targets at or above 44px. */
 .mobile-nav > summary {
   width: 2.75rem;
