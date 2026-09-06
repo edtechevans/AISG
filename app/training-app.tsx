@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { COURSE_VERSION_ID, type CourseModule, type Question } from '@/lib/course';
 import { cognitiveLevelFor } from '@/lib/assessment-progression';
 import PlatformHeader from '@/app/platform-header';
+import SafeguardingLearningExperience from '@/app/safeguarding-learning-experience';
 import { installStaticApi } from '@/pages/src/static-api';
 
 type Module = CourseModule;
@@ -209,8 +210,8 @@ function Dashboard({ data, progressPercent, completedCount, activeModuleNumber, 
     <AisgLogo variant="welcome" />
     <div className="eyebrow"><ShieldCheck aria-hidden="true" /> Required annual learning</div>
     <h1 className="hero-title">Safeguarding is<br />everyone’s responsibility.</h1>
-    <p className="hero-copy">Learn the essential AISG expectations at your own pace, then apply them to realistic school safeguarding decisions. Your progress is saved, so you can leave and return whenever you need.</p>
-    <div className="learning-route" aria-label="Course learning flow"><span><BookOpen /> Learn</span><ArrowRight /><span><ListChecks /> Check understanding</span><ArrowRight /><span><MessageCircle /> Learn from feedback</span></div>
+    <p className="hero-copy">Learn the essential AISG expectations through short decisions, comparisons and realistic safeguarding situations. Your progress is saved, so you can leave and return whenever you need.</p>
+    <div className="learning-route" aria-label="Course learning flow"><span><BookOpen /> Learn</span><ArrowRight /><span><ShieldCheck /> Practise decisions</span><ArrowRight /><span><ListChecks /> Check understanding</span><ArrowRight /><span><MessageCircle /> Learn from feedback</span></div>
     <div className="progress-card"><div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"><div><p className="meta-label">Your course progress</p><div className="mt-1 flex flex-wrap items-baseline gap-3"><strong className="metric-number">{progressPercent}%</strong><span className="text-sm text-muted-foreground">{completeModules} of 6 sections complete</span></div></div>
       <Button onClick={onContinue} className="primary-pill" size="lg">{hasStarted ? 'Continue course' : 'Begin course'} <ArrowRight aria-hidden="true" /></Button></div>
       <Progress value={progressPercent} aria-label={`Course progress: ${progressPercent} percent`} className="mt-7 [&_[data-slot=progress-track]]:h-2.5 [&_[data-slot=progress-indicator]]:bg-red" />
@@ -221,8 +222,8 @@ function Dashboard({ data, progressPercent, completedCount, activeModuleNumber, 
 
 function CourseMap({ modules, completed, activeModuleNumber, passThreshold }: { modules: Module[]; completed: number; activeModuleNumber: number; passThreshold: number }) {
   return <aside className="course-map" aria-labelledby="course-map-title"><div className="flex items-center justify-between"><div><p className="tiny-eyebrow">Course map</p><h2 id="course-map-title" className="mt-1 text-2xl font-semibold tracking-tight text-navy">Six focused sections</h2></div><BookOpen className="text-navy/45" aria-hidden="true" /></div>
-    <ol className="mt-8 space-y-2">{modules.map((module) => { const complete = completed >= module.number * 5; const active = module.number === activeModuleNumber; return <li key={module.id} className={`module-row ${active ? 'module-active' : ''}`}><span className={`module-number ${complete ? 'module-complete' : ''}`}>{complete ? <Check aria-hidden="true" /> : String(module.number).padStart(2, '0')}</span><span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-navy">{module.title}</span><span className="mt-0.5 block text-xs text-muted-foreground">Self-paced learning • 5 checks</span></span><span className={`status-label ${complete ? 'status-complete' : active ? 'status-continue' : 'status-locked'}`}>{complete ? 'Complete' : active ? 'Next' : <LockKeyhole className="h-3.5 w-3.5" aria-label="Locked" />}</span></li>; })}</ol>
-    <p className="mt-8 border-t border-navy/10 pt-6 text-sm leading-6 text-muted-foreground">Each section alternates between learning and two short check blocks. The current course completion threshold is <strong className="text-navy">{passThreshold}%</strong> across the understanding checks.</p></aside>;
+    <ol className="mt-8 space-y-2">{modules.map((module) => { const complete = completed >= module.number * 5; const active = module.number === activeModuleNumber; return <li key={module.id} className={`module-row ${active ? 'module-active' : ''}`}><span className={`module-number ${complete ? 'module-complete' : ''}`}>{complete ? <Check aria-hidden="true" /> : String(module.number).padStart(2, '0')}</span><span className="min-w-0 flex-1"><span className="block text-[15px] font-semibold text-navy">{module.title}</span><span className="mt-0.5 block text-xs text-muted-foreground">Self-paced learning • interactive practice • 5 checks</span></span><span className={`status-label ${complete ? 'status-complete' : active ? 'status-continue' : 'status-locked'}`}>{complete ? 'Complete' : active ? 'Next' : <LockKeyhole className="h-3.5 w-3.5" aria-label="Locked" />}</span></li>; })}</ol>
+    <p className="mt-8 border-t border-navy/10 pt-6 text-sm leading-6 text-muted-foreground">Each section alternates between learning, unscored professional practice and two short check blocks. The current course completion threshold is <strong className="text-navy">{passThreshold}%</strong> across the understanding checks.</p></aside>;
 }
 
 function ModuleLearning({ module, progress, initialStage, onStageChange, onBack, onFirstCheck, onStart }: { module: Module; progress: number; initialStage: number; onStageChange: (stage: number) => void; onBack: () => void; onFirstCheck: () => void; onStart: () => void }) {
@@ -255,6 +256,7 @@ function ModuleLearning({ module, progress, initialStage, onStageChange, onBack,
         <div className="lesson-copy">{lesson.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div>
         <div className="learning-points">{lesson.points.map((point) => <article key={point.label}><span>{point.label}</span><p>{point.text}</p></article>)}</div>
         {lesson.example && <div className="example-card"><Lightbulb aria-hidden="true" /><div><strong>{lesson.example.title}</strong><p>{lesson.example.text}</p></div></div>}
+        <SafeguardingLearningExperience moduleId={module.id} stage={stage} />
       </>}
       {isTakeaways && <>
         <p className="tiny-eyebrow">Learning complete</p>
