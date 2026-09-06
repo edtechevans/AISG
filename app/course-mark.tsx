@@ -11,6 +11,7 @@ export const COURSE_MARK_COLORS: Record<CourseId, string> = {
   udl: '#596d91',
   engagement: '#304f77',
   mtss: '#51645d',
+  multilingual: '#4e6f86',
   technology: '#3f6574',
   'growth-domain1': '#173d68',
   'growth-domain2': '#b51f32',
@@ -147,6 +148,16 @@ function CourseMarkGlyph({ course }: { course: CourseId }) {
         <circle cx="18" cy="5.8" r="2" fill="currentColor" stroke="none" opacity=".45" />
         <circle cx="29.4" cy="21.6" r="2.4" fill="currentColor" stroke="none" opacity=".72" />
         <circle cx="9.1" cy="27.1" r="2.8" fill="currentColor" stroke="none" />
+      </>;
+
+    case 'multilingual':
+      return <>
+        <circle cx="18" cy="18" r="4" />
+        <circle cx="5.5" cy="10" r="2.2" fill="currentColor" stroke="none" opacity=".48" />
+        <circle cx="5.5" cy="26" r="2.2" fill="currentColor" stroke="none" opacity=".78" />
+        <circle cx="30.5" cy="10" r="2.2" fill="currentColor" stroke="none" opacity=".62" />
+        <circle cx="30.5" cy="26" r="2.2" fill="currentColor" stroke="none" />
+        <path d="M8 10c5 0 5 5 7.3 6M8 26c5 0 5-5 7.3-6M20.7 16c2.3-1 2.3-6 7.3-6M20.7 20c2.3 1 2.3 6 7.3 6" />
       </>;
 
     case 'technology':
