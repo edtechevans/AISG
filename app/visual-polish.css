@@ -1,0 +1,402 @@
+/* Final UX and visual polish for AISG My Courses.
+   Keeps the existing design language while improving assessment width, mobile navigation,
+   Safeguarding consistency, catalogue hierarchy, course identity and typography. */
+
+/* 1. Assessment screens: remove the unused desktop rail and give professional judgement room to breathe. */
+.question-card {
+  width: 100%;
+  max-width: 740px;
+}
+
+@media (min-width: 1024px) {
+  .course-experience > .question-layout {
+    width: 100%;
+    max-width: 810px;
+    grid-template-columns: 52px minmax(0, 740px) !important;
+    justify-content: start;
+    gap: 1rem;
+  }
+
+  /* Safeguarding uses its own course shell, so apply the same two-column assessment grammar. */
+  .learning-shell > .question-layout {
+    width: min(100%, 810px);
+    margin-left: auto;
+    margin-right: auto;
+    grid-template-columns: 52px minmax(0, 740px) !important;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .question-number {
+    font-size: 4rem;
+    text-align: right;
+  }
+}
+
+/* 2. Mobile navigation: use one deliberate compact menu rather than hiding links by position. */
+.mobile-nav {
+  display: none;
+  position: relative;
+}
+
+.mobile-nav > summary {
+  display: grid;
+  width: 2.65rem;
+  height: 2.65rem;
+  cursor: pointer;
+  list-style: none;
+  place-items: center;
+  border: 1px solid #d9e1ea;
+  border-radius: .75rem;
+  background: #fff;
+  color: #0b294b;
+}
+
+.mobile-nav > summary::-webkit-details-marker { display: none; }
+.mobile-nav > summary:focus-visible {
+  outline: 3px solid #0b294b;
+  outline-offset: 2px;
+}
+
+.mobile-nav-icon,
+.mobile-nav-icon::before,
+.mobile-nav-icon::after {
+  display: block;
+  width: 1.15rem;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  content: '';
+}
+.mobile-nav-icon { position: relative; }
+.mobile-nav-icon::before { position: absolute; top: -.36rem; }
+.mobile-nav-icon::after { position: absolute; top: .36rem; }
+.mobile-nav[open] .mobile-nav-icon { background: transparent; }
+.mobile-nav[open] .mobile-nav-icon::before { top: 0; transform: rotate(45deg); }
+.mobile-nav[open] .mobile-nav-icon::after { top: 0; transform: rotate(-45deg); }
+
+.mobile-nav-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + .55rem);
+  z-index: 60;
+  width: min(19rem, calc(100vw - 1.5rem));
+  overflow: hidden;
+  border: 1px solid #d9e1ea;
+  border-radius: 1rem;
+  background: #fff;
+  padding: .45rem;
+  box-shadow: 0 18px 50px rgba(11, 41, 75, .14);
+}
+
+.mobile-nav-panel button,
+.mobile-nav-panel a {
+  display: flex;
+  width: 100%;
+  min-height: 2.75rem;
+  align-items: center;
+  border-radius: .7rem;
+  padding: .65rem .75rem;
+  color: #203a57;
+  font-size: .84rem;
+  font-weight: 650;
+  text-align: left;
+  text-decoration: none;
+}
+.mobile-nav-panel button:hover,
+.mobile-nav-panel a:hover { background: #f1f4f7; }
+.mobile-nav-user {
+  margin: .35rem .3rem .2rem;
+  border-top: 1px solid #e4e9ef;
+  padding: .7rem .45rem .25rem;
+  color: #6a788b;
+  font-size: .78rem;
+  font-weight: 600;
+}
+
+@media (max-width: 800px) {
+  .platform-nav-desktop { display: none !important; }
+  .mobile-nav { display: block; }
+  .header-course-context { display: none !important; }
+}
+
+/* Neutralise the previous positional mobile hiding rule. */
+@media (max-width: 620px) {
+  .platform-nav-desktop .nav-link:nth-of-type(2) { display: inline-flex !important; }
+}
+
+/* 3. Safeguarding course home: same premium course-home grammar, with a stronger protective identity. */
+.dashboard-shell {
+  position: relative;
+  min-height: auto;
+  max-width: 1060px;
+  margin: clamp(1.5rem, 4vw, 3.25rem) auto 5rem;
+  overflow: hidden;
+  border: 1px solid #d9e1ea;
+  border-radius: 1.4rem;
+  background: #fff;
+  box-shadow: 0 14px 45px rgba(11, 41, 75, .07);
+}
+.dashboard-shell::before {
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  height: .32rem;
+  background: linear-gradient(90deg, #0b294b 0 76%, #c81e35 76%);
+  content: '';
+}
+.dashboard-main {
+  padding: clamp(1.6rem, 4vw, 3rem) !important;
+  border: 0;
+  background: #fff;
+}
+.dashboard-main .aisg-logo-welcome {
+  width: min(205px, 55vw);
+  margin-bottom: 1.25rem;
+}
+.dashboard-main .eyebrow {
+  margin-bottom: .85rem;
+  font-size: .78rem;
+}
+.dashboard-main .hero-title {
+  max-width: 42rem;
+  font-size: clamp(2.15rem, 4.6vw, 3.65rem);
+  line-height: 1;
+  letter-spacing: -.045em;
+}
+.dashboard-main .hero-copy {
+  max-width: 40rem;
+  margin-top: 1rem;
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+.dashboard-main .learning-route {
+  margin-top: 1.15rem;
+  gap: .45rem;
+}
+.dashboard-main .learning-route span {
+  background: #f2f5f8;
+  padding: .48rem .65rem;
+}
+.dashboard-main .progress-card {
+  margin-top: 1.55rem;
+  border-color: #dfe6ed;
+  box-shadow: none;
+}
+.course-map {
+  border-top: 1px solid #e1e7ed;
+  background: #f5f7fa;
+  padding: 1.5rem !important;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-shell {
+    grid-template-columns: minmax(0, 1fr) 315px !important;
+  }
+  .dashboard-main {
+    border-right: 1px solid #e1e7ed !important;
+  }
+  .course-map {
+    border-top: 0;
+    padding: 2.15rem 1.65rem !important;
+  }
+}
+
+/* 4. Catalogue hierarchy: red is an accent, not eight competing calls to action. */
+.premium-course-card .primary-pill {
+  background: #0b294b !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+.premium-course-card .primary-pill:hover {
+  background: #163b63 !important;
+}
+.premium-course-card:has(.status-completed) .primary-pill {
+  border: 1px solid #cfd9e3 !important;
+  background: #fff !important;
+  color: #0b294b !important;
+}
+.premium-course-card:has(.status-completed) .primary-pill:hover {
+  background: #f3f6f9 !important;
+}
+
+/* 5. A small course identity system: one visual language, distinct marks. */
+.premium-course-card[data-course='technology'] { --course-accent: #3f6574; }
+
+/* Elementary: growth bars. */
+.premium-course-card[data-course='elementary'] .course-identity-mark {
+  align-items: end;
+}
+
+/* Secondary: three grounded blocks. */
+.premium-course-card[data-course='secondary'] .course-identity-mark {
+  align-items: end;
+  gap: .22rem;
+}
+.premium-course-card[data-course='secondary'] .course-identity-mark span {
+  width: .72rem;
+  height: .72rem;
+  border-radius: .18rem;
+  opacity: 1;
+}
+.premium-course-card[data-course='secondary'] .course-identity-mark span:nth-child(2) { transform: translateY(-.34rem); opacity: .72; }
+.premium-course-card[data-course='secondary'] .course-identity-mark span:nth-child(3) { transform: translateY(-.68rem); opacity: .45; }
+
+/* Communication: concise message lines. */
+.premium-course-card[data-course='teams'] .course-identity-mark {
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: .22rem;
+}
+.premium-course-card[data-course='teams'] .course-identity-mark span {
+  height: .3rem;
+  border-radius: 999px;
+  opacity: .8;
+}
+.premium-course-card[data-course='teams'] .course-identity-mark span:nth-child(1) { width: 2.65rem; }
+.premium-course-card[data-course='teams'] .course-identity-mark span:nth-child(2) { width: 1.85rem; }
+.premium-course-card[data-course='teams'] .course-identity-mark span:nth-child(3) { width: 2.25rem; }
+
+/* Safeguarding: abstract shield. */
+.premium-course-card[data-course='safeguarding'] .course-identity-mark { position: relative; }
+.premium-course-card[data-course='safeguarding'] .course-identity-mark span { display: none; }
+.premium-course-card[data-course='safeguarding'] .course-identity-mark::before {
+  width: 1.85rem;
+  height: 2rem;
+  background: var(--course-accent);
+  clip-path: polygon(50% 0, 100% 18%, 88% 70%, 50% 100%, 12% 70%, 0 18%);
+  content: '';
+  opacity: .92;
+}
+
+/* Engagement: connected facets. */
+.premium-course-card[data-course='engagement'] .course-identity-mark { gap: .38rem; }
+.premium-course-card[data-course='engagement'] .course-identity-mark span {
+  width: .72rem;
+  height: .72rem;
+  border-radius: 50%;
+  opacity: 1;
+}
+.premium-course-card[data-course='engagement'] .course-identity-mark span:nth-child(1) { opacity: .35; }
+.premium-course-card[data-course='engagement'] .course-identity-mark span:nth-child(2) { opacity: .65; transform: translateY(-.42rem); }
+.premium-course-card[data-course='engagement'] .course-identity-mark span:nth-child(3) { transform: translateY(.18rem); }
+
+/* MTSS: responsive layers. */
+.premium-course-card[data-course='mtss'] .course-identity-mark {
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  justify-content: center;
+  gap: .18rem;
+}
+.premium-course-card[data-course='mtss'] .course-identity-mark span {
+  height: .34rem;
+  border-radius: .2rem;
+  opacity: .8;
+}
+.premium-course-card[data-course='mtss'] .course-identity-mark span:nth-child(1) { width: 2.75rem; }
+.premium-course-card[data-course='mtss'] .course-identity-mark span:nth-child(2) { width: 2rem; }
+.premium-course-card[data-course='mtss'] .course-identity-mark span:nth-child(3) { width: 1.25rem; }
+
+/* Technology: amplification ripples. */
+.premium-course-card[data-course='technology'] .course-identity-mark {
+  position: relative;
+  display: block;
+}
+.premium-course-card[data-course='technology'] .course-identity-mark span {
+  position: absolute;
+  top: 50%;
+  left: 1.15rem;
+  border: 2px solid var(--course-accent);
+  border-radius: 50%;
+  background: transparent;
+  transform: translate(-50%, -50%);
+}
+.premium-course-card[data-course='technology'] .course-identity-mark span:nth-child(1) { width: .55rem; height: .55rem; opacity: 1; }
+.premium-course-card[data-course='technology'] .course-identity-mark span:nth-child(2) { width: 1.3rem; height: 1.3rem; opacity: .65; }
+.premium-course-card[data-course='technology'] .course-identity-mark span:nth-child(3) { width: 2.05rem; height: 2.05rem; opacity: .3; }
+
+/* AI: three connected nodes. */
+.premium-course-card[data-course='ai'] .course-identity-mark {
+  position: relative;
+  gap: .38rem;
+}
+.premium-course-card[data-course='ai'] .course-identity-mark::before {
+  position: absolute;
+  left: .25rem;
+  top: .92rem;
+  width: 2.3rem;
+  height: 1px;
+  background: var(--course-accent);
+  content: '';
+  opacity: .28;
+}
+.premium-course-card[data-course='ai'] .course-identity-mark span {
+  z-index: 1;
+  width: .68rem;
+  height: .68rem;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--course-accent);
+  opacity: 1;
+}
+.premium-course-card[data-course='ai'] .course-identity-mark span:nth-child(2) { transform: translateY(-.45rem); opacity: .75; }
+.premium-course-card[data-course='ai'] .course-identity-mark span:nth-child(3) { transform: translateY(.28rem); opacity: .55; }
+
+/* 6. Type system finesse: keep Geist, improve legibility and rhythm. */
+.premium-hero h1 { letter-spacing: -.045em; }
+.header-course-context { font-size: .8rem; }
+.roadmap-desktop .tiny-eyebrow { font-size: .7rem !important; }
+.course-roadmap li > span { font-size: .7rem; }
+.course-roadmap li strong { font-size: .78rem; line-height: 1.3; }
+.feedback-detail summary { font-size: .8rem; }
+.capability-row li { font-size: .76rem; }
+.course-category,
+.course-designation { font-size: .74rem; }
+
+/* 8. Status language: completion gets the check; other states get their own visual cue. */
+.premium-course-card .course-status {
+  display: inline-flex;
+  align-items: center;
+  gap: .42rem;
+}
+.premium-course-card .course-status svg { display: none; }
+.premium-course-card .course-status::before {
+  display: inline-grid;
+  width: 1rem;
+  height: 1rem;
+  place-items: center;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  font-size: .62rem;
+  font-weight: 800;
+  line-height: 1;
+  content: '';
+}
+.premium-course-card .status-not-started { color: #6d7b8d; }
+.premium-course-card .status-not-started::before { background: transparent; }
+.premium-course-card .status-in-progress { color: #0b294b; }
+.premium-course-card .status-in-progress::before {
+  border-color: #0b294b;
+  background: conic-gradient(#0b294b 0 42%, #e1e7ed 42% 100%);
+  box-shadow: inset 0 0 0 2px #fff;
+}
+.premium-course-card .status-completed { color: #276249; }
+.premium-course-card .status-completed::before {
+  border-color: #276249;
+  background: #276249;
+  color: #fff;
+  content: '✓';
+}
+
+@media (max-width: 800px) {
+  .dashboard-shell {
+    margin: 1rem .85rem 3.5rem;
+    border-radius: 1.1rem;
+  }
+  .dashboard-main { padding: 1.35rem !important; }
+  .course-map { padding: 1.2rem !important; }
+  .dashboard-main .hero-title { font-size: clamp(2rem, 10vw, 3rem); }
+}
