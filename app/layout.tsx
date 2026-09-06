@@ -6,6 +6,7 @@ import './visual-polish.css';
 import './flat-learning.css';
 import './favourites.css';
 import './course-marks.css';
+import './home-hero.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
