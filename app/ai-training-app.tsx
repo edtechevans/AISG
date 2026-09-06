@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { aiQuestions, aiSections, AI_COURSE_VERSION } from '@/lib/ai-course';
 import { teamsQuestions, teamsSections, TEAMS_COURSE_VERSION } from '@/lib/teams-course';
 import { mtssQuestions, mtssSections, MTSS_COURSE_VERSION } from '@/lib/mtss-course';
+import { udlQuestions, udlSections, UDL_COURSE_VERSION } from '@/lib/udl-course';
 import { tlfQuestions, tlfSections, TLF_COURSE_VERSION } from '@/lib/tlf-course';
 import { technologyTlfQuestions, technologyTlfSections, TECHNOLOGY_TLF_COURSE_VERSION } from '@/lib/technology-transformative-course';
 import { elementaryQuestions, elementarySections, secondaryQuestions, secondarySections, FACULTY_COURSE_VERSION } from '@/lib/faculty-courses';
@@ -15,6 +16,7 @@ import { COURSE_BY_ID, type CourseId } from '@/lib/course-catalog';
 import FacultyLearningExperience from '@/app/faculty-learning-experience';
 import CommunicationMtssLearningExperience from '@/app/communication-mtss-learning-experience';
 import TlfTechnologyAiLearningExperience from '@/app/tlf-technology-ai-learning-experience';
+import UdlLearningExperience from '@/app/udl-learning-experience';
 
 type CourseProgress = {
   position: number;
@@ -44,6 +46,10 @@ const courses = {
   engagement: {
     storageKey: 'my-courses-engagement-progress-v1', catalog: COURSE_BY_ID.engagement, version: TLF_COURSE_VERSION, sections: tlfSections, questions: tlfQuestions, passingScore: 0,
     practiceOptions: ['Use the framework as a lens in an upcoming learning design.', 'Select a small set of indicators for a coaching or reflection conversation.', 'Notice student experience through talk, choices, work, relationships and action.', 'Invite students to describe what deepens their engagement.', 'Something else'],
+  },
+  udl: {
+    storageKey: 'my-courses-udl-progress-v1', catalog: COURSE_BY_ID.udl, version: UDL_COURSE_VERSION, sections: udlSections, questions: udlQuestions, passingScore: 0,
+    practiceOptions: ['Clarify a learning goal and separate it from a non-essential means.', 'Identify one barrier in an upcoming learning experience before students encounter it.', 'Strengthen Multiple Means of Engagement without lowering meaningful challenge.', 'Improve access to meaning through purposeful representation.', 'Offer a valid Action & Expression option while preserving the intended evidence.', 'Use learner evidence to redesign one part of a lesson or unit.', 'Something else'],
   },
   ai: {
     storageKey: 'my-courses-ai-progress-v1', catalog: COURSE_BY_ID.ai, version: AI_COURSE_VERSION, sections: aiSections, questions: aiQuestions, passingScore: 0,
@@ -92,7 +98,8 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   const facultyCourse = course === 'elementary' || course === 'secondary' ? course : null;
   const enrichedCourse = course === 'teams' || course === 'mtss' ? course : null;
   const tlfTechnologyAiCourse = course === 'engagement' || course === 'technology' || course === 'ai' ? course : null;
-  const practiceLabCount = facultyCourse || enrichedCourse || tlfTechnologyAiCourse ? 5 : 0;
+  const udlCourse = course === 'udl' ? course : null;
+  const practiceLabCount = facultyCourse || enrichedCourse || tlfTechnologyAiCourse || udlCourse ? 5 : 0;
   const initialProgress = readProgress(config.storageKey);
   const initialQuestion = Math.min(config.questions.length - 1, initialProgress.position);
   const [progress, setProgress] = useState<CourseProgress>(initialProgress);
@@ -283,6 +290,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
         {facultyCourse && <FacultyLearningExperience key={`${facultyCourse}-${section.id}-${learnPage}`} course={facultyCourse} sectionId={section.id} learnPage={learnPage} />}
         {enrichedCourse && <CommunicationMtssLearningExperience key={`${enrichedCourse}-${section.id}-${learnPage}`} course={enrichedCourse} sectionId={section.id} learnPage={learnPage} />}
         {tlfTechnologyAiCourse && <TlfTechnologyAiLearningExperience key={`${tlfTechnologyAiCourse}-${section.id}-${learnPage}`} course={tlfTechnologyAiCourse} sectionId={section.id} learnPage={learnPage} />}
+        {udlCourse && <UdlLearningExperience key={`${udlCourse}-${section.id}-${learnPage}`} sectionId={section.id} learnPage={learnPage} />}
         {lastPage && <div className="takeaway-list mt-6"><p className="meta-label">Key takeaways</p>{section.takeaways.map((item) => <div className="flex items-start gap-3" key={item}><CheckCircle2 className="mt-1 text-red" /><span>{item}</span></div>)}</div>}
         <Button className="primary-pill mt-8" size="lg" onClick={continueLearning}>{lastPage ? reviewMode ? sectionIndex === config.sections.length - 1 ? 'Finish review' : 'Next section' : 'Check your learning' : 'Continue learning'} <ArrowRight /></Button>
       </section></div>
