@@ -6,6 +6,7 @@ import './visual-polish.css';
 import './flat-learning.css';
 import './udl-course.css';
 import './data-course.css';
+import './assessment-course.css';
 import './favourites.css';
 
 const geistSans = Geist({
