@@ -10,6 +10,7 @@ import { mtssQuestions, mtssSections, MTSS_COURSE_VERSION } from '@/lib/mtss-cou
 import { udlQuestions, udlSections, UDL_COURSE_VERSION } from '@/lib/udl-course';
 import { dataToActionQuestions, dataToActionSections, DATA_TO_ACTION_COURSE_VERSION } from '@/lib/data-to-action-course';
 import { assessmentForLearningQuestions, assessmentForLearningSections, ASSESSMENT_FOR_LEARNING_COURSE_VERSION } from '@/lib/assessment-for-learning-course';
+import { growthDomain1Questions, growthDomain1Sections, growthDomain2Questions, growthDomain2Sections, TEACHER_GROWTH_DOMAIN_COURSE_VERSION } from '@/lib/teacher-growth-domain-courses';
 import { tlfQuestions, tlfSections, TLF_COURSE_VERSION } from '@/lib/tlf-course';
 import { technologyTlfQuestions, technologyTlfSections, TECHNOLOGY_TLF_COURSE_VERSION } from '@/lib/technology-transformative-course';
 import { elementaryQuestions, elementarySections, secondaryQuestions, secondarySections, FACULTY_COURSE_VERSION } from '@/lib/faculty-courses';
@@ -21,6 +22,7 @@ import TlfTechnologyAiLearningExperience from '@/app/tlf-technology-ai-learning-
 import UdlLearningExperience from '@/app/udl-learning-experience';
 import DataLearningExperience from '@/app/data-learning-experience';
 import AssessmentLearningExperience from '@/app/assessment-learning-experience';
+import TeacherGrowthLearningExperience from '@/app/teacher-growth-learning-experience';
 
 type CourseProgress = {
   position: number;
@@ -62,6 +64,14 @@ const courses = {
   assessment: {
     storageKey: 'my-courses-assessment-for-learning-progress-v1', catalog: COURSE_BY_ID.assessment, version: ASSESSMENT_FOR_LEARNING_COURSE_VERSION, sections: assessmentForLearningSections, questions: assessmentForLearningQuestions, passingScore: 0,
     practiceOptions: ['Clarify a learning intention and separate it from the task or product.', 'Improve success criteria so they make the quality of learning visible.', 'Use a quick check that makes more learners’ thinking visible.', 'Use assessment evidence to adjust tomorrow’s teaching.', 'Give feedback that identifies one actionable next move.', 'Build time for students to use feedback through revision or another attempt.', 'Strengthen self-assessment or peer feedback using shared criteria.', 'Something else'],
+  },
+  'growth-domain1': {
+    storageKey: 'my-courses-teacher-growth-domain1-progress-v1', catalog: COURSE_BY_ID['growth-domain1'], version: TEACHER_GROWTH_DOMAIN_COURSE_VERSION, sections: growthDomain1Sections, questions: growthDomain1Questions, passingScore: 0,
+    practiceOptions: ['Strengthen clarity of learning purpose and success.', 'Use learner identity, strengths and needs more intentionally in planning.', 'Improve access while also deepening cognitive engagement.', 'Design for greater learner transfer and independence.', 'Use formative evidence and feedback during learning.', 'Help students monitor progress and adjust strategies more independently.', 'Something else'],
+  },
+  'growth-domain2': {
+    storageKey: 'my-courses-teacher-growth-domain2-progress-v1', catalog: COURSE_BY_ID['growth-domain2'], version: TEACHER_GROWTH_DOMAIN_COURSE_VERSION, sections: growthDomain2Sections, questions: growthDomain2Questions, passingScore: 0,
+    practiceOptions: ['Strengthen belonging, participation and psychological safety.', 'Make student voice more influential in learning.', 'Design routines that build greater learner autonomy.', 'Help students adapt routines across learning situations.', 'Use space, time and tools more purposefully for access and participation.', 'Increase student responsibility for sustaining inclusive learning conditions.', 'Something else'],
   },
   ai: {
     storageKey: 'my-courses-ai-progress-v1', catalog: COURSE_BY_ID.ai, version: AI_COURSE_VERSION, sections: aiSections, questions: aiQuestions, passingScore: 0,
@@ -113,7 +123,8 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   const udlCourse = course === 'udl' ? course : null;
   const dataCourse = course === 'data' ? course : null;
   const assessmentCourse = course === 'assessment' ? course : null;
-  const practiceLabCount = facultyCourse || enrichedCourse || tlfTechnologyAiCourse || udlCourse || dataCourse || assessmentCourse ? 5 : 0;
+  const growthCourse = course === 'growth-domain1' || course === 'growth-domain2' ? course : null;
+  const practiceLabCount = facultyCourse || enrichedCourse || tlfTechnologyAiCourse || udlCourse || dataCourse || assessmentCourse || growthCourse ? 5 : 0;
   const initialProgress = readProgress(config.storageKey);
   const initialQuestion = Math.min(config.questions.length - 1, initialProgress.position);
   const [progress, setProgress] = useState<CourseProgress>(initialProgress);
@@ -307,6 +318,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
         {udlCourse && <UdlLearningExperience key={`${udlCourse}-${section.id}-${learnPage}`} sectionId={section.id} learnPage={learnPage} />}
         {dataCourse && <DataLearningExperience key={`${dataCourse}-${section.id}-${learnPage}`} sectionId={section.id} learnPage={learnPage} />}
         {assessmentCourse && <AssessmentLearningExperience key={`${assessmentCourse}-${section.id}-${learnPage}`} sectionId={section.id} learnPage={learnPage} />}
+        {growthCourse && <TeacherGrowthLearningExperience key={`${growthCourse}-${section.id}-${learnPage}`} course={growthCourse} sectionId={section.id} learnPage={learnPage} />}
         {lastPage && <div className="takeaway-list mt-6"><p className="meta-label">Key takeaways</p>{section.takeaways.map((item) => <div className="flex items-start gap-3" key={item}><CheckCircle2 className="mt-1 text-red" /><span>{item}</span></div>)}</div>}
         <Button className="primary-pill mt-8" size="lg" onClick={continueLearning}>{lastPage ? reviewMode ? sectionIndex === config.sections.length - 1 ? 'Finish review' : 'Next section' : 'Check your learning' : 'Continue learning'} <ArrowRight /></Button>
       </section></div>
