@@ -1,4 +1,4 @@
-export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'engagement' | 'udl' | 'mtss' | 'ai' | 'technology';
+export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'engagement' | 'udl' | 'data' | 'mtss' | 'ai' | 'technology';
 
 export type CourseCatalogItem = {
   id: CourseId;
@@ -92,6 +92,19 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     checkCount: 18,
     storageKey: 'my-courses-udl-progress-v1',
     capabilities: ['Learner variability', 'Barrier-aware design', 'Multiple means for learning', 'Accessibility & learner agency'],
+  },
+  {
+    id: 'data',
+    title: 'Data to Action: Using Evidence to Improve Learning',
+    description: 'Use everyday classroom evidence to identify a meaningful learning gap, choose a focused next move, monitor impact and adjust practice.',
+    intro: 'Data does not need to mean dashboards, spreadsheets or large tests. For a classroom teacher, useful evidence is often already close at hand: student work, conversations, observations, exit tickets, common assessments, learner voice and broader patterns over time. This short course uses AISG’s Current State → Desired State → Gap → Action → Progress Monitoring → Adjust cycle to help you turn evidence into practical teaching decisions. The emphasis is curiosity over judgement, big data plus small data, and small improvement cycles that make learner experience and outcomes more visible.',
+    category: 'Learning & Teaching',
+    designation: 'Recommended',
+    duration: '20–25 minutes',
+    sectionCount: 5,
+    checkCount: 10,
+    storageKey: 'my-courses-data-to-action-progress-v1',
+    capabilities: ['Evidence-informed practice', 'Big & small data', 'Progress monitoring', 'Reflective adjustment'],
   },
   {
     id: 'mtss',
