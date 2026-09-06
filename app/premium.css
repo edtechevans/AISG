@@ -189,7 +189,7 @@
 .nav-link { border-radius: .65rem !important; font-weight: 600 !important; }
 .nav-link:hover { background: #f1f4f7; }
 
-/* Course pages: editorial reading width and clearer roadmap on the course home. */
+/* Course pages: editorial reading width and persistent orientation. */
 .course-home-sections {
   grid-template-columns: 1fr !important;
   gap: .25rem !important;
@@ -210,8 +210,38 @@
 .question-card h1 { max-width: 42rem; }
 .feedback-card { border: 1px solid rgba(11,41,75,.08); padding: 1.15rem !important; }
 
+.course-experience {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+.course-experience > .intro-card,
+.course-experience > .question-layout { margin-top: 0; }
+.course-roadmap { min-width: 0; }
+.roadmap-desktop { display: none; }
+.roadmap-mobile { border: 1px solid #dce4eb; border-radius: .9rem; background: white; }
+.roadmap-mobile summary { cursor: pointer; list-style: none; padding: .85rem 1rem; color: #31475f; font-size: .82rem; font-weight: 650; }
+.roadmap-mobile summary::-webkit-details-marker { display: none; }
+.course-roadmap ol { display: grid; gap: .2rem; margin: 0; padding: .55rem; list-style: none; }
+.course-roadmap li { display: grid; grid-template-columns: 1.75rem minmax(0,1fr); align-items: center; gap: .55rem; min-height: 2.35rem; border-radius: .6rem; padding: .35rem .5rem; color: #778496; }
+.course-roadmap li > span { display: grid; width: 1.5rem; height: 1.5rem; place-items: center; border: 1px solid #d1dae3; border-radius: 999px; font-size: .66rem; font-weight: 750; }
+.course-roadmap li strong { font-size: .74rem; font-weight: 600; line-height: 1.25; }
+.course-roadmap li.roadmap-complete { color: #425f55; }
+.course-roadmap li.roadmap-complete > span { border-color: #b9d5c9; background: #e8f3ee; color: #2a6951; }
+.course-roadmap li.roadmap-current { background: #eef3f7; color: #0b294b; }
+.course-roadmap li.roadmap-current > span { border-color: #0b294b; background: #0b294b; color: white; }
+.feedback-detail { margin-top: .8rem; border-top: 1px solid rgba(11,41,75,.1); padding-top: .7rem; }
+.feedback-detail summary { cursor: pointer; color: #344e68; font-size: .78rem; font-weight: 650; }
+.feedback-detail p { margin-top: .55rem !important; }
+
 @media (min-width: 900px) {
   .header-course-context { display: flex; }
+  .course-experience { grid-template-columns: 220px minmax(0, 1fr); gap: 2rem; }
+  .roadmap-desktop { position: sticky; top: 96px; display: block; border-right: 1px solid #e0e6ec; padding: .75rem 1rem .75rem 0; }
+  .roadmap-desktop .tiny-eyebrow { margin-bottom: .65rem; font-size: .64rem; }
+  .roadmap-mobile { display: none; }
 }
 
 @media (max-width: 800px) {
