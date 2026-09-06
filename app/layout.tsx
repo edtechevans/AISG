@@ -4,10 +4,6 @@ import './globals.css';
 import './premium.css';
 import './visual-polish.css';
 import './flat-learning.css';
-import './udl-course.css';
-import './data-course.css';
-import './assessment-course.css';
-import './teacher-growth.css';
 import './favourites.css';
 import './course-marks.css';
 
