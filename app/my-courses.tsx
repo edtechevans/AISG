@@ -140,6 +140,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   if (route === 'elementary') return <><PlatformHeader onPlatformHome={home} activeCourse="elementary" onCourse={open} onCourses={home} /><AiTrainingApp key="elementary" onExit={home} course="elementary" /></>;
   if (route === 'secondary') return <><PlatformHeader onPlatformHome={home} activeCourse="secondary" onCourse={open} onCourses={home} /><AiTrainingApp key="secondary" onExit={home} course="secondary" /></>;
   if (route === 'engagement') return <><PlatformHeader onPlatformHome={home} activeCourse="engagement" onCourse={open} onCourses={home} /><AiTrainingApp key="engagement" onExit={home} course="engagement" /></>;
+  if (route === 'udl') return <><PlatformHeader onPlatformHome={home} activeCourse="udl" onCourse={open} onCourses={home} /><AiTrainingApp key="udl" onExit={home} course="udl" /></>;
   if (route === 'mtss') return <><PlatformHeader onPlatformHome={home} activeCourse="mtss" onCourse={open} onCourses={home} /><AiTrainingApp key="mtss" onExit={home} course="mtss" /></>;
   if (route === 'ai') return <><PlatformHeader onPlatformHome={home} activeCourse="ai" onCourse={open} onCourses={home} /><AiTrainingApp key="ai" onExit={home} /></>;
   if (route === 'technology') return <><PlatformHeader onPlatformHome={home} activeCourse="technology" onCourse={open} onCourses={home} /><AiTrainingApp key="technology" onExit={home} course="technology" /></>;
