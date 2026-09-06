@@ -49,6 +49,11 @@ jobs:
         env:
           PAGES_BASE_PATH: /${{ github.event.repository.name }}/
 
+      - name: Verify static website
+        run: pnpm verify:pages
+        env:
+          PAGES_BASE_PATH: /${{ github.event.repository.name }}/
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
         with:

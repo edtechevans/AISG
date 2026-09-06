@@ -1,6 +1,7 @@
 import questionSource from '../../content/questions.json';
 import {
   courseModules,
+  COURSE_VERSION_ID,
   DEFAULT_PASS_THRESHOLD,
   type Question,
 } from '../../lib/course';
@@ -44,6 +45,66 @@ const freshState = (attemptNumber = 1): StoredState => ({
   responses: [],
 });
 
+function learningStorageKey(attemptNumber: number) {
+  return `${COURSE_VERSION_ID}-learning-${attemptNumber}`;
+}
+
+function learningStagesStorageKey(attemptNumber: number) {
+  return `${COURSE_VERSION_ID}-learning-stages-${attemptNumber}`;
+}
+
+function readLearningProgress(attemptNumber: number) {
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(learningStorageKey(attemptNumber)) || '[]');
+    return Array.isArray(parsed)
+      ? parsed.filter((value): value is string => typeof value === 'string')
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function readLearningStages(attemptNumber: number) {
+  try {
+    const parsed = JSON.parse(
+      window.localStorage.getItem(learningStagesStorageKey(attemptNumber)) || '{}',
+    ) as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.entries(parsed).filter(
+        (entry): entry is [string, number] =>
+          typeof entry[1] === 'number' && Number.isInteger(entry[1]) && entry[1] >= 0,
+      ),
+    );
+  } catch {
+    return {};
+  }
+}
+
+function browserLearningProgress(state: StoredState) {
+  const completedSections = readLearningProgress(state.attemptNumber);
+  const learningStages = readLearningStages(state.attemptNumber);
+  const partialLearningUnits = courseModules.reduce(
+    (total, module) =>
+      completedSections.includes(module.id)
+        ? total
+        : total + Math.min(0.99, (learningStages[module.id] ?? 0) / (module.learningSteps.length + 1)),
+    0,
+  );
+  const completedChecks = state.responses.length;
+  const percentage = Math.min(
+    100,
+    Math.round(
+      ((completedChecks + completedSections.length + partialLearningUnits) /
+        (QUESTIONS.length + courseModules.length)) *
+        100,
+    ),
+  );
+  const hasLearningActivity =
+    completedSections.length > 0 || Object.values(learningStages).some((stage) => stage > 0);
+
+  return { completedSections, hasLearningActivity, percentage };
+}
+
 function readState(): StoredState {
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -69,6 +130,7 @@ function json(data: unknown, status = 200) {
 
 function bootstrap(state: StoredState) {
   const completed = state.responses.length;
+  const learning = browserLearningProgress(state);
   return {
     user: {
       id: 'github-pages-demo-learner',
@@ -87,11 +149,13 @@ function bootstrap(state: StoredState) {
       completedAt: state.completedAt,
     },
     responses: state.responses,
+    completedSections: learning.completedSections,
+    learningStage: learning.hasLearningActivity ? ('learn' as const) : undefined,
     progress: {
       currentModule: Math.min(6, Math.ceil(state.currentQuestion / 5)),
       currentQuestion: state.currentQuestion,
       completed,
-      percentage: Math.round((completed / 30) * 100),
+      percentage: learning.percentage,
       latestActivity: Date.now(),
     },
   };
