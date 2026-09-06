@@ -17,6 +17,17 @@ export type CourseCatalogItem = {
 
 export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
   {
+    id: 'safeguarding',
+    title: 'Safeguarding at AISG',
+    description: 'Essential knowledge, responsibilities and professional judgement to help keep students safe at AISG.',
+    category: 'Student Safety & Wellbeing',
+    designation: 'Required',
+    duration: '35–45 minutes',
+    sectionCount: 6,
+    checkCount: 30,
+    capabilities: ['Recognising concerns', 'Responding & reporting', 'Professional boundaries', 'Student safety'],
+  },
+  {
     id: 'elementary',
     title: 'Elementary Faculty Essentials',
     description: 'A practical guide to the expectations, routines and shared responsibilities that shape Elementary at AISG.',
@@ -56,17 +67,6 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     checkCount: 14,
     storageKey: 'my-courses-communication-progress-v2',
     capabilities: ['Purposeful communication', 'Professional language', 'Confidentiality', 'Teams collaboration'],
-  },
-  {
-    id: 'safeguarding',
-    title: 'Safeguarding at AISG',
-    description: 'Essential knowledge, responsibilities and professional judgement to help keep students safe at AISG.',
-    category: 'Student Safety & Wellbeing',
-    designation: 'Required',
-    duration: '35–45 minutes',
-    sectionCount: 6,
-    checkCount: 30,
-    capabilities: ['Recognising concerns', 'Responding & reporting', 'Professional boundaries', 'Student safety'],
   },
   {
     id: 'engagement',
