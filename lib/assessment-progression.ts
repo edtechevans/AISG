@@ -1,4 +1,4 @@
-export type CourseAssessmentId = 'safeguarding' | 'engagement' | 'ai' | 'technology' | 'teams' | 'mtss' | 'elementary' | 'secondary';
+export type CourseAssessmentId = 'safeguarding' | 'engagement' | 'udl' | 'ai' | 'technology' | 'teams' | 'mtss' | 'elementary' | 'secondary';
 export type CognitiveLevel = 2 | 3 | 4 | 5;
 
 // This authoring map is intentionally not shown to learners. It makes the intended
@@ -15,6 +15,16 @@ export const assessmentProgression: Record<CourseAssessmentId, Record<string, Co
     'aisg-sg-2627-026': 3, 'aisg-sg-2627-027': 3, 'aisg-sg-2627-028': 3, 'aisg-sg-2627-029': 3, 'aisg-sg-2627-030': 5,
   },
   engagement: { 'tlf-1': 2, 'tlf-2': 2, 'tlf-3': 3, 'tlf-4': 3, 'tlf-5': 3, 'tlf-6': 3, 'tlf-7': 4, 'tlf-8': 4, 'tlf-9': 4, 'tlf-10': 5 },
+  udl: {
+    'udl-1': 2, 'udl-2': 2,
+    'udl-3': 2, 'udl-4': 3,
+    'udl-5': 3, 'udl-6': 3,
+    'udl-7': 3, 'udl-8': 3,
+    'udl-9': 3, 'udl-10': 4,
+    'udl-11': 4, 'udl-12': 4,
+    'udl-13': 4, 'udl-14': 4, 'udl-15': 4,
+    'udl-16': 4, 'udl-17': 5, 'udl-18': 5,
+  },
   ai: {
     'ai-1': 2, 'ai-2': 2,
     'ai-3': 2, 'ai-4': 3,
