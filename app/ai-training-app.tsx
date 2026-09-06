@@ -10,6 +10,7 @@ import { mtssQuestions, mtssSections, MTSS_COURSE_VERSION } from '@/lib/mtss-cou
 import { udlQuestions, udlSections, UDL_COURSE_VERSION } from '@/lib/udl-course';
 import { dataToActionQuestions, dataToActionSections, DATA_TO_ACTION_COURSE_VERSION } from '@/lib/data-to-action-course';
 import { assessmentForLearningQuestions, assessmentForLearningSections, ASSESSMENT_FOR_LEARNING_COURSE_VERSION } from '@/lib/assessment-for-learning-course';
+import { multilingualLearnersQuestions, multilingualLearnersSections, MULTILINGUAL_LEARNERS_COURSE_VERSION } from '@/lib/multilingual-learners-course';
 import { growthDomain1Questions, growthDomain1Sections, growthDomain2Questions, growthDomain2Sections, TEACHER_GROWTH_DOMAIN_COURSE_VERSION } from '@/lib/teacher-growth-domain-courses';
 import { growthDomain3Questions, growthDomain3Sections, growthDomain4Questions, growthDomain4Sections } from '@/lib/teacher-growth-domain34-courses';
 import { tlfQuestions, tlfSections, TLF_COURSE_VERSION } from '@/lib/tlf-course';
@@ -23,6 +24,7 @@ import TlfTechnologyAiLearningExperience from '@/app/tlf-technology-ai-learning-
 import UdlLearningExperience from '@/app/udl-learning-experience';
 import DataLearningExperience from '@/app/data-learning-experience';
 import AssessmentLearningExperience from '@/app/assessment-learning-experience';
+import MultilingualLearningExperience from '@/app/multilingual-learning-experience';
 import TeacherGrowthLearningExperience from '@/app/teacher-growth-learning-experience';
 import TeacherGrowthDomain34LearningExperience from '@/app/teacher-growth-domain34-learning-experience';
 import CourseMark from '@/app/course-mark';
@@ -67,6 +69,10 @@ const courses = {
   assessment: {
     storageKey: 'my-courses-assessment-for-learning-progress-v1', catalog: COURSE_BY_ID.assessment, version: ASSESSMENT_FOR_LEARNING_COURSE_VERSION, sections: assessmentForLearningSections, questions: assessmentForLearningQuestions, passingScore: 0,
     practiceOptions: ['Clarify a learning intention and separate it from the task or product.', 'Improve success criteria so they make the quality of learning visible.', 'Use a quick check that makes more learners’ thinking visible.', 'Use assessment evidence to adjust tomorrow’s teaching.', 'Give feedback that identifies one actionable next move.', 'Build time for students to use feedback through revision or another attempt.', 'Strengthen self-assessment or peer feedback using shared criteria.', 'Something else'],
+  },
+  multilingual: {
+    storageKey: 'my-courses-multilingual-learners-progress-v1', catalog: COURSE_BY_ID.multilingual, version: MULTILINGUAL_LEARNERS_COURSE_VERSION, sections: multilingualLearnersSections, questions: multilingualLearnersQuestions, passingScore: 0,
+    practiceOptions: ['Reframe one learner profile through an asset-based Can Do lens.', 'Identify the content goal and language demands in an upcoming lesson.', 'Build think time and structured rehearsal before whole-class participation.', 'Use a home-language or translanguaging resource purposefully for meaning-making.', 'Replace one blanket simplification with a targeted temporary scaffold.', 'Use multiple evidence sources and co-plan a next move with an EAL colleague.', 'Something else'],
   },
   'growth-domain1': {
     storageKey: 'my-courses-teacher-growth-domain1-progress-v1', catalog: COURSE_BY_ID['growth-domain1'], version: TEACHER_GROWTH_DOMAIN_COURSE_VERSION, sections: growthDomain1Sections, questions: growthDomain1Questions, passingScore: 0,
@@ -134,9 +140,10 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   const udlCourse = course === 'udl' ? course : null;
   const dataCourse = course === 'data' ? course : null;
   const assessmentCourse = course === 'assessment' ? course : null;
+  const multilingualCourse = course === 'multilingual' ? course : null;
   const growthCourse12 = course === 'growth-domain1' || course === 'growth-domain2' ? course : null;
   const growthCourse34 = course === 'growth-domain3' || course === 'growth-domain4' ? course : null;
-  const practiceLabCount = facultyCourse || enrichedCourse || tlfTechnologyAiCourse || udlCourse || dataCourse || assessmentCourse || growthCourse12 || growthCourse34 ? 5 : 0;
+  const practiceLabCount = facultyCourse || enrichedCourse || tlfTechnologyAiCourse || udlCourse || dataCourse || assessmentCourse || multilingualCourse || growthCourse12 || growthCourse34 ? 5 : 0;
   const initialProgress = readProgress(config.storageKey);
   const initialQuestion = Math.min(config.questions.length - 1, initialProgress.position);
   const [progress, setProgress] = useState<CourseProgress>(initialProgress);
@@ -330,6 +337,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
         {udlCourse && <UdlLearningExperience key={`${udlCourse}-${section.id}-${learnPage}`} sectionId={section.id} learnPage={learnPage} />}
         {dataCourse && <DataLearningExperience key={`${dataCourse}-${section.id}-${learnPage}`} sectionId={section.id} learnPage={learnPage} />}
         {assessmentCourse && <AssessmentLearningExperience key={`${assessmentCourse}-${section.id}-${learnPage}`} sectionId={section.id} learnPage={learnPage} />}
+        {multilingualCourse && <MultilingualLearningExperience key={`${multilingualCourse}-${section.id}-${learnPage}`} sectionId={section.id} learnPage={learnPage} />}
         {growthCourse12 && <TeacherGrowthLearningExperience key={`${growthCourse12}-${section.id}-${learnPage}`} course={growthCourse12} sectionId={section.id} learnPage={learnPage} />}
         {growthCourse34 && <TeacherGrowthDomain34LearningExperience key={`${growthCourse34}-${section.id}-${learnPage}`} course={growthCourse34} sectionId={section.id} learnPage={learnPage} />}
         {lastPage && <div className="takeaway-list mt-6"><p className="meta-label">Key takeaways</p>{section.takeaways.map((item) => <div className="flex items-start gap-3" key={item}><CheckCircle2 className="mt-1 text-red" /><span>{item}</span></div>)}</div>}
@@ -357,7 +365,6 @@ function CourseRoadmap({ sections, currentIndex, completed }: { sections: readon
     const isCurrent = index === currentIndex;
     return <li key={item.id} className={`${isComplete ? 'roadmap-complete' : ''} ${isCurrent ? 'roadmap-current' : ''}`} aria-current={isCurrent ? 'step' : undefined}><span>{isComplete ? '✓' : item.number}</span><strong>{item.title}</strong></li>;
   })}</ol>;
-
   return <aside className="course-roadmap" aria-label="Course roadmap">
     <div className="roadmap-desktop"><p className="tiny-eyebrow">Course roadmap</p>{list}</div>
     <details className="roadmap-mobile"><summary>Section {currentIndex + 1} of {sections.length} · {sections[currentIndex]?.title}</summary>{list}</details>
