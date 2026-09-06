@@ -1,0 +1,109 @@
+/* Bespoke AISG My Courses SVG mark family.
+   Course identity is carried primarily by shape; colour remains a quiet secondary cue. */
+
+.course-mark {
+  display: block;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+.course-mark-card {
+  margin-bottom: .9rem;
+}
+
+.course-mark-nav {
+  opacity: .94;
+}
+
+.course-mark-hero {
+  margin-bottom: 1rem;
+}
+
+.course-mark-record {
+  margin-top: .1rem;
+}
+
+.course-mark-certificate {
+  margin: .55rem auto .75rem;
+}
+
+.course-home-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.course-home-heading-copy {
+  min-width: 0;
+}
+
+.course-home-heading .course-mark {
+  margin-top: .1rem;
+}
+
+.course-result-heading {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  margin-bottom: .3rem;
+}
+
+.course-result-heading .tiny-eyebrow {
+  margin: 0;
+}
+
+.header-course-context .course-mark {
+  margin-right: .08rem;
+}
+
+.mobile-current-course {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.continue-course-identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.continue-course-identity .course-mark {
+  margin-top: .12rem;
+  opacity: .95;
+}
+
+.capability-row-main {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: .75rem;
+  align-items: start;
+}
+
+.safeguarding-course-mark {
+  margin: 0 0 1rem;
+}
+
+.safeguarding-result-mark {
+  margin-bottom: .6rem;
+}
+
+@media (max-width: 640px) {
+  .course-home-heading {
+    gap: .8rem;
+  }
+
+  .course-home-heading .course-mark-hero {
+    width: 44px;
+    height: 44px;
+  }
+
+  .continue-course-identity {
+    gap: .75rem;
+  }
+
+  .continue-course-identity .course-mark-card {
+    width: 34px;
+    height: 34px;
+  }
+}
