@@ -12,6 +12,7 @@ import { technologyTlfQuestions, technologyTlfSections, TECHNOLOGY_TLF_COURSE_VE
 import { elementaryQuestions, elementarySections, secondaryQuestions, secondarySections, FACULTY_COURSE_VERSION } from '@/lib/faculty-courses';
 import { cognitiveLevelFor } from '@/lib/assessment-progression';
 import { COURSE_BY_ID, type CourseId } from '@/lib/course-catalog';
+import FacultyLearningExperience from '@/app/faculty-learning-experience';
 
 type CourseProgress = {
   position: number;
@@ -86,6 +87,7 @@ function saveProgress(storageKey: string, progress: CourseProgress) {
 
 export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () => void; course?: CourseKey }) {
   const config = courses[course];
+  const facultyCourse = course === 'elementary' || course === 'secondary' ? course : null;
   const initialProgress = readProgress(config.storageKey);
   const initialQuestion = Math.min(config.questions.length - 1, initialProgress.position);
   const [progress, setProgress] = useState<CourseProgress>(initialProgress);
@@ -251,6 +253,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
     return <main id="main-content" className="learning-shell"><section className="intro-card course-home-card">
       <p className="tiny-eyebrow">Course home</p><h1>{config.catalog.title}</h1><p className="intro-summary">{config.catalog.intro ?? config.catalog.description}</p>
       <dl className="course-facts"><div><dt>Time</dt><dd>{config.catalog.duration}</dd></div><div><dt>Learning path</dt><dd>{config.sections.length} sections</dd></div><div><dt>Checks</dt><dd>{config.questions.length} applied questions</dd></div></dl>
+      {facultyCourse && <div className="principle-card"><CheckCircle2 aria-hidden="true" /><div><strong>Practice before you are assessed</strong><p>Five unscored practice labs are woven through this course. Make a judgement, compare it with handbook-grounded guidance, and then continue to the formal learning checks.</p></div></div>}
       <div className="course-home-progress"><div><strong>Your progress</strong><span>{completionPercent}% complete</span></div><Progress value={completionPercent} aria-label={`${config.catalog.title}: ${completionPercent}% complete`} /><p>{completedChecks} of {config.questions.length} checks completed · Progress saved in this browser</p></div>
       <div className="course-home-sections" aria-label="Course sections">{config.sections.map((item, index) => { const complete = progress.completedSections.includes(item.id); const current = index === sectionIndex && !progress.completedAt; return <div key={item.id} className={current ? 'section-current' : ''} aria-current={current ? 'step' : undefined}><span className={complete ? 'section-complete-dot' : 'section-pending-dot'}>{complete ? '✓' : item.number}</span><span>{item.title}</span>{current && <small>Next</small>}</div>; })}</div>
       <div className="mt-8 flex flex-wrap gap-3"><Button className="primary-pill" size="lg" onClick={startOrResume}>{nextLabel} <ArrowRight /></Button><Button variant="outline" onClick={onExit}><ArrowLeft /> All courses</Button></div>
@@ -272,6 +275,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
       <div className="learning-top"><Button variant="ghost" onClick={() => setStage(progress.completedAt ? 'complete' : 'course-home')}><ArrowLeft /> {reviewMode ? 'Completion' : 'Course home'}</Button><span className="section-position">Section {section.number} of {config.sections.length}</span></div>
       <div className="dual-progress"><Progress value={completionPercent} aria-label={`Overall course: ${completionPercent}%`} /><span className="text-sm text-muted-foreground">{completionPercent}% overall</span></div>
       <div className="course-experience">{roadmap}<section className="intro-card lesson-card"><div className="module-orbit">{String(section.number).padStart(2, '0')}</div><p className="tiny-eyebrow">Learn · {learningLens} · Part {learnPage + 1} of {section.learn.length}</p><h1>{section.title}</h1><p className="intro-summary">{section.summary}</p><p className="lesson-copy">{section.learn[learnPage]}</p>
+        {facultyCourse && <FacultyLearningExperience key={`${facultyCourse}-${section.id}-${learnPage}`} course={facultyCourse} sectionId={section.id} learnPage={learnPage} />}
         {lastPage && <div className="takeaway-list mt-6"><p className="meta-label">Key takeaways</p>{section.takeaways.map((item) => <div className="flex items-start gap-3" key={item}><CheckCircle2 className="mt-1 text-red" /><span>{item}</span></div>)}</div>}
         <Button className="primary-pill mt-8" size="lg" onClick={continueLearning}>{lastPage ? reviewMode ? sectionIndex === config.sections.length - 1 ? 'Finish review' : 'Next section' : 'Check your learning' : 'Continue learning'} <ArrowRight /></Button>
       </section></div>
