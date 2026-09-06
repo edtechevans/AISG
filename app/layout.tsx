@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import LearningCompanion from '@/app/learning-companion';
 import './globals.css';
 import './premium.css';
 import './visual-polish.css';
@@ -7,6 +8,7 @@ import './flat-learning.css';
 import './favourites.css';
 import './course-marks.css';
 import './home-hero.css';
+import './learning-companion.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -42,6 +44,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <LearningCompanion />
       </body>
     </html>
   );
