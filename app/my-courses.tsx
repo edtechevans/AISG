@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { ArrowRight, CheckCircle2, Clock3, Compass, GraduationCap, History, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -25,7 +25,7 @@ type CourseState = {
   learnPage?: number;
   learningStage?: 'learn' | 'question';
   progress?: { completed?: number; percentage?: number } | null;
-  attempt?: { completedAt?: number | null };
+  attempt?: { completedAt?: number | null; status?: string };
 };
 
 type DisplayCourse = CourseCatalogItem & { status: CourseStatus; progress: number };
@@ -75,7 +75,10 @@ function completionDate(state: CourseState) {
 }
 
 function statusFor(state: CourseState): CourseStatus {
-  if (state.status === 'PASSED' || state.attempt?.completedAt || state.completedAt) return 'Completed';
+  const attemptStatus = state.attempt?.status;
+  if (state.status === 'PASSED' || attemptStatus === 'PASSED') return 'Completed';
+  if (state.status === 'NEEDS_ANOTHER_ATTEMPT' || attemptStatus === 'NEEDS_ANOTHER_ATTEMPT') return 'In Progress';
+  if (state.completedAt || (state.attempt?.completedAt && !attemptStatus)) return 'Completed';
   if (responseCount(state) > 0 || (state.progress?.completed || 0) > 0 || (state.completedSections?.length || 0) > 0 || Boolean(state.learningStage) || (state.learnPage || 0) > 0) return 'In Progress';
   return 'Not Started';
 }
@@ -191,7 +194,8 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   const otherExplore = explore.filter((course) => course.category !== 'Teacher Growth & Reflection').sort((a, b) => a.title.localeCompare(b.title));
 
   function scrollTo(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.getElementById(id)?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
   return <>
@@ -314,8 +318,9 @@ function ExploreCourseGroup({ teacherGrowthCourses, otherCourses, onOpen, favour
 }
 
 function CourseCard({ course, onOpen, isFavourite, onToggleFavourite }: { course: DisplayCourse; onOpen: (id: CourseId) => void; isFavourite: boolean; onToggleFavourite: (id: CourseId) => void }) {
+  const headingId = useId();
   const favouriteLabel = isFavourite ? `Remove ${course.title} from favourites` : `Add ${course.title} to favourites`;
-  return <article className="course-card premium-course-card" data-course={course.id} aria-labelledby={`course-${course.id}`}>
+  return <article className="course-card premium-course-card" data-course={course.id} aria-labelledby={headingId}>
     <CourseMark course={course.id} size="card" />
     <div className="course-card-top">
       <span className="course-category">{course.audience || course.category}</span>
@@ -326,7 +331,7 @@ function CourseCard({ course, onOpen, isFavourite, onToggleFavourite }: { course
         </button>
       </div>
     </div>
-    <h3 id={`course-${course.id}`}>{course.title}</h3>
+    <h3 id={headingId}>{course.title}</h3>
     <p>{course.description}</p>
     <div className="course-meta simplified-meta"><span><Clock3 aria-hidden="true" /> {course.duration}</span></div>
     {course.status !== 'Not Started' && <div className="course-card-progress"><Progress value={course.progress} aria-label={`${course.title}: ${course.progress}% complete`} /><span>{course.progress}%</span></div>}
