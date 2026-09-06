@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import { COURSE_BY_ID, type CourseId } from '@/lib/course-catalog';
+import CourseMark from '@/app/course-mark';
 
 export default function PlatformHeader({
   activeCourse,
@@ -45,7 +46,8 @@ export default function PlatformHeader({
         <span className="brand-copy"><strong>AISG My Courses</strong><small>{context}</small></span>
       </button>
 
-      {activeTitle && <div className="header-course-context" aria-label="Current course">
+      {activeTitle && activeCourse && <div className="header-course-context" aria-label="Current course">
+        <CourseMark course={activeCourse} size="nav" />
         <span>My Courses</span><span aria-hidden="true">/</span><strong>{activeTitle}</strong>
       </div>}
 
@@ -61,7 +63,7 @@ export default function PlatformHeader({
       <details className="mobile-nav" ref={mobileMenuRef}>
         <summary aria-label="Open navigation menu"><span className="mobile-nav-icon" aria-hidden="true" /></summary>
         <nav className="mobile-nav-panel" aria-label="Mobile learning platform navigation">
-          {activeTitle && <div className="mobile-nav-user">{activeTitle}</div>}
+          {activeTitle && activeCourse && <div className="mobile-nav-user mobile-current-course"><CourseMark course={activeCourse} size="nav" /><span>{activeTitle}</span></div>}
           <button onClick={goHome}>Home</button>
           {onCourseHome && <button onClick={goCourseHome}>Course home</button>}
           <button onClick={goCourses}>Courses</button>
