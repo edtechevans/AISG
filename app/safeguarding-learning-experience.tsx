@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ArrowRight, CheckCircle2, CircleAlert, GitBranch, MessageCircle, RotateCcw, Scale, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -47,10 +47,10 @@ function ExperienceHeader({ kind, title, description }: { kind: string; title: s
 }
 
 function Feedback({ strong, children }: { strong: boolean; children: React.ReactNode }) {
-  return <div role="status" aria-live="polite" className={`mt-4 flex gap-3 rounded-xl border p-4 ${strong ? 'border-emerald-200 bg-emerald-50 text-emerald-950' : 'border-amber-200 bg-amber-50 text-amber-950'}`}>
+  return <output aria-live="polite" className={`mt-4 flex gap-3 rounded-xl border p-4 ${strong ? 'border-emerald-200 bg-emerald-50 text-emerald-950' : 'border-amber-200 bg-amber-50 text-amber-950'}`}>
     {strong ? <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /> : <CircleAlert className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />}
     <div className="text-sm leading-6"><strong>{strong ? 'Strong safeguarding judgement' : 'Reconsider this move'}</strong><p className="mt-1">{children}</p></div>
-  </div>;
+  </output>;
 }
 
 function ReasonableCauseCheck() {
@@ -136,11 +136,14 @@ function DisclosureDecisionLab() {
   const chosen = current.choices.find((choice) => choice.id === choiceId);
   const complete = step === steps.length - 1 && Boolean(chosen);
 
-  useEffect(() => { setChoiceId(null); }, [step]);
-
   function advance() {
-    if (step < steps.length - 1) setStep((currentStep) => currentStep + 1);
-    else { setStep(0); setChoiceId(null); }
+    if (step < steps.length - 1) {
+      setStep((currentStep) => currentStep + 1);
+      setChoiceId(null);
+    } else {
+      setStep(0);
+      setChoiceId(null);
+    }
   }
 
   return <section className={`${surface} border-[#cbd7e2] bg-[#f5f8fb]`} aria-labelledby="decision-lab-title">
