@@ -1,0 +1,58 @@
+/* Final learning-surface refinement.
+   Reduce visual elevation so typography, spacing and learner decisions carry the hierarchy. */
+
+/* Core learning and assessment surfaces: quieter, flatter and more editorial. */
+.learning-shell .intro-card,
+.learning-shell .question-card {
+  border-color: #dfe6ed;
+  box-shadow: 0 8px 28px rgba(11, 41, 75, .045);
+}
+
+/* Keep course homes slightly more substantial than individual learning/check screens. */
+.learning-shell .course-home-card {
+  box-shadow: 0 10px 34px rgba(11, 41, 75, .055);
+}
+
+/* Progress should orient the learner, not compete with the learning content. */
+.learning-shell .dual-progress {
+  border-color: #e1e7ed;
+  background: #fbfcfd;
+  box-shadow: none;
+}
+
+/* Feedback remains clearly differentiated through border, iconography and colour rather than elevation. */
+.learning-shell .feedback-card {
+  box-shadow: none !important;
+}
+
+/* Supporting principle and takeaway surfaces sit within the page rather than floating above it. */
+.learning-shell .principle-card,
+.learning-shell .takeaway-list {
+  box-shadow: none;
+}
+
+/* Practice labs: remove nested card shadows so interaction feels integrated with the lesson. */
+.learning-shell .lesson-card section .shadow-sm {
+  box-shadow: none !important;
+}
+
+/* Slightly soften the large decorative module number so the content remains dominant. */
+.learning-shell .module-orbit {
+  opacity: .78;
+}
+
+/* On small screens, remove nearly all elevation where stacked surfaces can otherwise feel heavy. */
+@media (max-width: 800px) {
+  .learning-shell .intro-card,
+  .learning-shell .question-card,
+  .learning-shell .course-home-card {
+    box-shadow: 0 4px 18px rgba(11, 41, 75, .035);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .learning-shell .intro-card,
+  .learning-shell .question-card {
+    scroll-behavior: auto;
+  }
+}
