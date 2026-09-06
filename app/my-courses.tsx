@@ -71,7 +71,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   const [browserMode, setBrowserMode] = useState(staticMode);
 
   useEffect(() => {
-    const title = isCourseId(route) ? `${COURSE_BY_ID[route].title} | My Courses` : 'My Courses | AISG';
+    const title = isCourseId(route) ? `${COURSE_BY_ID[route].title} | AISG My Courses` : 'AISG My Courses';
     document.title = title;
   }, [route]);
 
