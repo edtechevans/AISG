@@ -391,7 +391,16 @@
   content: '✓';
 }
 
+.progress-summary-heading > button { min-height: 2.75rem; }
+
 @media (max-width: 800px) {
+  .progress-summary-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .progress-summary-heading > button {
+    width: 100%;
+  }
   .dashboard-shell {
     margin: 1rem .85rem 3.5rem;
     border-radius: 1.1rem;
