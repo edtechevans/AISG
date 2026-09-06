@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const outputDir = path.resolve('pages-dist');
 const htmlPath = path.join(outputDir, 'index.html');
+const assetsDir = path.join(outputDir, 'assets');
 const basePath = (process.env.PAGES_BASE_PATH || '/').replace(/\/?$/, '/');
 
 function fail(message) {
@@ -51,17 +52,32 @@ for (const requiredFile of ['aisg-logo.png', 'favicon.svg', 'fonts/geist-latin.w
   }
 }
 
-const jsUrls = assetUrls.filter((url) => /\.js(?:[?#]|$)/.test(url));
-if (jsUrls.length === 0) fail('no bundled JavaScript is referenced by index.html.');
-const javascript = jsUrls
-  .map((url) => {
-    const relativePath = url.slice(basePath === '/' ? 1 : basePath.length).split(/[?#]/)[0];
-    return fs.readFileSync(path.join(outputDir, relativePath), 'utf8');
-  })
-  .join('\n');
+const entryJsUrls = assetUrls.filter((url) => /\.js(?:[?#]|$)/.test(url));
+if (entryJsUrls.length === 0) fail('no bundled JavaScript is referenced by index.html.');
+if (!fs.existsSync(assetsDir)) fail('the assets directory is missing from pages-dist.');
+
+const jsFiles = fs.readdirSync(assetsDir).filter((file) => file.endsWith('.js'));
+if (jsFiles.length === 0) fail('no JavaScript chunks were emitted.');
+
+const javascriptByFile = new Map(
+  jsFiles.map((file) => [file, fs.readFileSync(path.join(assetsDir, file), 'utf8')]),
+);
+const javascript = [...javascriptByFile.values()].join('\n');
 
 for (const marker of ['course-mark', 'growth-domain4', 'Safeguarding at AISG']) {
   if (!javascript.includes(marker)) fail(`runtime marker ${marker} is missing from the Pages bundle.`);
 }
 
-console.log(`Verified GitHub Pages artifact at ${outputDir} with base path ${basePath}`);
+/* Lazy course runtimes are intentionally code-split. Make deployment fail if any emitted
+   relative JavaScript import points to a chunk that is absent from the artifact. */
+for (const [file, source] of javascriptByFile) {
+  const imports = [...source.matchAll(/(?:from\s*|import\()\s*["'`](\.\/[^"'`]+\.js)["'`]/g)]
+    .map((match) => match[1].replace(/^\.\//, ''));
+  for (const importedFile of imports) {
+    if (!javascriptByFile.has(importedFile)) {
+      fail(`${file} imports missing chunk ${importedFile}.`);
+    }
+  }
+}
+
+console.log(`Verified GitHub Pages artifact at ${outputDir} with base path ${basePath}; ${jsFiles.length} JavaScript chunks checked.`);
