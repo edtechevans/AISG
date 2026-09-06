@@ -1,18 +1,20 @@
 # My Courses — AISG Professional Development
 
-My Courses is an educator-centred AISG professional learning hub containing seven courses: the two annual Faculty Essentials courses, Employee Communication Guidelines, Safeguarding at AISG, Engagement for All, MTSS and AI in Education. It provides independent progress, exact resume positions, immediate instructional feedback, private practice reflections and a personal course record.
+My Courses is an educator-centred AISG professional learning hub containing eight courses: the two annual Faculty Essentials courses, Employee Communication Guidelines, Safeguarding at AISG, Engagement for All, MTSS, AI in Education and Technology for Transformative Learning. It provides independent progress, exact resume positions, immediate instructional feedback, private practice reflections and a personal course record.
 
 Courses follow a consistent Course Home → Learn → Check → Apply → Reflect rhythm while retaining course-appropriate section lengths. Employee Communication Guidelines includes Microsoft Teams as one section rather than a separate course. The Faculty Essentials courses use five applied checks per section, an 80% completion threshold, critical-concept remediation and retained attempt summaries.
 
-The catalogue is intentionally ordered: Elementary Faculty Essentials (Required, Elementary Faculty); Secondary Faculty Essentials (Required, Secondary Faculty); Employee Communication Guidelines (Required); Safeguarding at AISG (Required); Engagement for All (Foundation); MTSS (Recommended); and AI in Education (Recommended). Both divisional handbook courses are SY2026-27, 10 sections and 50 checks, with independent browser progress keys. Secondary-specific learning covers pathways, advisory, assessment, best-fit grading, attendance, academic integrity, Supervised Study, student safety and AI in assessment.
+The catalogue is intentionally ordered: Elementary Faculty Essentials (Required, Elementary Faculty); Secondary Faculty Essentials (Required, Secondary Faculty); Employee Communication Guidelines (Required); Safeguarding at AISG (Required); Engagement for All (Foundation); MTSS (Recommended); AI in Education (Recommended); and Technology for Transformative Learning (Recommended). Both divisional handbook courses are SY2026-27, 10 sections and 50 checks, with independent browser progress keys. Secondary-specific learning covers pathways, advisory, assessment, best-fit grading, attendance, academic integrity, Supervised Study, student safety and AI in assessment.
 
 Typography uses the Geist family throughout. The server build bundles Geist through `next/font`; the GitHub Pages build ships a self-hosted `public/fonts/geist-latin.woff2` asset. Neither deployment depends on a runtime font CDN.
 
 ## Content governance
 
-The AISG Student Safeguarding Handbook - Revised May 2026 is the content source of truth. Every question stores its learning objective, handbook section, page, tags, correct answer, feedback, critical-safeguarding flag, and review status. All seed questions begin as `draft_for_safeguarding_team_review`; generated content is not treated as approved.
+The AISG Student Safeguarding Handbook - Revised May 2026 is the content source of truth for the safeguarding course. TLF courses are grounded in the AISG Transformative Learning Framework, Learning Engagement Indicators and accompanying faculty guidance. Generated or synthesised learning content is not treated as automatically policy-approved.
 
-The administrator question-bank workspace allows safeguarding reviewers to edit wording, scenarios, answer options, feedback and metadata, and then mark an item approved without a code change. Updates are written to the database and audit log.
+Every safeguarding question stores its learning objective, handbook section, page, tags, correct answer, feedback, critical-safeguarding flag, and review status. All safeguarding seed questions begin as `draft_for_safeguarding_team_review`.
+
+The administrator question-bank workspace allows safeguarding reviewers to edit wording, scenarios, answer options, feedback and metadata, and then mark an item approved without a code change. Updates are written to the database and audit log. Other course modules carry course-appropriate content-owner and review metadata where supported by their data model.
 
 ## Architecture
 
@@ -22,7 +24,7 @@ The administrator question-bank workspace allows safeguarding reviewers to edit 
 - Platform authentication adapter in `app/chatgpt-auth.ts`
 - Server-side role checks for administrator pages and write endpoints
 - Relational entities for users, courses, versions, modules, questions, attempts, responses, progress, completions and audit events
-- Course-specific browser progress keys support independent self-paced demo courses and exact resume positions. The corrected annual handbook courses use `my-courses-elementary-faculty-progress-sy2627-v2` and `my-courses-secondary-faculty-progress-sy2627-v2`. Employee Communication Guidelines uses `my-courses-communication-progress-v2`; the former Teams-only key remains untouched. Course versions preserve historical completions.
+- Course-specific browser progress keys support independent self-paced demo courses and exact resume positions. The corrected annual handbook courses use `my-courses-elementary-faculty-progress-sy2627-v2` and `my-courses-secondary-faculty-progress-sy2627-v2`. Employee Communication Guidelines uses `my-courses-communication-progress-v2`; Technology for Transformative Learning uses `my-courses-technology-tlf-progress-v1`; the former Teams-only key remains untouched. Course versions preserve historical completions.
 - The catalogue is data-driven so future courses can be added without redesigning the hub.
 
 The first authenticated user on a new, owner-only deployment is bootstrapped as the administrator. Later users default to learner. This makes the development build usable without AISG identity-provider credentials while leaving a single authentication adapter for future Microsoft/AISG SSO integration.
@@ -66,29 +68,33 @@ assessment progress only in that browser's local storage. It does not provide th
 administrator workspace or shared training records. The full Sites deployment
 continues to use the original Vinext build and server-backed features.
 
-The Pages hub also stores AI practice commitments and the local My Course Record
-in that browser. It does not claim to provide shared reporting or named reflection
-analytics; the server-backed Sites deployment remains the place for administrator
-filtering, aggregate insights and question review.
+The Pages hub also stores practice commitments and the local My Course Record in that browser. It does not claim to provide shared reporting or named reflection analytics; the server-backed Sites deployment remains the place for administrator filtering, aggregate insights and question review.
 
 The public test page uses `noindex, nofollow, noarchive` metadata to discourage search indexing. This is not access control: anyone with the GitHub Pages URL can still open the test build, so public-release content must remain suitable for that exposure.
 
 ## Employee Communication Guidelines
 
-The required Employee Communication Guidelines course contains six sections and 14 applied checks (80% threshold, configurable). Its Teams section retains the authoritative AISG guidance on channels, chats, legitimate educational need, observable evidence, minimum necessary information, confidential records and professional digital records. Content is grounded in the supplied AISG Communication Expectations document; broader professional-learning synthesis is not presented as a new AISG policy. The assessment progression is 2 Foundation, 3 Application, 4 Analysis, 4 Professional Judgement and 1 Synthesis check. Incorrect Teams answers require a brief Stop → Understand → Continue acknowledgement before the learner can proceed.
+The required Employee Communication Guidelines course contains six sections and 14 applied checks. Its Teams section retains the authoritative AISG guidance on channels, chats, legitimate educational need, observable evidence, minimum necessary information, confidential records and professional digital records. Content is grounded in the supplied AISG Communication Expectations document; broader professional-learning synthesis is not presented as a new AISG policy. Incorrect responses use explanatory feedback so the assessment continues the learning.
+
+## Technology for Transformative Learning
+
+Technology for Transformative Learning is a Recommended Digital Practice course in the Explore Next catalogue. It contains six sections and 18 applied checks, using the AISG Transformative Learning Framework as the learning-design lens rather than treating technology as a separate learning outcome.
+
+The course moves from purposeful technology selection into the three TLF dimensions: Being (Personalisation and Agency), Connecting (Authenticity and Creativity), and Doing (Taking Action and Collaboration). It then asks educators to design for technology affordances, preserve learner thinking, notice evidence in student talk, choices, work, relationships and action, and select a practical next design move. Technology is presented as valuable when it removes barriers, widens meaningful choice, connects authentic audiences and perspectives, enables original creation or strengthens collective learning—not simply because a task is digital.
+
+The course uses `my-courses-technology-tlf-progress-v1`, supports exact browser resume, includes a private Take it Into Practice reflection, and appears beside AI in Education as Recommended learning rather than Required learning.
 
 ## Adding courses and assessment quality
 
 Register catalogue metadata and a course-specific data/component module for a new
-course. Categories and Required / Optional / Recommended designations are ready
+course. Categories and Required / Foundation / Recommended designations are ready
 for future filtering. `lib/assessment-progression.ts` provides a reviewable
 Foundation → Application → Analysis → Professional Judgement → Synthesis map for
 all existing checks. Questions favour realistic scenarios, plausible distractors,
 application and professional judgement. Feedback explains the strongest response
 and what an incorrect choice misses. Safeguarding content remains grounded in the
 handbook and begins as `draft_for_safeguarding_team_review` until AISG reviewers
-approve it in the admin workspace. Critical errors require remediation but do not
-automatically fail an attempt.
+approve it in the admin workspace. Critical safeguarding errors require remediation but do not automatically fail an attempt.
 
 ## Seed accounts and data
 
