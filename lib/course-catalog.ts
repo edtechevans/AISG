@@ -1,4 +1,4 @@
-export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'engagement' | 'mtss' | 'ai' | 'technology';
+export type CourseId = 'elementary' | 'secondary' | 'teams' | 'safeguarding' | 'engagement' | 'udl' | 'mtss' | 'ai' | 'technology';
 
 export type CourseCatalogItem = {
   id: CourseId;
@@ -79,6 +79,19 @@ export const COURSE_CATALOG: readonly CourseCatalogItem[] = [
     checkCount: 10,
     storageKey: 'my-courses-engagement-progress-v1',
     capabilities: ['Learning design', 'Student engagement', 'TLF language', 'Reflection & evidence'],
+  },
+  {
+    id: 'udl',
+    title: 'Designing for Learner Variability',
+    description: 'Use Universal Design for Learning to anticipate learner variability, reduce barriers and build purposeful learner agency without lowering meaningful challenge.',
+    intro: 'Universal Design for Learning (UDL) helps educators design for the range of learners from the beginning rather than retrofit support after barriers appear. Grounded in the CAST Universal Design for Learning Guidelines 3.0, this course explores learner variability, clear goals, barrier analysis, Multiple Means of Engagement, Representation, and Action & Expression, accessibility, identity, belonging and iterative redesign. The aim is not to add more options for their own sake. It is to create flexible, rigorous learning experiences that make worthwhile learning more accessible and learner agency more possible.',
+    category: 'Inclusive Learning',
+    designation: 'Recommended',
+    duration: '45–60 minutes',
+    sectionCount: 8,
+    checkCount: 18,
+    storageKey: 'my-courses-udl-progress-v1',
+    capabilities: ['Learner variability', 'Barrier-aware design', 'Multiple means for learning', 'Accessibility & learner agency'],
   },
   {
     id: 'mtss',
