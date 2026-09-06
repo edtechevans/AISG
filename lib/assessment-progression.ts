@@ -1,4 +1,4 @@
-export type CourseAssessmentId = 'safeguarding' | 'engagement' | 'udl' | 'data' | 'assessment' | 'growth-domain1' | 'growth-domain2' | 'growth-domain3' | 'growth-domain4' | 'ai' | 'technology' | 'teams' | 'mtss' | 'elementary' | 'secondary';
+export type CourseAssessmentId = 'safeguarding' | 'engagement' | 'udl' | 'data' | 'assessment' | 'growth-domain1' | 'growth-domain2' | 'growth-domain3' | 'growth-domain4' | 'ai' | 'technology' | 'teams' | 'mtss' | 'multilingual' | 'elementary' | 'secondary';
 export type CognitiveLevel = 2 | 3 | 4 | 5;
 
 // This authoring map is intentionally not shown to learners. It makes the intended
@@ -86,6 +86,13 @@ export const assessmentProgression: Record<CourseAssessmentId, Record<string, Co
   },
   teams: { 'communication-1': 2, 'communication-2': 2, 'communication-3': 3, 'communication-4': 3, 'communication-5': 4, 'communication-6': 4, 'communication-7': 3, 'communication-8': 4, 'communication-9': 4, 'communication-10': 4, 'communication-11': 4, 'communication-12': 4, 'communication-13': 4, 'communication-14': 5 },
   mtss: { 'mtss-1': 2, 'mtss-2': 2, 'mtss-3': 2, 'mtss-4': 3, 'mtss-5': 3, 'mtss-6': 3, 'mtss-7': 3, 'mtss-8': 3, 'mtss-9': 4, 'mtss-10': 4, 'mtss-11': 4, 'mtss-12': 4, 'mtss-13': 4, 'mtss-14': 4, 'mtss-15': 5, 'mtss-16': 5 },
+  multilingual: {
+    'mll-1': 2, 'mll-2': 2,
+    'mll-3': 2, 'mll-4': 3,
+    'mll-5': 3, 'mll-6': 3, 'mll-7': 4,
+    'mll-8': 3, 'mll-9': 4,
+    'mll-10': 4, 'mll-11': 4, 'mll-12': 5,
+  },
 };
 
 export function cognitiveLevelFor(course: CourseAssessmentId, questionId: string) {
