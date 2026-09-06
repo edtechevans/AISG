@@ -8,6 +8,7 @@ import { aiQuestions, aiSections, AI_COURSE_VERSION } from '@/lib/ai-course';
 import { teamsQuestions, teamsSections, TEAMS_COURSE_VERSION } from '@/lib/teams-course';
 import { mtssQuestions, mtssSections, MTSS_COURSE_VERSION } from '@/lib/mtss-course';
 import { tlfQuestions, tlfSections, TLF_COURSE_VERSION } from '@/lib/tlf-course';
+import { technologyTlfQuestions, technologyTlfSections, TECHNOLOGY_TLF_COURSE_VERSION } from '@/lib/technology-transformative-course';
 import { elementaryQuestions, elementarySections, secondaryQuestions, secondarySections, FACULTY_COURSE_VERSION } from '@/lib/faculty-courses';
 import { cognitiveLevelFor } from '@/lib/assessment-progression';
 import { COURSE_BY_ID, type CourseId } from '@/lib/course-catalog';
@@ -44,6 +45,10 @@ const courses = {
   ai: {
     storageKey: 'my-courses-ai-progress-v1', catalog: COURSE_BY_ID.ai, version: AI_COURSE_VERSION, sections: aiSections, questions: aiQuestions, passingScore: 0,
     practiceOptions: ['Be more deliberate about what student information I share with AI.', 'Keep the human in the loop when using AI for feedback.', 'Verify AI-generated information before using it.', 'Consider bias and representation more carefully.', 'Redesign an assessment to make student thinking more visible.', 'Something else'],
+  },
+  technology: {
+    storageKey: 'my-courses-technology-tlf-progress-v1', catalog: COURSE_BY_ID.technology, version: TECHNOLOGY_TLF_COURSE_VERSION, sections: technologyTlfSections, questions: technologyTlfQuestions, passingScore: 0,
+    practiceOptions: ['Use a TLF indicator to decide whether technology adds meaningful value to an upcoming learning experience.', 'Give students more meaningful choice over how technology supports or demonstrates learning.', 'Use technology to connect students with a more authentic audience, role or community.', 'Redesign digital group work for stronger interdependence, diverse perspectives and equitable contribution.', 'Use learner evidence to evaluate whether a technology choice actually amplified engagement.', 'Remove or simplify a technology that is adding complexity without learning value.', 'Something else'],
   },
   teams: {
     storageKey: 'my-courses-communication-progress-v2', catalog: COURSE_BY_ID.teams, version: TEAMS_COURSE_VERSION, sections: teamsSections, questions: teamsQuestions, passingScore: 0,
