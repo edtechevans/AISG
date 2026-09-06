@@ -95,6 +95,34 @@
   margin-bottom: .6rem;
 }
 
+/* Final interaction and legibility pass. Keep common touch targets at or above 44px. */
+.mobile-nav > summary {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+.premium-course-card .primary-pill {
+  min-height: 2.75rem !important;
+}
+
+.course-category,
+.course-designation {
+  font-size: .76rem;
+}
+
+.roadmap-desktop .tiny-eyebrow {
+  font-size: .72rem !important;
+}
+
+.course-roadmap li > span {
+  font-size: .72rem;
+}
+
+.course-roadmap li strong {
+  font-size: .8rem;
+  line-height: 1.3;
+}
+
 @media (max-width: 640px) {
   .course-home-heading {
     gap: .8rem;
@@ -112,5 +140,18 @@
   .continue-course-identity .course-mark-card {
     width: 34px;
     height: 34px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-line::after {
+    animation: none;
+    transform: translateX(70%);
+  }
+}
+
+@media (forced-colors: active) {
+  .course-mark {
+    color: CanvasText !important;
   }
 }
