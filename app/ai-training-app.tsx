@@ -14,6 +14,7 @@ import { cognitiveLevelFor } from '@/lib/assessment-progression';
 import { COURSE_BY_ID, type CourseId } from '@/lib/course-catalog';
 import FacultyLearningExperience from '@/app/faculty-learning-experience';
 import CommunicationMtssLearningExperience from '@/app/communication-mtss-learning-experience';
+import TlfTechnologyAiLearningExperience from '@/app/tlf-technology-ai-learning-experience';
 
 type CourseProgress = {
   position: number;
@@ -90,7 +91,8 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   const config = courses[course];
   const facultyCourse = course === 'elementary' || course === 'secondary' ? course : null;
   const enrichedCourse = course === 'teams' || course === 'mtss' ? course : null;
-  const practiceLabCount = facultyCourse || enrichedCourse ? 5 : 0;
+  const tlfTechnologyAiCourse = course === 'engagement' || course === 'technology' || course === 'ai' ? course : null;
+  const practiceLabCount = facultyCourse || enrichedCourse || tlfTechnologyAiCourse ? 5 : 0;
   const initialProgress = readProgress(config.storageKey);
   const initialQuestion = Math.min(config.questions.length - 1, initialProgress.position);
   const [progress, setProgress] = useState<CourseProgress>(initialProgress);
@@ -280,6 +282,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
       <div className="course-experience">{roadmap}<section className="intro-card lesson-card"><div className="module-orbit">{String(section.number).padStart(2, '0')}</div><p className="tiny-eyebrow">Learn · {learningLens} · Part {learnPage + 1} of {section.learn.length}</p><h1>{section.title}</h1><p className="intro-summary">{section.summary}</p><p className="lesson-copy">{section.learn[learnPage]}</p>
         {facultyCourse && <FacultyLearningExperience key={`${facultyCourse}-${section.id}-${learnPage}`} course={facultyCourse} sectionId={section.id} learnPage={learnPage} />}
         {enrichedCourse && <CommunicationMtssLearningExperience key={`${enrichedCourse}-${section.id}-${learnPage}`} course={enrichedCourse} sectionId={section.id} learnPage={learnPage} />}
+        {tlfTechnologyAiCourse && <TlfTechnologyAiLearningExperience key={`${tlfTechnologyAiCourse}-${section.id}-${learnPage}`} course={tlfTechnologyAiCourse} sectionId={section.id} learnPage={learnPage} />}
         {lastPage && <div className="takeaway-list mt-6"><p className="meta-label">Key takeaways</p>{section.takeaways.map((item) => <div className="flex items-start gap-3" key={item}><CheckCircle2 className="mt-1 text-red" /><span>{item}</span></div>)}</div>}
         <Button className="primary-pill mt-8" size="lg" onClick={continueLearning}>{lastPage ? reviewMode ? sectionIndex === config.sections.length - 1 ? 'Finish review' : 'Next section' : 'Check your learning' : 'Continue learning'} <ArrowRight /></Button>
       </section></div>
