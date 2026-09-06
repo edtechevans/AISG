@@ -29,66 +29,29 @@ type CourseProgress = {
 type LearningStage = 'course-home' | 'learn' | 'question' | 'practice' | 'complete' | 'result';
 type CourseKey = Exclude<CourseId, 'safeguarding'>;
 
+type RoadmapSection = { id: string; number: number; title: string };
+
 const emptyProgress: CourseProgress = { position: 0, completedSections: [], responses: {} };
+const learningLenses = ['Why this matters', 'Know this', 'In practice', 'Watch for'] as const;
 
 const courses = {
   elementary: { storageKey: 'my-courses-elementary-faculty-progress-sy2627-v2', catalog: COURSE_BY_ID.elementary, version: FACULTY_COURSE_VERSION, passingScore: 80, sections: elementarySections, questions: elementaryQuestions, practiceOptions: ['Elementary routines and responsibilities', 'Assessment and reporting', 'Student support and wellbeing', 'Communication and collaboration', 'Professional growth', 'Something else'] },
   secondary: { storageKey: 'my-courses-secondary-faculty-progress-sy2627-v2', catalog: COURSE_BY_ID.secondary, version: FACULTY_COURSE_VERSION, passingScore: 80, sections: secondarySections, questions: secondaryQuestions, practiceOptions: ['Secondary routines and responsibilities', 'Assessment and grading', 'Student support and advisory', 'Academic integrity and AI', 'Student behaviour and safety', 'Something else'] },
   engagement: {
-    storageKey: 'my-courses-engagement-progress-v1',
-    catalog: COURSE_BY_ID.engagement,
-    version: TLF_COURSE_VERSION,
-    sections: tlfSections,
-    questions: tlfQuestions,
-    passingScore: 0, practiceOptions: ['Use the framework as a lens in an upcoming learning design.', 'Select a small set of indicators for a coaching or reflection conversation.', 'Notice student experience through talk, choices, work, relationships and action.', 'Invite students to describe what deepens their engagement.', 'Something else'],
+    storageKey: 'my-courses-engagement-progress-v1', catalog: COURSE_BY_ID.engagement, version: TLF_COURSE_VERSION, sections: tlfSections, questions: tlfQuestions, passingScore: 0,
+    practiceOptions: ['Use the framework as a lens in an upcoming learning design.', 'Select a small set of indicators for a coaching or reflection conversation.', 'Notice student experience through talk, choices, work, relationships and action.', 'Invite students to describe what deepens their engagement.', 'Something else'],
   },
   ai: {
-    storageKey: 'my-courses-ai-progress-v1',
-    catalog: COURSE_BY_ID.ai,
-    version: AI_COURSE_VERSION,
-    sections: aiSections,
-    questions: aiQuestions,
-    passingScore: 0, practiceOptions: [
-      'Be more deliberate about what student information I share with AI.',
-      'Keep the human in the loop when using AI for feedback.',
-      'Verify AI-generated information before using it.',
-      'Consider bias and representation more carefully.',
-      'Redesign an assessment to make student thinking more visible.',
-      'Something else',
-    ],
+    storageKey: 'my-courses-ai-progress-v1', catalog: COURSE_BY_ID.ai, version: AI_COURSE_VERSION, sections: aiSections, questions: aiQuestions, passingScore: 0,
+    practiceOptions: ['Be more deliberate about what student information I share with AI.', 'Keep the human in the loop when using AI for feedback.', 'Verify AI-generated information before using it.', 'Consider bias and representation more carefully.', 'Redesign an assessment to make student thinking more visible.', 'Something else'],
   },
   teams: {
-    storageKey: 'my-courses-communication-progress-v2',
-    catalog: COURSE_BY_ID.teams,
-    version: TEAMS_COURSE_VERSION,
-    sections: teamsSections,
-    questions: teamsQuestions,
-    passingScore: 0, practiceOptions: [
-      'Be more intentional about who actually needs information.',
-      'Share only what colleagues need to support the student.',
-      'Describe observable behaviour rather than label students.',
-      'Ask colleagues more specific questions.',
-      'Turn frustration into factual, useful communication.',
-      'Keep confidential student records out of Teams.',
-      'Use the Purpose / Audience / Information / Evidence / Language / Confidentiality / Professionalism check.',
-      'Something else',
-    ],
+    storageKey: 'my-courses-communication-progress-v2', catalog: COURSE_BY_ID.teams, version: TEAMS_COURSE_VERSION, sections: teamsSections, questions: teamsQuestions, passingScore: 0,
+    practiceOptions: ['Be more intentional about who actually needs information.', 'Share only what colleagues need to support the student.', 'Describe observable behaviour rather than label students.', 'Ask colleagues more specific questions.', 'Turn frustration into factual, useful communication.', 'Keep confidential student records out of Teams.', 'Use the Purpose / Audience / Information / Evidence / Language / Confidentiality / Professionalism check.', 'Something else'],
   },
   mtss: {
-    storageKey: 'my-courses-mtss-progress-v1',
-    catalog: COURSE_BY_ID.mtss,
-    version: MTSS_COURSE_VERSION,
-    sections: mtssSections,
-    questions: mtssQuestions,
-    passingScore: 0, practiceOptions: [
-      'Use the complete MTSS decision cycle.',
-      'Bring multiple evidence sources to decisions.',
-      'Check Tier 1 before intensifying support.',
-      'Set measurable goals and decision rules.',
-      'Monitor fidelity and equity.',
-      'Invite learner and family perspectives.',
-      'Something else',
-    ],
+    storageKey: 'my-courses-mtss-progress-v1', catalog: COURSE_BY_ID.mtss, version: MTSS_COURSE_VERSION, sections: mtssSections, questions: mtssQuestions, passingScore: 0,
+    practiceOptions: ['Use the complete MTSS decision cycle.', 'Bring multiple evidence sources to decisions.', 'Check Tier 1 before intensifying support.', 'Set measurable goals and decision rules.', 'Monitor fidelity and equity.', 'Invite learner and family perspectives.', 'Something else'],
   },
 } as const;
 
@@ -209,9 +172,7 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
       setLearnPage(0);
       return;
     }
-    const completedSections = progress.completedSections.includes(section.id)
-      ? progress.completedSections
-      : [...progress.completedSections, section.id];
+    const completedSections = progress.completedSections.includes(section.id) ? progress.completedSections : [...progress.completedSections, section.id];
     updateProgress({ ...progress, completedSections, position: Math.max(progress.position, questionIndex), learnPage: 0, learningStage: 'question' });
     setStage('question');
   }
@@ -219,16 +180,13 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   function submitResponse() {
     if (!selected || answered) return;
     const correct = selected === question.answer;
-    updateProgress({
-      ...progress,
-      responses: { ...progress.responses, [question.id]: { answer: selected, correct } },
-      position: questionIndex,
-      learningStage: 'question',
-    });
+    updateProgress({ ...progress, responses: { ...progress.responses, [question.id]: { answer: selected, correct } }, position: questionIndex, learningStage: 'question' });
     setIsCorrect(correct);
     setFeedback(correct ? question.correctFeedback : question.optionFeedback?.[selected] ?? question.incorrectFeedback);
     setRemediationRead(correct || !question.criticalSafeguarding);
   }
+
+  const feedbackIsCorrectAndRemediated = Boolean(feedback && (isCorrect || remediationRead));
 
   function continueAfterFeedback() {
     if (question.criticalSafeguarding && !feedbackIsCorrectAndRemediated) return;
@@ -266,15 +224,10 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   }
 
   function beginReview() {
-    setSectionIndex(0);
-    setQuestionIndex(0);
-    setLearnPage(0);
-    setSelected('');
-    setFeedback(null);
-    setIsCorrect(null);
-    setReviewMode(true);
-    setStage('learn');
+    setSectionIndex(0); setQuestionIndex(0); setLearnPage(0); setSelected(''); setFeedback(null); setIsCorrect(null); setReviewMode(true); setStage('learn');
   }
+
+  const roadmap = <CourseRoadmap sections={config.sections} currentIndex={sectionIndex} completed={progress.completedSections} />;
 
   if (stage === 'complete' || stage === 'result') {
     const score = progress.lastAttempt?.score ?? Object.values(progress.responses).filter((response) => response.correct).length;
@@ -302,31 +255,46 @@ export default function AiTrainingApp({ onExit, course = 'ai' }: { onExit: () =>
   if (stage === 'practice') {
     return <main id="main-content" className="learning-shell"><section className="intro-card"><p className="tiny-eyebrow">Apply · Take it into practice</p><h1>What is one practice from this course that you want to strengthen?</h1>
       <div className="answers practice-options">{config.practiceOptions.map((option) => <label key={option} className={`answer-option ${practice === option ? 'answer-selected' : ''}`}><input type="radio" name="practice" checked={practice === option} onChange={() => setPractice(option)} /><span>{option}</span></label>)}</div>
-      {practice && <label className="mt-6 block"><span className="meta-label">{practice === 'Something else' ? 'Tell us about your focus' : 'My commitment (optional)'}</span><textarea className="mt-2 w-full rounded-xl border border-navy/15 p-3" value={commitment} onChange={(event) => setCommitment(event.target.value)} placeholder={practice === 'Something else' ? 'What communication practice do you want to strengthen?' : 'What is one thing you could try?'} rows={3} /></label>}
+      {practice && <label className="mt-6 block"><span className="meta-label">{practice === 'Something else' ? 'Tell us about your focus' : 'My commitment (optional)'}</span><textarea className="mt-2 w-full rounded-xl border border-navy/15 p-3" value={commitment} onChange={(event) => setCommitment(event.target.value)} placeholder={practice === 'Something else' ? 'What practice do you want to strengthen?' : 'What is one thing you could try?'} rows={3} /></label>}
       <Button className="primary-pill mt-8" size="lg" disabled={!practice} onClick={completeCourse}>Save and complete <ArrowRight /></Button>
     </section></main>;
   }
 
   if (stage === 'learn') {
     const lastPage = learnPage === section.learn.length - 1;
-    return <main id="main-content" className="learning-shell"><div className="learning-top"><Button variant="ghost" onClick={() => setStage(progress.completedAt ? 'complete' : 'course-home')}><ArrowLeft /> {reviewMode ? 'Completion' : 'Course home'}</Button><span className="section-position">Section {section.number} of {config.sections.length}</span></div>
+    const learningLens = learningLenses[learnPage % learningLenses.length];
+    return <main id="main-content" className="learning-shell">
+      <div className="learning-top"><Button variant="ghost" onClick={() => setStage(progress.completedAt ? 'complete' : 'course-home')}><ArrowLeft /> {reviewMode ? 'Completion' : 'Course home'}</Button><span className="section-position">Section {section.number} of {config.sections.length}</span></div>
       <div className="dual-progress"><Progress value={completionPercent} aria-label={`Overall course: ${completionPercent}%`} /><span className="text-sm text-muted-foreground">{completionPercent}% overall</span></div>
-      <section className="intro-card lesson-card"><div className="module-orbit">{String(section.number).padStart(2, '0')}</div><p className="tiny-eyebrow">Learn · {section.title} · Part {learnPage + 1} of {section.learn.length}</p><h1>{section.title}</h1><p className="intro-summary">{section.summary}</p><p className="lesson-copy">{section.learn[learnPage]}</p>
+      <div className="course-experience">{roadmap}<section className="intro-card lesson-card"><div className="module-orbit">{String(section.number).padStart(2, '0')}</div><p className="tiny-eyebrow">Learn · {learningLens} · Part {learnPage + 1} of {section.learn.length}</p><h1>{section.title}</h1><p className="intro-summary">{section.summary}</p><p className="lesson-copy">{section.learn[learnPage]}</p>
         {lastPage && <div className="takeaway-list mt-6"><p className="meta-label">Key takeaways</p>{section.takeaways.map((item) => <div className="flex items-start gap-3" key={item}><CheckCircle2 className="mt-1 text-red" /><span>{item}</span></div>)}</div>}
         <Button className="primary-pill mt-8" size="lg" onClick={continueLearning}>{lastPage ? reviewMode ? sectionIndex === config.sections.length - 1 ? 'Finish review' : 'Next section' : 'Check your learning' : 'Continue learning'} <ArrowRight /></Button>
-      </section>
+      </section></div>
     </main>;
   }
 
   const checkInSection = questionIndexInSection + 1;
   const checksInCurrentSection = section.questions.length;
-  const feedbackIsCorrectAndRemediated = Boolean(feedback && (isCorrect || remediationRead));
-  return <main id="main-content" className="learning-shell"><div className="learning-top"><Button variant="ghost" onClick={() => setStage('course-home')}><ArrowLeft /> Course home</Button><span className="text-sm text-muted-foreground">Check {checkInSection} of {checksInCurrentSection}</span></div>
+  return <main id="main-content" className="learning-shell">
+    <div className="learning-top"><Button variant="ghost" onClick={() => setStage('course-home')}><ArrowLeft /> Course home</Button><span className="text-sm text-muted-foreground">Check {checkInSection} of {checksInCurrentSection}</span></div>
     <div className="dual-progress"><Progress value={completionPercent} aria-label={`Overall course: ${completionPercent}%`} /><span className="text-sm text-muted-foreground">Section {section.number} of {config.sections.length} · {completionPercent}% overall</span></div>
-    <section className="question-layout"><div className="question-number">{String(questionIndex + 1).padStart(2, '0')}</div><article className="question-card" data-cognitive-level={cognitiveLevelFor(course, question.id)}><span className="question-kind">Check {checkInSection} of {checksInCurrentSection} · Check your understanding</span><h1>{question.question}</h1><div className="scenario"><span>Scenario</span><p>{question.scenario}</p></div>
+    <div className="course-experience">{roadmap}<section className="question-layout"><div className="question-number">{String(questionIndex + 1).padStart(2, '0')}</div><article className="question-card" data-cognitive-level={cognitiveLevelFor(course, question.id)}><span className="question-kind">Check {checkInSection} of {checksInCurrentSection} · Check your understanding</span><h1>{question.question}</h1><div className="scenario"><span>Scenario</span><p>{question.scenario}</p></div>
       <fieldset className="answers"><legend className="sr-only">Choose one answer</legend>{question.options.map((option) => <label key={option.id} className={`answer-option ${selected === option.id ? 'answer-selected' : ''} ${answered && answered.answer === option.id && !answered.correct ? 'answer-wrong' : ''} ${answered && question.answer === option.id ? 'answer-correct' : ''}`}><input type="radio" name={question.id} value={option.id} checked={selected === option.id} disabled={Boolean(answered)} onChange={() => setSelected(option.id)} /><span><b>{option.id.toUpperCase()}</b>{option.text}</span>{answered && question.answer === option.id && <CheckCircle2 className="answer-icon" aria-label="Correct answer" />}</label>)}</fieldset>
-      {feedback && <output className={`feedback-card ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`} aria-live="polite"><div><Lightbulb /></div><div><strong>{isCorrect ? 'Correct — apply the principle' : 'Not quite — review the principle'}</strong><p>{feedback}</p>{!isCorrect && question.criticalSafeguarding && <label className="remediation-check"><input type="checkbox" checked={remediationRead} onChange={(event) => setRemediationRead(event.target.checked)} /> <span>Stop · Understand · Continue: I understand the stronger principle before continuing.</span></label>}</div></output>}
+      {feedback && <output className={`feedback-card ${isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`} aria-live="polite"><div><Lightbulb /></div><div><strong>{isCorrect ? 'Correct — why this is strong' : 'Why the stronger response matters'}</strong><p>{isCorrect ? feedback : question.correctFeedback}</p>{!isCorrect && <details className="feedback-detail"><summary>Why your choice falls short</summary><p>{feedback}</p></details>}{!isCorrect && question.criticalSafeguarding && <label className="remediation-check"><input type="checkbox" checked={remediationRead} onChange={(event) => setRemediationRead(event.target.checked)} /> <span>Stop · Understand · Continue: I understand the stronger principle before continuing.</span></label>}</div></output>}
       <div className="question-actions"><span className="autosave"><Save /> Progress saved in this browser</span>{feedback ? <Button className="primary-pill" size="lg" disabled={!feedbackIsCorrectAndRemediated} onClick={continueAfterFeedback}>{questionIndex === config.questions.length - 1 ? 'Take it into practice' : checkInSection === checksInCurrentSection ? 'Next section' : 'Continue'} <ArrowRight /></Button> : <Button className="primary-pill" size="lg" disabled={!selected} onClick={submitResponse}>Check response</Button>}</div>
-    </article></section>
+    </article></section></div>
   </main>;
+}
+
+function CourseRoadmap({ sections, currentIndex, completed }: { sections: readonly RoadmapSection[]; currentIndex: number; completed: string[] }) {
+  const list = <ol>{sections.map((item, index) => {
+    const isComplete = completed.includes(item.id);
+    const isCurrent = index === currentIndex;
+    return <li key={item.id} className={`${isComplete ? 'roadmap-complete' : ''} ${isCurrent ? 'roadmap-current' : ''}`} aria-current={isCurrent ? 'step' : undefined}><span>{isComplete ? '✓' : item.number}</span><strong>{item.title}</strong></li>;
+  })}</ol>;
+
+  return <aside className="course-roadmap" aria-label="Course roadmap">
+    <div className="roadmap-desktop"><p className="tiny-eyebrow">Course roadmap</p>{list}</div>
+    <details className="roadmap-mobile"><summary>Section {currentIndex + 1} of {sections.length} · {sections[currentIndex]?.title}</summary>{list}</details>
+  </aside>;
 }
