@@ -10,6 +10,7 @@ import '../../app/data-course.css';
 import '../../app/assessment-course.css';
 import '../../app/teacher-growth.css';
 import '../../app/favourites.css';
+import '../../app/course-marks.css';
 import { installStaticApi } from './static-api';
 
 if (typeof window !== 'undefined') {
