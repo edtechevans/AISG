@@ -190,5 +190,10 @@ function CourseMarkGlyph({ course }: { course: CourseId }) {
         <circle cx="25.5" cy="18" r="8.4" />
         <path d="M29 28.5h4M31 26.5l2 2-2 2" />
       </>;
+
+    default: {
+      const exhaustiveCourse: never = course;
+      return exhaustiveCourse;
+    }
   }
 }
