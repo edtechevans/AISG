@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { gzipSync } from 'node:zlib';
 
 const outputDir = path.resolve('pages-dist');
 const htmlPath = path.join(outputDir, 'index.html');
@@ -15,6 +16,9 @@ if (!fs.existsSync(htmlPath)) fail('pages-dist/index.html is missing.');
 const html = fs.readFileSync(htmlPath, 'utf8');
 if (!html.includes('<title>AISG My Courses</title>')) {
   fail('the published document title is not AISG My Courses.');
+}
+if (!html.includes('name="robots" content="noindex, nofollow, noarchive"')) {
+  fail('the public test build must remain noindex/nofollow.');
 }
 
 const assetUrls = [...html.matchAll(/(?:src|href)="([^"]+)"/g)]
@@ -35,9 +39,19 @@ const cssUrl = assetUrls.find((url) => /\.css(?:[?#]|$)/.test(url));
 if (!cssUrl) fail('no bundled stylesheet is referenced by index.html.');
 
 const cssRelativePath = cssUrl.slice(basePath === '/' ? 1 : basePath.length).split(/[?#]/)[0];
-const css = fs.readFileSync(path.join(outputDir, cssRelativePath), 'utf8');
+const cssPath = path.join(outputDir, cssRelativePath);
+const css = fs.readFileSync(cssPath, 'utf8');
 
-for (const selector of ['.premium-course-card', '.roadmap-desktop', '.mobile-nav', '.course-favourite-button', '#favourites', '.course-mark']) {
+for (const selector of [
+  '.premium-course-card',
+  '.premium-course-card .course-card-top',
+  '.premium-course-card .course-designation',
+  '.roadmap-desktop',
+  '.mobile-nav',
+  '.course-favourite-button',
+  '#favourites',
+  '.course-mark',
+]) {
   if (!css.includes(selector)) fail(`critical stylesheet selector ${selector} is missing.`);
 }
 
@@ -64,7 +78,34 @@ const javascriptByFile = new Map(
 );
 const javascript = [...javascriptByFile.values()].join('\n');
 
-for (const marker of ['course-mark', 'growth-domain4', 'Safeguarding at AISG']) {
+const courseTitles = [
+  'Safeguarding at AISG',
+  'Elementary Faculty Essentials',
+  'Secondary Faculty Essentials',
+  'Employee Communication Guidelines',
+  'AI in Education',
+  'Assessment for Learning at AISG',
+  'Data to Action: Using Evidence to Improve Learning',
+  'Designing for Learner Variability',
+  'Engagement for All: The AISG Learning Framework',
+  'Multi-Tiered System of Supports (MTSS)',
+  'Supporting Multilingual Learners',
+  'Technology for Transformative Learning',
+  'Domain 1: Purposeful & Inclusive Learning Design',
+  'Domain 2: Inclusive Learning Culture & Environment',
+  'Domain 3: Transformative, Culturally Responsive Learning in Action',
+  'Domain 4: Collaborative Planning, Reflection & Professional Impact',
+];
+
+const qualityMarkers = [
+  'AISG learning lens',
+  'Cultural Responsiveness runs through the framework',
+  'For regular tool adoption, add the SMART-T lens',
+  'Local relevance is part of verification',
+  'Keep a dual lens on language and learning',
+];
+
+for (const marker of ['course-mark', 'growth-domain4', ...courseTitles, ...qualityMarkers]) {
   if (!javascript.includes(marker)) fail(`runtime marker ${marker} is missing from the Pages bundle.`);
 }
 
@@ -80,4 +121,30 @@ for (const [file, source] of javascriptByFile) {
   }
 }
 
-console.log(`Verified GitHub Pages artifact at ${outputDir} with base path ${basePath}; ${jsFiles.length} JavaScript chunks checked.`);
+/* Keep a simple production performance budget so gradual catalogue growth cannot silently
+   turn the dashboard into a heavy first load. Budgets are deliberately generous and gzip-based. */
+const cssGzipBytes = gzipSync(fs.readFileSync(cssPath)).length;
+if (cssGzipBytes > 55 * 1024) {
+  fail(`bundled CSS is ${Math.round(cssGzipBytes / 1024)} KB gzip; budget is 55 KB.`);
+}
+
+const entryJsRelativePath = entryJsUrls[0]
+  .slice(basePath === '/' ? 1 : basePath.length)
+  .split(/[?#]/)[0];
+const entryJsGzipBytes = gzipSync(fs.readFileSync(path.join(outputDir, entryJsRelativePath))).length;
+if (entryJsGzipBytes > 120 * 1024) {
+  fail(`entry JavaScript is ${Math.round(entryJsGzipBytes / 1024)} KB gzip; budget is 120 KB.`);
+}
+
+for (const [file, source] of javascriptByFile) {
+  const gzipBytes = gzipSync(source).length;
+  if (gzipBytes > 160 * 1024) {
+    fail(`${file} is ${Math.round(gzipBytes / 1024)} KB gzip; per-chunk budget is 160 KB.`);
+  }
+}
+
+console.log(
+  `Verified GitHub Pages artifact at ${outputDir} with base path ${basePath}; ` +
+  `${courseTitles.length} courses, ${jsFiles.length} JavaScript chunks, ` +
+  `${Math.round(entryJsGzipBytes / 1024)} KB entry JS gzip, ${Math.round(cssGzipBytes / 1024)} KB CSS gzip.`,
+);

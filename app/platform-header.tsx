@@ -61,7 +61,7 @@ export default function PlatformHeader({
       </nav>
 
       <details className="mobile-nav" ref={mobileMenuRef}>
-        <summary aria-label="Open navigation menu"><span className="mobile-nav-icon" aria-hidden="true" /></summary>
+        <summary aria-label="Navigation menu" title="Navigation menu"><span className="mobile-nav-icon" aria-hidden="true" /></summary>
         <nav className="mobile-nav-panel" aria-label="Mobile learning platform navigation">
           {activeTitle && activeCourse && <div className="mobile-nav-user mobile-current-course"><CourseMark course={activeCourse} size="nav" /><span>{activeTitle}</span></div>}
           <button onClick={goHome}>Home</button>

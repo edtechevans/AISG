@@ -1,6 +1,6 @@
 /* Final UX and visual polish for AISG My Courses.
    Keeps the existing design language while improving assessment width, mobile navigation,
-   Safeguarding consistency, catalogue hierarchy, course identity and typography. */
+   Safeguarding consistency, catalogue hierarchy and typography. */
 
 /* 1. Assessment screens: remove the unused desktop rail and give professional judgement room to breathe. */
 .question-card {
@@ -204,7 +204,7 @@
   }
 }
 
-/* 4. Catalogue hierarchy: red is an accent, not eight competing calls to action. */
+/* 4. Catalogue hierarchy: red is an accent, not competing calls to action. */
 .premium-course-card .primary-pill {
   background: #0b294b !important;
   color: #fff !important;
@@ -222,130 +222,10 @@
   background: #f3f6f9 !important;
 }
 
-/* 5. A small course identity system: one visual language, distinct marks. */
-.premium-course-card[data-course='technology'] { --course-accent: #3f6574; }
+/* The bespoke SVG course-mark family now owns course identity. Legacy span-based mark
+   variations were removed to keep the CSS aligned with the current component system. */
 
-/* Elementary: growth bars. */
-.premium-course-card[data-course='elementary'] .course-identity-mark {
-  align-items: end;
-}
-
-/* Secondary: three grounded blocks. */
-.premium-course-card[data-course='secondary'] .course-identity-mark {
-  align-items: end;
-  gap: .22rem;
-}
-.premium-course-card[data-course='secondary'] .course-identity-mark span {
-  width: .72rem;
-  height: .72rem;
-  border-radius: .18rem;
-  opacity: 1;
-}
-.premium-course-card[data-course='secondary'] .course-identity-mark span:nth-child(2) { transform: translateY(-.34rem); opacity: .72; }
-.premium-course-card[data-course='secondary'] .course-identity-mark span:nth-child(3) { transform: translateY(-.68rem); opacity: .45; }
-
-/* Communication: concise message lines. */
-.premium-course-card[data-course='teams'] .course-identity-mark {
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: .22rem;
-}
-.premium-course-card[data-course='teams'] .course-identity-mark span {
-  height: .3rem;
-  border-radius: 999px;
-  opacity: .8;
-}
-.premium-course-card[data-course='teams'] .course-identity-mark span:nth-child(1) { width: 2.65rem; }
-.premium-course-card[data-course='teams'] .course-identity-mark span:nth-child(2) { width: 1.85rem; }
-.premium-course-card[data-course='teams'] .course-identity-mark span:nth-child(3) { width: 2.25rem; }
-
-/* Safeguarding: abstract shield. */
-.premium-course-card[data-course='safeguarding'] .course-identity-mark { position: relative; }
-.premium-course-card[data-course='safeguarding'] .course-identity-mark span { display: none; }
-.premium-course-card[data-course='safeguarding'] .course-identity-mark::before {
-  width: 1.85rem;
-  height: 2rem;
-  background: var(--course-accent);
-  clip-path: polygon(50% 0, 100% 18%, 88% 70%, 50% 100%, 12% 70%, 0 18%);
-  content: '';
-  opacity: .92;
-}
-
-/* Engagement: connected facets. */
-.premium-course-card[data-course='engagement'] .course-identity-mark { gap: .38rem; }
-.premium-course-card[data-course='engagement'] .course-identity-mark span {
-  width: .72rem;
-  height: .72rem;
-  border-radius: 50%;
-  opacity: 1;
-}
-.premium-course-card[data-course='engagement'] .course-identity-mark span:nth-child(1) { opacity: .35; }
-.premium-course-card[data-course='engagement'] .course-identity-mark span:nth-child(2) { opacity: .65; transform: translateY(-.42rem); }
-.premium-course-card[data-course='engagement'] .course-identity-mark span:nth-child(3) { transform: translateY(.18rem); }
-
-/* MTSS: responsive layers. */
-.premium-course-card[data-course='mtss'] .course-identity-mark {
-  flex-direction: column-reverse;
-  align-items: flex-start;
-  justify-content: center;
-  gap: .18rem;
-}
-.premium-course-card[data-course='mtss'] .course-identity-mark span {
-  height: .34rem;
-  border-radius: .2rem;
-  opacity: .8;
-}
-.premium-course-card[data-course='mtss'] .course-identity-mark span:nth-child(1) { width: 2.75rem; }
-.premium-course-card[data-course='mtss'] .course-identity-mark span:nth-child(2) { width: 2rem; }
-.premium-course-card[data-course='mtss'] .course-identity-mark span:nth-child(3) { width: 1.25rem; }
-
-/* Technology: amplification ripples. */
-.premium-course-card[data-course='technology'] .course-identity-mark {
-  position: relative;
-  display: block;
-}
-.premium-course-card[data-course='technology'] .course-identity-mark span {
-  position: absolute;
-  top: 50%;
-  left: 1.15rem;
-  border: 2px solid var(--course-accent);
-  border-radius: 50%;
-  background: transparent;
-  transform: translate(-50%, -50%);
-}
-.premium-course-card[data-course='technology'] .course-identity-mark span:nth-child(1) { width: .55rem; height: .55rem; opacity: 1; }
-.premium-course-card[data-course='technology'] .course-identity-mark span:nth-child(2) { width: 1.3rem; height: 1.3rem; opacity: .65; }
-.premium-course-card[data-course='technology'] .course-identity-mark span:nth-child(3) { width: 2.05rem; height: 2.05rem; opacity: .3; }
-
-/* AI: three connected nodes. */
-.premium-course-card[data-course='ai'] .course-identity-mark {
-  position: relative;
-  gap: .38rem;
-}
-.premium-course-card[data-course='ai'] .course-identity-mark::before {
-  position: absolute;
-  left: .25rem;
-  top: .92rem;
-  width: 2.3rem;
-  height: 1px;
-  background: var(--course-accent);
-  content: '';
-  opacity: .28;
-}
-.premium-course-card[data-course='ai'] .course-identity-mark span {
-  z-index: 1;
-  width: .68rem;
-  height: .68rem;
-  border: 2px solid #fff;
-  border-radius: 50%;
-  box-shadow: 0 0 0 1px var(--course-accent);
-  opacity: 1;
-}
-.premium-course-card[data-course='ai'] .course-identity-mark span:nth-child(2) { transform: translateY(-.45rem); opacity: .75; }
-.premium-course-card[data-course='ai'] .course-identity-mark span:nth-child(3) { transform: translateY(.28rem); opacity: .55; }
-
-/* 6. Type system finesse: keep Geist, improve legibility and rhythm. */
+/* 5. Type system finesse: keep Geist, improve legibility and rhythm. */
 .premium-hero h1 { letter-spacing: -.045em; }
 .header-course-context { font-size: .8rem; }
 .roadmap-desktop .tiny-eyebrow { font-size: .7rem !important; }
@@ -356,7 +236,7 @@
 .course-category,
 .course-designation { font-size: .74rem; }
 
-/* 8. Status language: completion gets the check; other states get their own visual cue. */
+/* 6. Status language: completion gets the check; other states get their own visual cue. */
 .premium-course-card .course-status {
   display: inline-flex;
   align-items: center;
