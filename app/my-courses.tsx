@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useId, useState } from 'react';
+import { lazy, Suspense, useEffect, useId, useState } from 'react';
 import { ArrowRight, CheckCircle2, Clock3, Compass, GraduationCap, History, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import TrainingApp from '@/app/training-app';
-import AiTrainingApp from '@/app/ai-training-app';
 import PlatformHeader from '@/app/platform-header';
 import CourseMark from '@/app/course-mark';
 import { COURSE_BY_ID, COURSE_CATALOG, isCourseId, type CourseCatalogItem, type CourseId } from '@/lib/course-catalog';
 import { installStaticApi } from '@/pages/src/static-api';
+
+const TrainingApp = lazy(() => import('@/app/training-app'));
+const AiTrainingApp = lazy(() => import('@/app/ai-training-app'));
 
 export { COURSE_CATALOG } from '@/lib/course-catalog';
 
@@ -176,9 +177,11 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
     progress: progressFor(course, states[course.id]),
   }));
 
-  if (route === 'safeguarding') return <TrainingApp staticMode={browserMode} />;
+  if (route === 'safeguarding') {
+    return <Suspense fallback={<CourseLoading title={COURSE_BY_ID.safeguarding.title} />}><TrainingApp staticMode={browserMode} /></Suspense>;
+  }
   if (isCourseId(route) && route !== 'safeguarding') {
-    return <><PlatformHeader onPlatformHome={home} activeCourse={route} onCourse={open} onCourses={home} /><AiTrainingApp key={route} onExit={home} course={route} /></>;
+    return <><PlatformHeader onPlatformHome={home} activeCourse={route} onCourse={open} onCourses={home} /><Suspense fallback={<CourseLoading title={COURSE_BY_ID[route].title} />}><AiTrainingApp key={route} onExit={home} course={route} /></Suspense></>;
   }
 
   const inProgress = courses
@@ -340,6 +343,10 @@ function CourseCard({ course, onOpen, isFavourite, onToggleFavourite }: { course
       <Button className="primary-pill" onClick={() => onOpen(course.id)}>{course.status === 'Completed' ? 'Review' : course.status === 'In Progress' ? 'Continue' : 'Start'} <ArrowRight aria-hidden="true" /></Button>
     </div>
   </article>;
+}
+
+function CourseLoading({ title }: { title: string }) {
+  return <main id="main-content" className="learning-shell"><section className="intro-card" aria-live="polite"><p className="tiny-eyebrow">AISG My Courses</p><h1>Opening {title}</h1><p className="intro-summary">Preparing your learning experience…</p></section></main>;
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
