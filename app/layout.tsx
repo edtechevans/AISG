@@ -10,6 +10,7 @@ import './course-marks.css';
 import './home-hero.css';
 import './learning-companion.css';
 import './modern-nav.css';
+import './learning-system.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
