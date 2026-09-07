@@ -120,7 +120,7 @@ export default function CourseSearch({ onCourse }: { onCourse: (course: CourseId
 
   const searchLayer = open && typeof document !== 'undefined' ? createPortal(<>
     <button type="button" tabIndex={-1} className="course-search-scrim" aria-label="Close course search" onClick={closeSearch} />
-    <dialog ref={dialogRef} open className="course-search-dialog" aria-modal="true" aria-labelledby="course-search-title">
+    <dialog id="course-search-dialog" ref={dialogRef} open className="course-search-dialog" aria-modal="true" aria-labelledby="course-search-title">
       <div className="course-search-heading">
         <div><p className="tiny-eyebrow">Explore learning</p><h2 id="course-search-title">Find the learning you need</h2></div>
         <button type="button" className="course-search-close" onClick={closeSearch} aria-label="Close course search"><X aria-hidden="true" /></button>
@@ -154,6 +154,6 @@ export default function CourseSearch({ onCourse }: { onCourse: (course: CourseId
       <span className="header-search-copy"><strong>Explore learning</strong><small>Search courses</small></span>
       <kbd>⌘K</kbd>
     </button>
-    {searchLayer && <span id="course-search-dialog" className="contents">{searchLayer}</span>}
+    {searchLayer}
   </>;
 }
