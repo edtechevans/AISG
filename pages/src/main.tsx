@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import MyCoursesApp from '../../app/my-courses';
-import LearningCompanion from '../../app/learning-companion';
+import RouteLearningCompanion from '../../app/route-learning-companion';
 import '../../app/globals.css';
 import '../../app/premium.css';
 import '../../app/visual-polish.css';
@@ -19,7 +19,7 @@ if (typeof window !== 'undefined') {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <MyCoursesApp staticMode />
-      <LearningCompanion />
+      <RouteLearningCompanion />
     </StrictMode>,
   );
 }
