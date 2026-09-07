@@ -147,6 +147,7 @@ function saveResult(result: FocusResult) {
   } catch {
     // The diagnostic still works for the current session if persistent storage is unavailable.
   }
+  window.dispatchEvent(new CustomEvent('my-courses-focus-updated', { detail: result }));
 }
 
 function recommendationDetails(answers: Record<string, string>) {
