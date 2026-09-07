@@ -17,7 +17,8 @@ export default function CourseConnections({ course, onOpenCourse, compact = fals
     }
     const url = new URL(window.location.href);
     url.searchParams.set('course', id);
-    window.location.href = url.toString();
+    window.history.pushState({}, '', url);
+    window.dispatchEvent(new PopStateEvent('popstate'));
   }
 
   return <section className={`course-connections ${compact ? 'course-connections-compact' : ''}`} aria-labelledby={`connections-${course}`}>
