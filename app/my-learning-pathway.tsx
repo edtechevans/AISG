@@ -6,13 +6,17 @@ import CourseMark from '@/app/course-mark';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { COURSE_BY_ID, type CourseId } from '@/lib/course-catalog';
-import { pathwayFromFocus, readFocusResult, readLearningPathway, syncPathwayWithFocus, writeLearningPathway, type LearningPathway } from '@/lib/learning-pathway';
+import { pathwayFromFocus, readFocusResult, syncPathwayWithFocus, writeLearningPathway, type LearningPathway } from '@/lib/learning-pathway';
 
 type PathwayCourse = {
   id: CourseId;
   status: 'Completed' | 'In Progress' | 'Not Started';
   progress: number;
 };
+
+function announcePathway(pathway: LearningPathway | null) {
+  window.dispatchEvent(new CustomEvent('my-courses-pathway-updated', { detail: pathway?.courseIds || [] }));
+}
 
 export default function MyLearningPathway({ courses, favourites, onToggleFavourite, onOpenCourse }: {
   courses: PathwayCourse[];
@@ -24,11 +28,21 @@ export default function MyLearningPathway({ courses, favourites, onToggleFavouri
   const courseState = useMemo(() => new Map(courses.map((course) => [course.id, course])), [courses]);
 
   useEffect(() => {
-    const load = () => setPathway(syncPathwayWithFocus(readFocusResult()));
+    const load = () => {
+      const next = syncPathwayWithFocus(readFocusResult());
+      setPathway((current) => {
+        const currentKey = current ? `${current.sourceFocusCompletedAt}:${current.courseIds.join(',')}` : '';
+        const nextKey = next ? `${next.sourceFocusCompletedAt}:${next.courseIds.join(',')}` : '';
+        if (currentKey !== nextKey) announcePathway(next);
+        return currentKey === nextKey ? current : next;
+      });
+    };
     load();
+    const timer = window.setInterval(load, 900);
     window.addEventListener('storage', load);
     window.addEventListener('my-courses-focus-updated', load);
     return () => {
+      window.clearInterval(timer);
       window.removeEventListener('storage', load);
       window.removeEventListener('my-courses-focus-updated', load);
     };
@@ -39,14 +53,20 @@ export default function MyLearningPathway({ courses, favourites, onToggleFavouri
   const completedCount = pathway.courseIds.filter((id) => courseState.get(id)?.status === 'Completed').length;
 
   function persist(ids: CourseId[]) {
-    setPathway(writeLearningPathway(ids, pathway!.sourceFocusCompletedAt));
+    const next = writeLearningPathway(ids, pathway!.sourceFocusCompletedAt);
+    setPathway(next);
+    announcePathway(next);
   }
 
   function move(index: number, direction: -1 | 1) {
     const target = index + direction;
     if (target < 0 || target >= pathway!.courseIds.length) return;
     const next = [...pathway!.courseIds];
-    [next[index], next[target]] = [next[target], next[index]];
+    const currentId = next[index];
+    const targetId = next[target];
+    if (!currentId || !targetId) return;
+    next[index] = targetId;
+    next[target] = currentId;
     persist(next);
   }
 
@@ -56,7 +76,10 @@ export default function MyLearningPathway({ courses, favourites, onToggleFavouri
 
   function reset() {
     const focus = readFocusResult();
-    if (focus) setPathway(pathwayFromFocus(focus));
+    if (!focus) return;
+    const next = pathwayFromFocus(focus);
+    setPathway(next);
+    announcePathway(next);
   }
 
   return <section id="pathway" className="learning-system-section pathway-section" aria-labelledby="pathway-title">
