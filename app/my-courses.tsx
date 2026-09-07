@@ -14,6 +14,7 @@ import { installStaticApi } from '@/pages/src/static-api';
 const TrainingApp = lazy(() => import('@/app/training-app'));
 const AiTrainingApp = lazy(() => import('@/app/ai-training-app'));
 const LearningSystemHome = lazy(() => import('@/app/learning-system-home'));
+const ProfessionalCapacityMap = lazy(() => import('@/app/professional-capacity-map'));
 
 export { COURSE_CATALOG } from '@/lib/course-catalog';
 
@@ -277,8 +278,6 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
         <LearningSystemHome
           courses={courses}
           favourites={favourites}
-          completionMeta={completionMeta}
-          pathwayIds={pathwayIds}
           onToggleFavourite={toggleFavourite}
           onOpenCourse={open}
         />
@@ -311,6 +310,15 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
         favourites={favourites}
         onToggleFavourite={toggleFavourite}
       />
+
+      <Suspense fallback={<CapacityMapLoading />}>
+        <ProfessionalCapacityMap
+          courses={courses}
+          completionMeta={completionMeta}
+          pathwayIds={pathwayIds}
+          onOpenCourse={open}
+        />
+      </Suspense>
     </main>
   </>;
 }
@@ -381,7 +389,11 @@ function CourseCard({ course, onOpen, isFavourite, onToggleFavourite }: { course
 }
 
 function LearningSystemLoading() {
-  return <section className="learning-system-section" aria-live="polite"><p className="tiny-eyebrow">Your learning</p><p className="record-empty">Preparing your pathway, practice and professional capacity…</p></section>;
+  return <section className="learning-system-section" aria-live="polite"><p className="tiny-eyebrow">Your learning</p><p className="record-empty">Preparing your learning pathway…</p></section>;
+}
+
+function CapacityMapLoading() {
+  return <section className="learning-system-section" aria-live="polite"><p className="tiny-eyebrow">My learning · Professional capacity</p><p className="record-empty">Preparing your professional capacity map…</p></section>;
 }
 
 function CourseLoading({ title }: { title: string }) {
