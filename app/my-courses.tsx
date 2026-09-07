@@ -283,7 +283,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
         />
       </Suspense>
 
-      {favouriteCourses.length > 0 && <CourseGroup
+      <CourseGroup
         title="Your Starred Courses"
         eyebrow="Saved learning"
         description="Courses you’ve starred for easy access, including recommendations from Find Your Focus."
@@ -291,7 +291,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
         onOpen={open}
         favourites={favourites}
         onToggleFavourite={toggleFavourite}
-      />}
+      />
 
       <CourseGroup
         title="Required learning"
@@ -325,14 +325,18 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
 
 function CourseGroup({ title, eyebrow, description, courses, onOpen, favourites, onToggleFavourite }: { title: string; eyebrow: string; description: string; courses: DisplayCourse[]; onOpen: (id: CourseId) => void; favourites: CourseId[]; onToggleFavourite: (id: CourseId) => void }) {
   const sectionId = title === 'Required learning' ? 'courses' : title === 'Your Starred Courses' ? 'favourites' : undefined;
+  const isSavedLearning = title === 'Your Starred Courses';
   return <section id={sectionId} className="course-library course-group" aria-labelledby={`group-${title.replaceAll(' ', '-').toLowerCase()}`}>
     <div className="section-heading group-heading">
       <div><p className="tiny-eyebrow">{eyebrow}</p><h2 id={`group-${title.replaceAll(' ', '-').toLowerCase()}`}>{title}</h2><p>{description}</p></div>
       <span>{courses.length} {courses.length === 1 ? 'course' : 'courses'}</span>
     </div>
-    <div className="course-grid premium-course-grid">
+    {isSavedLearning && courses.length === 0 ? <div className="record-empty rounded-[22px] border border-dashed border-navy/15 bg-white/60 px-5 py-4 sm:px-6" role="status">
+      <strong className="block text-sm font-semibold text-navy">Nothing saved yet</strong>
+      <p className="mt-1 text-sm text-muted-foreground">Star learning to return to it here.</p>
+    </div> : <div className="course-grid premium-course-grid">
       {courses.map((course) => <CourseCard key={course.id} course={course} onOpen={onOpen} isFavourite={favourites.includes(course.id)} onToggleFavourite={onToggleFavourite} />)}
-    </div>
+    </div>}
   </section>;
 }
 
