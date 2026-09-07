@@ -86,6 +86,7 @@ export default function CourseSearch({ onCourse }: { onCourse: (course: CourseId
   useEffect(() => {
     if (!open) return;
     const previousOverflow = document.body.style.overflow;
+    const trigger = triggerRef.current;
     document.body.style.overflow = 'hidden';
     requestAnimationFrame(() => inputRef.current?.focus());
 
@@ -114,7 +115,7 @@ export default function CourseSearch({ onCourse }: { onCourse: (course: CourseId
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', onDialogKeyDown);
-      requestAnimationFrame(() => triggerRef.current?.focus());
+      requestAnimationFrame(() => trigger?.focus());
     };
   }, [open]);
 
