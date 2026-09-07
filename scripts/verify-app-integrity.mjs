@@ -10,6 +10,11 @@ const header = read('app/platform-header.tsx');
 const search = read('app/course-search.tsx');
 const home = read('app/my-courses.tsx');
 const learningSystemHome = read('app/learning-system-home.tsx');
+const focus = read('app/find-your-focus.tsx');
+const pathway = read('app/my-learning-pathway.tsx');
+const pathwayStorage = read('lib/learning-pathway.ts');
+const companion = read('app/learning-companion.tsx');
+const companionRoute = read('app/api/learning-companion/route.ts');
 const layout = read('app/layout.tsx');
 const pagesMain = read('pages/src/main.tsx');
 const routedCompanion = read('app/route-learning-companion.tsx');
@@ -42,6 +47,27 @@ if (!search.includes('terms.every') || !search.includes('aria-modal="true"')) {
   fail('course search is missing multi-term matching or modal accessibility semantics.');
 }
 
+if (!focus.includes("my-courses-focus-updated")) {
+  fail('Find Your Focus does not announce updated recommendations to the learning pathway.');
+}
+if (pathway.includes('setInterval(')) {
+  fail('learning pathway still polls browser storage instead of using focus/storage events.');
+}
+if (!pathway.includes('Your pathway is clear for now.')) {
+  fail('learning pathway is missing the intentional-empty state.');
+}
+if (pathwayStorage.includes('if (courseIds.length === 0) return null')) {
+  fail('an intentionally empty learning pathway would be recreated after reload.');
+}
+
+const overBroadSafeguardingPattern = '|safeguard|';
+if (companion.includes(overBroadSafeguardingPattern) || companionRoute.includes(overBroadSafeguardingPattern)) {
+  fail('Learning Companion live-case detection blocks generic safeguarding learning too broadly.');
+}
+if (!companionRoute.includes('You may discuss de-identified safeguarding principles')) {
+  fail('server Companion prompt does not explicitly permit de-identified safeguarding learning.');
+}
+
 if (!routedCompanion.includes('lazy(() => import') || !routedCompanion.includes('courseIsOpen')) {
   fail('Learning Companion is not route-gated and lazy loaded.');
 }
@@ -52,4 +78,4 @@ if (pagesMain.includes("import LearningCompanion from '../../app/learning-compan
   fail('GitHub Pages entry imports the full Learning Companion eagerly.');
 }
 
-console.log(`Verified application integrity: ${courseIds.length} courses, ${storageKeys.length} independent browser progress stores, current navigation, search, homepage ordering and deferred Learning Companion.`);
+console.log(`Verified application integrity: ${courseIds.length} courses, ${storageKeys.length} independent browser progress stores, navigation, search, pathway persistence/synchronization, Companion guardrails, homepage ordering and deferred Companion loading.`);
