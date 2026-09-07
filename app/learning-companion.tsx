@@ -109,7 +109,7 @@ function inferContext(): CompanionContext | null {
 function browserSources(context: CompanionContext) {
   return context.stage === 'learn'
     ? [`Current course page · ${COURSE_BY_ID[context.course].title}`, ...COMPANION_KNOWLEDGE[context.course].sources.slice(0, 2)]
-    : [...COMPANION_KNOWLEDGE[context.course].sources.slice(0, 3)];
+    : COMPANION_KNOWLEDGE[context.course].sources.slice(0, 3);
 }
 
 function browserAnswer(action: QuickAction | undefined, prompt: string, context: CompanionContext) {
@@ -126,10 +126,10 @@ function browserAnswer(action: QuickAction | undefined, prompt: string, context:
     return `Two useful connections are:\n\n${links.join('\n\n')}\n\nUse the connection only if it helps you see the current professional question from a genuinely different angle.`;
   }
   if (action === 'challenge' || /(challenge|assumption|blind spot|another lens|alternative)/.test(normalized)) {
-    return `Test your current interpretation against the learner evidence. What are you assuming that the evidence does not yet establish? What is one plausible alternative explanation? Then ask what you would need to see in learner talk, choices, work, relationships or action before becoming more confident in your judgement.`;
+    return 'Test your current interpretation against the learner evidence. What are you assuming that the evidence does not yet establish? What is one plausible alternative explanation? Then ask what you would need to see in learner talk, choices, work, relationships or action before becoming more confident in your judgement.';
   }
   if (action === 'apply' || /(apply|tomorrow|try|next move|lesson|practice)/.test(normalized)) {
-    return `Take one principle from this section and make the next move deliberately small. Preserve the worthwhile learning, change one feature of the design or interaction, and decide in advance what learner evidence you will notice. The strongest follow-up question is not “Did I use the strategy?” but “What changed for learners, for whom, and what should I adjust next?”`;
+    return 'Take one principle from this section and make the next move deliberately small. Preserve the worthwhile learning, change one feature of the design or interaction, and decide in advance what learner evidence you will notice. The strongest follow-up question is not “Did I use the strategy?” but “What changed for learners, for whom, and what should I adjust next?”';
   }
   const core = context.summary || context.body || COURSE_BY_ID[context.course].description;
   if (action === 'explain') return `Put simply: ${core} The important distinction is between the presence of a strategy and evidence that it improved the learner experience. Ask what students would say, do, choose, create, revise or transfer if the principle were genuinely stronger.`;
