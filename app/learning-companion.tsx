@@ -115,7 +115,7 @@ function browserSources(context: CompanionContext) {
 function browserAnswer(action: QuickAction | undefined, prompt: string, context: CompanionContext) {
   const knowledge = COMPANION_KNOWLEDGE[context.course];
   const normalized = prompt.toLowerCase();
-  const sensitive = /(real student|student name|named student|disclos|abuse|self-harm|safeguard|report a concern|child protection|cpoms|student id|date of birth)/i.test(prompt);
+  const sensitive = /(real student|my student|one of my students|student named|child named|student name|named student|student id|date of birth|just disclosed|has disclosed|made a disclosure|i need to report|should i report|report a concern about|i have a concern about)/i.test(prompt);
   if (sensitive) {
     return 'Please do not enter student names or identifying information. If this concerns a real student, rewrite it as a de-identified professional-learning scenario. If there is a safeguarding concern, follow current AISG safeguarding and reporting procedures rather than using the Learning Companion for case advice.';
   }
