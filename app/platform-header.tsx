@@ -54,7 +54,7 @@ export default function PlatformHeader({
   return <header className="app-header print:hidden">
     <a className="skip-link" href="#main-content">Skip to main content</a>
     <div className="app-header-inner">
-      <button className="brand-button" onClick={goHome} aria-label="AISG My Courses home">
+      <button type="button" className="brand-button" onClick={goHome} aria-label="AISG My Courses home">
         {/* oxlint-disable-next-line next/no-img-element -- relative asset supports Sites and the GitHub Pages base path. */}
         <img className="aisg-logo aisg-logo-header" src="aisg-logo.png" alt="" />
         <span className="brand-copy"><strong>AISG My Courses</strong><small>{context}</small></span>
@@ -66,18 +66,17 @@ export default function PlatformHeader({
       </div>}
 
       <nav className="platform-nav platform-nav-desktop" aria-label="Learning platform navigation">
-        <button className="nav-link nav-link-home" onClick={goHome}>Home</button>
+        <button type="button" className="nav-link nav-link-home" onClick={goHome}>Home</button>
         {homepageNavigation ? <>
-          <button className="nav-link nav-link-section" onClick={() => scrollToSection('pathway', 'find-your-focus')}>My Pathway</button>
-          <button className="nav-link nav-link-section" onClick={() => scrollToSection('favourites', 'find-your-focus')}>Saved Learning</button>
-          <button className="nav-link nav-link-section" onClick={() => scrollToSection('courses')}>Core Learning</button>
-          <button className="nav-link nav-link-section" onClick={() => scrollToSection('explore')}>Build Capacity</button>
-          <button className="nav-link nav-link-section" onClick={() => scrollToSection('practice')}>My Practice</button>
+          <button type="button" className="nav-link nav-link-section" onClick={() => scrollToSection('find-your-focus')}>Find Your Focus</button>
+          <button type="button" className="nav-link nav-link-section" onClick={() => scrollToSection('favourites', 'find-your-focus')}>Saved Learning</button>
+          <button type="button" className="nav-link nav-link-section" onClick={() => scrollToSection('courses')}>Core Learning</button>
+          <button type="button" className="nav-link nav-link-section" onClick={() => scrollToSection('explore')}>Build Capacity</button>
         </> : <>
-          {onCourseHome && <button className="nav-link" onClick={goCourseHome}>Course home</button>}
-          <button className="nav-link" onClick={goCourses}>Courses</button>
+          {onCourseHome && <button type="button" className="nav-link" onClick={goCourseHome}>Course home</button>}
+          <button type="button" className="nav-link" onClick={goCourses}>Courses</button>
         </>}
-        {onProgress && <button className="nav-link nav-link-learning" onClick={goProgress}>My Learning</button>}
+        {onProgress && <button type="button" className="nav-link nav-link-learning" onClick={goProgress}>My Learning</button>}
         {adminHref && <a className="nav-link" href={adminHref}>Admin</a>}
         {userName && <><span className="user-name">{userName}</span><span className="avatar" aria-hidden="true">{initials}</span></>}
       </nav>
@@ -89,23 +88,22 @@ export default function PlatformHeader({
         <nav className="mobile-nav-panel" aria-label="Mobile learning platform navigation">
           {activeTitle && activeCourse && <div className="mobile-nav-user mobile-current-course"><CourseMark course={activeCourse} size="nav" /><span>{activeTitle}</span></div>}
           <div className="mobile-nav-section-label">Navigate</div>
-          <button onClick={goHome}>Home</button>
+          <button type="button" onClick={goHome}>Home</button>
           {homepageNavigation ? <>
             <div className="mobile-nav-divider" />
             <div className="mobile-nav-section-label">Your learning</div>
-            <button onClick={() => scrollToSection('pathway', 'find-your-focus')}>My Pathway / Find Your Focus</button>
-            <button onClick={() => scrollToSection('practice')}>My Practice</button>
-            <button onClick={() => scrollToSection('favourites', 'find-your-focus')}>Saved Learning</button>
-            <button onClick={() => scrollToSection('courses')}>Core Learning</button>
-            <button onClick={() => scrollToSection('explore')}>Build Capacity</button>
-            <button onClick={() => scrollToSection('record')}>My Learning / Capacity</button>
-            <button onClick={goSearch}>Explore Learning / Search</button>
+            <button type="button" onClick={() => scrollToSection('find-your-focus')}>Find Your Focus</button>
+            <button type="button" onClick={() => scrollToSection('favourites', 'find-your-focus')}>Saved Learning</button>
+            <button type="button" onClick={() => scrollToSection('courses')}>Core Learning</button>
+            <button type="button" onClick={() => scrollToSection('explore')}>Build Capacity</button>
+            <button type="button" onClick={() => scrollToSection('record')}>My Learning / Capacity</button>
+            <button type="button" onClick={goSearch}>Explore Learning / Search</button>
           </> : <>
-            {onCourseHome && <button onClick={goCourseHome}>Course home</button>}
-            <button onClick={goCourses}>All courses</button>
-            <button onClick={goSearch}>Explore Learning / Search</button>
+            {onCourseHome && <button type="button" onClick={goCourseHome}>Course home</button>}
+            <button type="button" onClick={goCourses}>All courses</button>
+            <button type="button" onClick={goSearch}>Explore Learning / Search</button>
           </>}
-          {!homepageNavigation && onProgress && <button onClick={goProgress}>My learning</button>}
+          {!homepageNavigation && onProgress && <button type="button" onClick={goProgress}>My learning</button>}
           {adminHref && <a href={adminHref} onClick={closeMobileMenu}>Admin</a>}
           {userName && <div className="mobile-nav-user">Signed in as {userName}</div>}
         </nav>
