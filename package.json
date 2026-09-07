@@ -11,7 +11,7 @@
     "build:pages": "vite build --config vite.pages.config.ts",
     "verify:pages": "node scripts/verify-pages-build.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",
-    "lint": "oxlint --format=unix",
+    "lint": "oxlint",
     "format": "oxfmt",
     "db:generate": "drizzle-kit generate"
   },
