@@ -89,7 +89,7 @@ function mergeImported(current: PracticeEntry[]) {
       byId.set(imported.id, { ...existing, focus: imported.focus, practice: imported.practice, updatedAt: Date.now() });
     }
   }
-  return [...byId.values()].sort((a, b) => b.updatedAt - a.updatedAt);
+  return Array.from(byId.values()).sort((a, b) => b.updatedAt - a.updatedAt);
 }
 
 export default function MyPractice({ onOpenCourse }: { onOpenCourse: (course: CourseId) => void }) {
@@ -100,8 +100,10 @@ export default function MyPractice({ onOpenCourse }: { onOpenCourse: (course: Co
 
   useEffect(() => {
     const merged = mergeImported(readStoredPractice());
-    setEntries(merged);
-    writeStoredPractice(merged);
+    queueMicrotask(() => {
+      setEntries(merged);
+      writeStoredPractice(merged);
+    });
   }, []);
 
   const activeEntries = useMemo(() => entries.filter((entry) => entry.status !== 'not-for-now'), [entries]);
