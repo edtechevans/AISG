@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import LearningCompanion from '@/app/learning-companion';
+import RouteLearningCompanion from '@/app/route-learning-companion';
 import './globals.css';
 import './premium.css';
 import './visual-polish.css';
@@ -46,7 +46,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        <LearningCompanion />
+        <RouteLearningCompanion />
       </body>
     </html>
   );
