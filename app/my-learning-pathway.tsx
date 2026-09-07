@@ -62,13 +62,12 @@ export default function MyLearningPathway({ courses, favourites, onToggleFavouri
 
   function move(index: number, direction: -1 | 1) {
     const target = index + direction;
-    if (target < 0 || target >= pathway!.courseIds.length) return;
-    const next = [...pathway!.courseIds];
-    const currentId = next[index];
-    const targetId = next[target];
+    const ids = pathway!.courseIds;
+    if (target < 0 || target >= ids.length) return;
+    const currentId = ids[index];
+    const targetId = ids[target];
     if (!currentId || !targetId) return;
-    next[index] = targetId;
-    next[target] = currentId;
+    const next = ids.map((id, itemIndex) => itemIndex === index ? targetId : itemIndex === target ? currentId : id);
     persist(next);
   }
 
