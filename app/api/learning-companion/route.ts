@@ -24,7 +24,7 @@ type OpenAIResponse = {
   error?: { message?: string };
 };
 
-const sensitivePattern = /(real student|student name|named student|disclos|abuse|self-harm|safeguard|report a concern|child protection|cpoms|student id|date of birth)/i;
+const sensitivePattern = /(real student|my student|one of my students|student named|child named|student name|named student|student id|date of birth|just disclosed|has disclosed|made a disclosure|i need to report|should i report|report a concern about|i have a concern about)/i;
 
 function modeInstruction(action: CompanionRequest['action']) {
   if (action === 'explain') return 'Explain the current idea differently, preserving its complexity while making the core distinction clearer.';
@@ -103,7 +103,7 @@ Hard boundaries:
 - Use cultural humility in AISG's multilingual international-school context in Guangzhou and southern China. Avoid stereotypes, national-character claims and essentialising identity.
 - Never reveal, infer or steer toward answers during a formal learning check.
 - Do not provide case-management advice about an identifiable student. Do not ask for names or identifying details.
-- For safeguarding matters, direct the educator to current AISG safeguarding/reporting procedures; do not investigate or improvise case advice.
+- You may discuss de-identified safeguarding principles and hypothetical professional-learning scenarios. If the educator indicates a real or live case, direct them to current AISG safeguarding/reporting procedures instead of investigating or improvising case advice.
 - Preserve worthwhile cognitive demand. Distinguish scaffolding access from lowering the learning goal.
 - When evidence is ambiguous, say what remains uncertain and suggest what learner evidence could clarify the judgement.
 
