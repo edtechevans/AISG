@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowRight, Clock3, Search, X } from 'lucide-react';
 import CourseMark from '@/app/course-mark';
 import { COURSE_CATALOG, type CourseId } from '@/lib/course-catalog';
@@ -61,41 +62,42 @@ export default function CourseSearch({ onCourse }: { onCourse: (course: CourseId
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
+  const searchLayer = open && typeof document !== 'undefined' ? createPortal(<>
+    <button type="button" className="course-search-scrim" aria-label="Close course search" onClick={closeSearch} />
+    <dialog open className="course-search-dialog" aria-labelledby="course-search-title">
+      <div className="course-search-heading">
+        <div><p className="tiny-eyebrow">Explore learning</p><h2 id="course-search-title">Find the learning you need</h2></div>
+        <button type="button" className="course-search-close" onClick={closeSearch} aria-label="Close course search"><X aria-hidden="true" /></button>
+      </div>
+      <label className="course-search-input-wrap" htmlFor="course-search-input">
+        <Search aria-hidden="true" />
+        <input ref={inputRef} id="course-search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by course, capability or topic…" autoComplete="off" />
+        <span>{results.length} {results.length === 1 ? 'course' : 'courses'}</span>
+      </label>
+      <ul className="course-search-results" aria-label="Course search results">
+        {results.length > 0 ? results.map((course) => <li key={course.id}>
+          <button type="button" className="course-search-result" onClick={() => chooseCourse(course.id)}>
+            <CourseMark course={course.id} size="record" />
+            <span className="course-search-result-copy">
+              <small>{course.audience || course.category} · {course.designation}</small>
+              <strong>{course.title}</strong>
+              <span>{course.description}</span>
+              <em><Clock3 aria-hidden="true" /> {course.duration}</em>
+            </span>
+            <ArrowRight className="course-search-arrow" aria-hidden="true" />
+          </button>
+        </li>) : <li className="course-search-empty"><strong>No matching course yet.</strong><span>Try a broader idea such as assessment, multilingual, agency, data, AI or support.</span></li>}
+      </ul>
+      <p className="course-search-tip">Tip: press <kbd>/</kbd> anywhere on the platform to search.</p>
+    </dialog>
+  </>, document.body) : null;
+
   return <>
     <button id="course-search-trigger" type="button" className="header-search-button" onClick={openSearch} aria-haspopup="dialog" aria-expanded={open}>
       <Search aria-hidden="true" />
       <span className="header-search-copy"><strong>Explore learning</strong><small>Search courses</small></span>
       <kbd>⌘K</kbd>
     </button>
-
-    {open && <>
-      <button type="button" className="course-search-scrim" aria-label="Close course search" onClick={closeSearch} />
-      <dialog open className="course-search-dialog" aria-labelledby="course-search-title">
-        <div className="course-search-heading">
-          <div><p className="tiny-eyebrow">Explore learning</p><h2 id="course-search-title">Find the learning you need</h2></div>
-          <button type="button" className="course-search-close" onClick={closeSearch} aria-label="Close course search"><X aria-hidden="true" /></button>
-        </div>
-        <label className="course-search-input-wrap" htmlFor="course-search-input">
-          <Search aria-hidden="true" />
-          <input ref={inputRef} id="course-search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by course, capability or topic…" autoComplete="off" />
-          <span>{results.length} {results.length === 1 ? 'course' : 'courses'}</span>
-        </label>
-        <ul className="course-search-results" aria-label="Course search results">
-          {results.length > 0 ? results.map((course) => <li key={course.id}>
-            <button type="button" className="course-search-result" onClick={() => chooseCourse(course.id)}>
-              <CourseMark course={course.id} size="record" />
-              <span className="course-search-result-copy">
-                <small>{course.audience || course.category} · {course.designation}</small>
-                <strong>{course.title}</strong>
-                <span>{course.description}</span>
-                <em><Clock3 aria-hidden="true" /> {course.duration}</em>
-              </span>
-              <ArrowRight className="course-search-arrow" aria-hidden="true" />
-            </button>
-          </li>) : <li className="course-search-empty"><strong>No matching course yet.</strong><span>Try a broader idea such as assessment, multilingual, agency, data, AI or support.</span></li>}
-        </ul>
-        <p className="course-search-tip">Tip: press <kbd>/</kbd> anywhere on the platform to search.</p>
-      </dialog>
-    </>}
+    {searchLayer}
   </>;
 }
