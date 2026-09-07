@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, Compass, RotateCcw, Star, X } from 'lucide-react';
+import CourseConnections from '@/app/course-connections';
 import CourseMark from '@/app/course-mark';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -51,6 +52,7 @@ export default function MyLearningPathway({ courses, favourites, onToggleFavouri
   if (!pathway) return null;
 
   const completedCount = pathway.courseIds.filter((id) => courseState.get(id)?.status === 'Completed').length;
+  const connectionCourse = pathway.courseIds.find((id) => courseState.get(id)?.status !== 'Completed') || pathway.courseIds[0];
 
   function persist(ids: CourseId[]) {
     const next = writeLearningPathway(ids, pathway!.sourceFocusCompletedAt);
@@ -115,6 +117,8 @@ export default function MyLearningPathway({ courses, favourites, onToggleFavouri
         </article>;
       })}
     </div>
+
+    {connectionCourse && <CourseConnections course={connectionCourse} onOpenCourse={onOpenCourse} compact />}
 
     <div className="pathway-footer">
       <Button variant="outline" onClick={reset}><RotateCcw aria-hidden="true" /> Reset to Find Your Focus</Button>
