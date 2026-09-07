@@ -12,6 +12,9 @@
     "verify:pages": "node scripts/verify-pages-build.mjs",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "lint": "oxlint",
+    "typecheck": "tsc --noEmit --pretty false",
+    "test:integrity": "node scripts/verify-app-integrity.mjs",
+    "check": "pnpm lint && pnpm typecheck && pnpm test:integrity",
     "format": "oxfmt",
     "db:generate": "drizzle-kit generate"
   },
