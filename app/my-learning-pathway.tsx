@@ -39,11 +39,9 @@ export default function MyLearningPathway({ courses, favourites, onToggleFavouri
       });
     };
     load();
-    const timer = window.setInterval(load, 900);
     window.addEventListener('storage', load);
     window.addEventListener('my-courses-focus-updated', load);
     return () => {
-      window.clearInterval(timer);
       window.removeEventListener('storage', load);
       window.removeEventListener('my-courses-focus-updated', load);
     };
@@ -95,7 +93,7 @@ export default function MyLearningPathway({ courses, favourites, onToggleFavouri
       </div>
     </div>
 
-    <div className="pathway-list">
+    {pathway.courseIds.length > 0 ? <div className="pathway-list">
       {pathway.courseIds.map((courseId, index) => {
         const catalog = COURSE_BY_ID[courseId];
         const state = courseState.get(courseId) ?? { id: courseId, status: 'Not Started' as const, progress: 0 };
@@ -115,7 +113,7 @@ export default function MyLearningPathway({ courses, favourites, onToggleFavouri
           </div>
         </article>;
       })}
-    </div>
+    </div> : <div className="record-empty"><strong>Your pathway is clear for now.</strong><p>You removed all current recommendations. Refine your focus or reset the pathway whenever you want a new starting point.</p></div>}
 
     {connectionCourse && <CourseConnections course={connectionCourse} onOpenCourse={onOpenCourse} compact />}
 
