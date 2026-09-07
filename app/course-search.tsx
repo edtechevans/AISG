@@ -80,18 +80,20 @@ export default function CourseSearch({ onCourse }: { onCourse: (course: CourseId
           <input ref={inputRef} id="course-search-input" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by course, capability or topic…" autoComplete="off" />
           <span>{results.length} {results.length === 1 ? 'course' : 'courses'}</span>
         </label>
-        <div className="course-search-results" role="list" aria-label="Course search results">
-          {results.length > 0 ? results.map((course) => <button key={course.id} type="button" className="course-search-result" onClick={() => chooseCourse(course.id)} role="listitem">
-            <CourseMark course={course.id} size="record" />
-            <span className="course-search-result-copy">
-              <small>{course.audience || course.category} · {course.designation}</small>
-              <strong>{course.title}</strong>
-              <span>{course.description}</span>
-              <em><Clock3 aria-hidden="true" /> {course.duration}</em>
-            </span>
-            <ArrowRight className="course-search-arrow" aria-hidden="true" />
-          </button>) : <div className="course-search-empty"><strong>No matching course yet.</strong><span>Try a broader idea such as assessment, multilingual, agency, data, AI or support.</span></div>}
-        </div>
+        <ul className="course-search-results" aria-label="Course search results">
+          {results.length > 0 ? results.map((course) => <li key={course.id}>
+            <button type="button" className="course-search-result" onClick={() => chooseCourse(course.id)}>
+              <CourseMark course={course.id} size="record" />
+              <span className="course-search-result-copy">
+                <small>{course.audience || course.category} · {course.designation}</small>
+                <strong>{course.title}</strong>
+                <span>{course.description}</span>
+                <em><Clock3 aria-hidden="true" /> {course.duration}</em>
+              </span>
+              <ArrowRight className="course-search-arrow" aria-hidden="true" />
+            </button>
+          </li>) : <li className="course-search-empty"><strong>No matching course yet.</strong><span>Try a broader idea such as assessment, multilingual, agency, data, AI or support.</span></li>}
+        </ul>
         <p className="course-search-tip">Tip: press <kbd>/</kbd> anywhere on the platform to search.</p>
       </dialog>
     </>}
