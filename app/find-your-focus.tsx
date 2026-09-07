@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, CheckCircle2, Compass, RotateCcw, Star } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, ChevronUp, Compass, RotateCcw, Star } from 'lucide-react';
 import CourseMark from '@/app/course-mark';
 import { Button } from '@/components/ui/button';
 import { COURSE_BY_ID, type CourseId } from '@/lib/course-catalog';
@@ -182,6 +182,7 @@ function reasonFor(course: FocusCourseId, signals: string[]) {
 export default function FindYourFocus({ favourites, onToggleFavourite, onOpenCourse }: { favourites: CourseId[]; onToggleFavourite: (id: CourseId) => void; onOpenCourse: (id: CourseId) => void }) {
   const [saved, setSaved] = useState<FocusResult | null>(() => readSavedResult());
   const [active, setActive] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
@@ -192,6 +193,7 @@ export default function FindYourFocus({ favourites, onToggleFavourite, onOpenCou
   function begin() {
     setAnswers(saved?.answers || {});
     setStep(0);
+    setExpanded(true);
     setActive(true);
   }
 
@@ -214,12 +216,29 @@ export default function FindYourFocus({ favourites, onToggleFavourite, onOpenCou
     saveResult(result);
     setSaved(result);
     setActive(false);
+    setExpanded(false);
   }
 
   function cancel() {
     setActive(false);
     setAnswers(saved?.answers || {});
     setStep(0);
+    if (saved) setExpanded(false);
+  }
+
+  if (saved && !active && !expanded) {
+    return <section id="find-your-focus" className="my-6 overflow-hidden rounded-[24px] border border-[#0b294b]/10 bg-white shadow-[0_12px_34px_rgba(11,41,75,0.06)]" aria-labelledby="find-focus-title">
+      <div className="grid items-stretch lg:grid-cols-[.72fr_1.28fr]">
+        <div className="flex items-center gap-4 bg-[#0b294b] px-5 py-5 text-white sm:px-6">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15"><Compass className="h-5 w-5" aria-hidden="true" /></div>
+          <div><p className="text-[.65rem] font-bold uppercase tracking-[.16em] text-white/60">Professional reflection · Complete</p><h2 id="find-focus-title" className="mt-1 text-2xl font-semibold tracking-tight">Find Your Focus</h2></div>
+        </div>
+        <div className="flex flex-col justify-center gap-4 px-5 py-5 sm:px-6 xl:flex-row xl:items-center xl:justify-between">
+          <div className="min-w-0"><p className="text-xs font-bold uppercase tracking-[.12em] text-[#8f2034]">Your current focus</p><div className="mt-2 flex flex-wrap gap-2">{savedDetails.map(({ course }, index) => <span key={course} className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-[#334b64]"><span className="text-[#8f2034]">{index + 1}</span>{COURSE_BY_ID[course].title}</span>)}</div></div>
+          <div className="flex shrink-0 flex-wrap gap-2"><Button variant="outline" onClick={begin}><RotateCcw aria-hidden="true" /> Refine</Button><Button className="primary-pill" aria-expanded="false" onClick={() => setExpanded(true)}>View recommendations <ChevronDown aria-hidden="true" /></Button></div>
+        </div>
+      </div>
+    </section>;
   }
 
   return <section id="find-your-focus" className="my-8 overflow-hidden rounded-[30px] border border-[#0b294b]/10 bg-white shadow-[0_18px_48px_rgba(11,41,75,0.08)]" aria-labelledby="find-focus-title">
@@ -257,7 +276,7 @@ export default function FindYourFocus({ favourites, onToggleFavourite, onOpenCou
         </div> : saved ? <div>
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div><p className="text-xs font-bold uppercase tracking-[.13em] text-[#8f2034]">Your current focus</p><h3 className="mt-2 text-2xl font-semibold tracking-tight text-[#0b294b]">Three places to continue your learning</h3><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">These are suggestions, not judgements. Star anything you want to keep and it will appear with your other starred courses on the homepage.</p></div>
-            <Button variant="outline" onClick={begin}><RotateCcw aria-hidden="true" /> Refine my focus</Button>
+            <div className="flex flex-wrap gap-2"><Button variant="outline" aria-expanded="true" onClick={() => setExpanded(false)}><ChevronUp aria-hidden="true" /> Minimise</Button><Button variant="outline" onClick={begin}><RotateCcw aria-hidden="true" /> Refine my focus</Button></div>
           </div>
           <div className="mt-6 grid gap-3">
             {savedDetails.map(({ course, signals }, index) => {
