@@ -51,6 +51,10 @@ for (const selector of [
   '.course-favourite-button',
   '#favourites',
   '.course-mark',
+  '.course-search-dialog',
+  '.learning-companion-trigger',
+  '.pathway-section',
+  '.capacity-section',
 ]) {
   if (!css.includes(selector)) fail(`critical stylesheet selector ${selector} is missing.`);
 }
@@ -105,7 +109,15 @@ const qualityMarkers = [
   'Keep a dual lens on language and learning',
 ];
 
-for (const marker of ['course-mark', 'growth-domain4', ...courseTitles, ...qualityMarkers]) {
+const platformMarkers = [
+  'Find Your Focus',
+  'My learning pathway',
+  'A portrait of the capacity you are building',
+  'Explore learning',
+  'Learning Companion',
+];
+
+for (const marker of ['course-mark', 'growth-domain4', ...courseTitles, ...qualityMarkers, ...platformMarkers]) {
   if (!javascript.includes(marker)) fail(`runtime marker ${marker} is missing from the Pages bundle.`);
 }
 
