@@ -1,13 +1,17 @@
 'use client';
 
 import { lazy, Suspense, useEffect, useId, useState } from 'react';
-import { ArrowRight, CheckCircle2, Clock3, Compass, GraduationCap, History, Star } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Clock3, GraduationCap, History, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import PlatformHeader from '@/app/platform-header';
 import CourseMark from '@/app/course-mark';
 import FindYourFocus from '@/app/find-your-focus';
+import MyLearningPathway from '@/app/my-learning-pathway';
+import MyPractice from '@/app/my-practice';
+import ProfessionalCapacityMap from '@/app/professional-capacity-map';
 import { COURSE_BY_ID, COURSE_CATALOG, isCourseId, type CourseCatalogItem, type CourseId } from '@/lib/course-catalog';
+import { readLearningPathway } from '@/lib/learning-pathway';
 import { installStaticApi } from '@/pages/src/static-api';
 
 const TrainingApp = lazy(() => import('@/app/training-app'));
@@ -100,6 +104,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   const [states, setStates] = useState<Record<CourseId, CourseState>>(() => Object.fromEntries(COURSE_CATALOG.map((course) => [course.id, {}])) as Record<CourseId, CourseState>);
   const [browserMode, setBrowserMode] = useState(staticMode);
   const [favourites, setFavourites] = useState<CourseId[]>([]);
+  const [pathwayIds, setPathwayIds] = useState<CourseId[]>([]);
 
   useEffect(() => {
     const title = isCourseId(route) ? `${COURSE_BY_ID[route].title} | AISG My Courses` : 'AISG My Courses';
@@ -111,11 +116,20 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
       setRoute(new URLSearchParams(window.location.search).get('course') || '');
       setStates((current) => ({ ...current, ...shortCourseStates() }));
       setFavourites(readFavourites());
+      setPathwayIds(readLearningPathway()?.courseIds || []);
     };
     syncBrowserState();
     const onPop = () => syncBrowserState();
+    const onPathway = (event: Event) => {
+      const detail = (event as CustomEvent<CourseId[]>).detail;
+      setPathwayIds(Array.isArray(detail) ? detail : readLearningPathway()?.courseIds || []);
+    };
     window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
+    window.addEventListener('my-courses-pathway-updated', onPathway);
+    return () => {
+      window.removeEventListener('popstate', onPop);
+      window.removeEventListener('my-courses-pathway-updated', onPathway);
+    };
   }, []);
 
   useEffect(() => {
@@ -137,6 +151,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
     const refresh = () => {
       setStates((current) => ({ ...current, ...shortCourseStates(), safeguarding: current.safeguarding }));
       setFavourites(readFavourites());
+      setPathwayIds(readLearningPathway()?.courseIds || []);
     };
     window.addEventListener('focus', refresh);
     window.addEventListener('storage', refresh);
@@ -160,6 +175,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
     setRoute('');
     setStates((current) => ({ ...current, ...shortCourseStates(), safeguarding: current.safeguarding }));
     setFavourites(readFavourites());
+    setPathwayIds(readLearningPathway()?.courseIds || []);
   }
 
   function toggleFavourite(course: CourseId) {
@@ -193,10 +209,16 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   const required = courses.filter((course) => course.designation === 'Required');
   const requiredCompleted = required.filter((course) => course.status === 'Completed').length;
   const favouriteCourses = courses.filter((course) => favourites.includes(course.id));
-  const hasActivity = courses.some((course) => course.status !== 'Not Started') || favouriteCourses.length > 0;
+  const hasActivity = courses.some((course) => course.status !== 'Not Started') || favouriteCourses.length > 0 || pathwayIds.length > 0;
   const explore = courses.filter((course) => course.designation !== 'Required');
   const teacherGrowthExplore = explore.filter((course) => course.category === 'Teacher Growth & Reflection').sort((a, b) => a.title.localeCompare(b.title));
   const otherExplore = explore.filter((course) => course.category !== 'Teacher Growth & Reflection').sort((a, b) => a.title.localeCompare(b.title));
+  const completionMeta = Object.fromEntries(courses.filter((course) => course.status === 'Completed').map((course) => {
+    const score = correctResponseCount(states[course.id]);
+    const date = completionDate(states[course.id]);
+    const label = `${date ? `${date} · ` : ''}${score === undefined ? '' : `${score}/${course.checkCount} · `}SY2026–27 · Completed`;
+    return [course.id, label];
+  })) as Partial<Record<CourseId, string>>;
 
   function scrollTo(id: string) {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -217,7 +239,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
         <aside className="hero-learning-panel" aria-labelledby="hero-learning-title">
           <div className="hero-learning-heading">
             <div><p className="tiny-eyebrow">Your learning</p><h2 id="hero-learning-title">A clear view of what matters next</h2></div>
-            <Button variant="ghost" className="hero-record-link" onClick={() => scrollTo('record')}><History aria-hidden="true" /> Record</Button>
+            <Button variant="ghost" className="hero-record-link" onClick={() => scrollTo('record')}><History aria-hidden="true" /> Capacity</Button>
           </div>
           <div className="hero-learning-stats" aria-live="polite">
             <Stat label="Required" value={`${requiredCompleted}/${required.length}`} />
@@ -232,6 +254,11 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
               </div>
               <Progress value={inProgress.progress} aria-label={`${inProgress.title}: ${inProgress.progress}% complete`} />
               <Button className="primary-pill hero-next-action" onClick={() => open(inProgress.id)}>Continue <ArrowRight aria-hidden="true" /></Button>
+            </> : pathwayIds.length > 0 ? <>
+              <p className="tiny-eyebrow">Your pathway</p>
+              <strong>{pathwayIds.length} learning experiences connected to your current focus.</strong>
+              <p>Use your pathway as a starting sequence, then adapt it as your professional question changes.</p>
+              <Button variant="outline" className="hero-next-action" onClick={() => scrollTo('pathway')}>View my pathway <ArrowRight aria-hidden="true" /></Button>
             </> : favouriteCourses.length > 0 ? <>
               <p className="tiny-eyebrow">Ready when you are</p>
               <strong>{favouriteCourses.length} starred {favouriteCourses.length === 1 ? 'course' : 'courses'} saved for later.</strong>
@@ -248,6 +275,8 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
       </section>
 
       <FindYourFocus favourites={favourites} onToggleFavourite={toggleFavourite} onOpenCourse={open} />
+      <MyLearningPathway courses={courses} favourites={favourites} onToggleFavourite={toggleFavourite} onOpenCourse={open} />
+      <MyPractice onOpenCourse={open} />
 
       {favouriteCourses.length > 0 && <CourseGroup
         title="Your Starred Courses"
@@ -277,21 +306,7 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
         onToggleFavourite={toggleFavourite}
       />
 
-      <section id="record" className="record-card capability-record" aria-labelledby="record-title">
-        <div className="record-heading">
-          <div><p className="tiny-eyebrow">My learning record</p><h2 id="record-title">The capacity you are building</h2><p>Completed learning is more than a score. This record highlights the professional capabilities each course develops.</p></div>
-          <Compass aria-hidden="true" />
-        </div>
-        {courses.filter((course) => course.status === 'Completed').map((course) => {
-          const score = correctResponseCount(states[course.id]);
-          const date = completionDate(states[course.id]);
-          return <article className="record-row capability-row" key={course.id}>
-            <div className="capability-row-main"><CourseMark course={course.id} size="record" /><div><strong>{course.title}</strong><span>{date ? `${date} · ` : ''}{score === undefined ? '' : `${score}/${course.checkCount} · `}SY2026–27 · Completed</span></div></div>
-            <ul aria-label={`${course.title} capabilities`}>{course.capabilities.map((capability) => <li key={capability}>{capability}</li>)}</ul>
-          </article>;
-        })}
-        {completed === 0 && <p className="record-empty">Complete a course and the capabilities you have developed will appear here.</p>}
-      </section>
+      <ProfessionalCapacityMap courses={courses} completionMeta={completionMeta} pathwayIds={pathwayIds} onOpenCourse={open} />
     </main>
   </>;
 }
