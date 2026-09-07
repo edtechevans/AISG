@@ -50,11 +50,9 @@ export function readLearningPathway(): LearningPathway | null {
   if (typeof window === 'undefined') return null;
   try {
     const parsed = JSON.parse(localStorage.getItem(PATHWAY_STORAGE_KEY) || 'null') as Partial<LearningPathway> | null;
-    if (!parsed || !Number.isFinite(parsed.sourceFocusCompletedAt)) return null;
-    const courseIds = cleanCourseIds(parsed.courseIds);
-    if (courseIds.length === 0) return null;
+    if (!parsed || !Number.isFinite(parsed.sourceFocusCompletedAt) || !Array.isArray(parsed.courseIds)) return null;
     return {
-      courseIds,
+      courseIds: cleanCourseIds(parsed.courseIds),
       sourceFocusCompletedAt: Number(parsed.sourceFocusCompletedAt),
       updatedAt: Number.isFinite(parsed.updatedAt) ? Number(parsed.updatedAt) : Date.now(),
     };
