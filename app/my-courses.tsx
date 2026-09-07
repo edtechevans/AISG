@@ -7,15 +7,13 @@ import { Progress } from '@/components/ui/progress';
 import PlatformHeader from '@/app/platform-header';
 import CourseMark from '@/app/course-mark';
 import FindYourFocus from '@/app/find-your-focus';
-import MyLearningPathway from '@/app/my-learning-pathway';
-import MyPractice from '@/app/my-practice';
-import ProfessionalCapacityMap from '@/app/professional-capacity-map';
 import { COURSE_BY_ID, COURSE_CATALOG, isCourseId, type CourseCatalogItem, type CourseId } from '@/lib/course-catalog';
 import { readLearningPathway } from '@/lib/learning-pathway';
 import { installStaticApi } from '@/pages/src/static-api';
 
 const TrainingApp = lazy(() => import('@/app/training-app'));
 const AiTrainingApp = lazy(() => import('@/app/ai-training-app'));
+const LearningSystemHome = lazy(() => import('@/app/learning-system-home'));
 
 export { COURSE_CATALOG } from '@/lib/course-catalog';
 
@@ -275,8 +273,16 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
       </section>
 
       <FindYourFocus favourites={favourites} onToggleFavourite={toggleFavourite} onOpenCourse={open} />
-      <MyLearningPathway courses={courses} favourites={favourites} onToggleFavourite={toggleFavourite} onOpenCourse={open} />
-      <MyPractice onOpenCourse={open} />
+      <Suspense fallback={<LearningSystemLoading />}>
+        <LearningSystemHome
+          courses={courses}
+          favourites={favourites}
+          completionMeta={completionMeta}
+          pathwayIds={pathwayIds}
+          onToggleFavourite={toggleFavourite}
+          onOpenCourse={open}
+        />
+      </Suspense>
 
       {favouriteCourses.length > 0 && <CourseGroup
         title="Your Starred Courses"
@@ -305,8 +311,6 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
         favourites={favourites}
         onToggleFavourite={toggleFavourite}
       />
-
-      <ProfessionalCapacityMap courses={courses} completionMeta={completionMeta} pathwayIds={pathwayIds} onOpenCourse={open} />
     </main>
   </>;
 }
@@ -374,6 +378,10 @@ function CourseCard({ course, onOpen, isFavourite, onToggleFavourite }: { course
       <Button className="primary-pill" onClick={() => onOpen(course.id)}>{course.status === 'Completed' ? 'Review' : course.status === 'In Progress' ? 'Continue' : 'Start'} <ArrowRight aria-hidden="true" /></Button>
     </div>
   </article>;
+}
+
+function LearningSystemLoading() {
+  return <section className="learning-system-section" aria-live="polite"><p className="tiny-eyebrow">Your learning</p><p className="record-empty">Preparing your pathway, practice and professional capacity…</p></section>;
 }
 
 function CourseLoading({ title }: { title: string }) {
