@@ -68,15 +68,16 @@ export default function PlatformHeader({
       <nav className="platform-nav platform-nav-desktop" aria-label="Learning platform navigation">
         <button className="nav-link nav-link-home" onClick={goHome}>Home</button>
         {homepageNavigation ? <>
-          <button className="nav-link nav-link-section" onClick={() => scrollToSection('find-your-focus')}>Find Your Focus</button>
+          <button className="nav-link nav-link-section" onClick={() => scrollToSection('pathway', 'find-your-focus')}>My Pathway</button>
           <button className="nav-link nav-link-section" onClick={() => scrollToSection('favourites', 'find-your-focus')}>Saved Learning</button>
           <button className="nav-link nav-link-section" onClick={() => scrollToSection('courses')}>Core Learning</button>
           <button className="nav-link nav-link-section" onClick={() => scrollToSection('explore')}>Build Capacity</button>
+          <button className="nav-link nav-link-section" onClick={() => scrollToSection('practice')}>My Practice</button>
         </> : <>
           {onCourseHome && <button className="nav-link" onClick={goCourseHome}>Course home</button>}
           <button className="nav-link" onClick={goCourses}>Courses</button>
         </>}
-        {onProgress && <button className="nav-link nav-link-learning" onClick={goProgress}>My learning</button>}
+        {onProgress && <button className="nav-link nav-link-learning" onClick={goProgress}>My Learning</button>}
         {adminHref && <a className="nav-link" href={adminHref}>Admin</a>}
         {userName && <><span className="user-name">{userName}</span><span className="avatar" aria-hidden="true">{initials}</span></>}
       </nav>
@@ -91,18 +92,20 @@ export default function PlatformHeader({
           <button onClick={goHome}>Home</button>
           {homepageNavigation ? <>
             <div className="mobile-nav-divider" />
-            <div className="mobile-nav-section-label">Learning</div>
-            <button onClick={() => scrollToSection('find-your-focus')}>Find Your Focus</button>
+            <div className="mobile-nav-section-label">Your learning</div>
+            <button onClick={() => scrollToSection('pathway', 'find-your-focus')}>My Pathway / Find Your Focus</button>
+            <button onClick={() => scrollToSection('practice')}>My Practice</button>
             <button onClick={() => scrollToSection('favourites', 'find-your-focus')}>Saved Learning</button>
             <button onClick={() => scrollToSection('courses')}>Core Learning</button>
             <button onClick={() => scrollToSection('explore')}>Build Capacity</button>
+            <button onClick={() => scrollToSection('record')}>My Learning / Capacity</button>
             <button onClick={goSearch}>Explore Learning / Search</button>
           </> : <>
             {onCourseHome && <button onClick={goCourseHome}>Course home</button>}
             <button onClick={goCourses}>All courses</button>
             <button onClick={goSearch}>Explore Learning / Search</button>
           </>}
-          {onProgress && <button onClick={goProgress}>My learning</button>}
+          {!homepageNavigation && onProgress && <button onClick={goProgress}>My learning</button>}
           {adminHref && <a href={adminHref} onClick={closeMobileMenu}>Admin</a>}
           {userName && <div className="mobile-nav-user">Signed in as {userName}</div>}
         </nav>
