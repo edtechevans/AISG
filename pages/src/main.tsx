@@ -10,6 +10,7 @@ import '../../app/favourites.css';
 import '../../app/course-marks.css';
 import '../../app/home-hero.css';
 import '../../app/learning-companion.css';
+import '../../app/modern-nav.css';
 import { installStaticApi } from './static-api';
 
 if (typeof window !== 'undefined') {
