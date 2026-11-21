@@ -194,7 +194,20 @@ export default function MyCoursesApp({ staticMode = false }: { staticMode?: bool
   }));
 
   if (route === 'safeguarding') {
-    return <Suspense fallback={<CourseLoading title={COURSE_BY_ID.safeguarding.title} />}><TrainingApp staticMode={browserMode} /></Suspense>;
+    const standalone = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('standalone') === '1';
+    return standalone ? <>
+      <style>{`
+        .safeguarding-standalone .platform-nav,
+        .safeguarding-standalone .mobile-nav,
+        .safeguarding-standalone .header-course-context,
+        .safeguarding-standalone #course-search-trigger,
+        .safeguarding-standalone .course-search-trigger { display: none !important; }
+        .safeguarding-standalone .app-header .brand-button { pointer-events: none; }
+      `}</style>
+      <div className="safeguarding-standalone">
+        <Suspense fallback={<CourseLoading title={COURSE_BY_ID.safeguarding.title} />}><TrainingApp staticMode={browserMode} /></Suspense>
+      </div>
+    </> : <Suspense fallback={<CourseLoading title={COURSE_BY_ID.safeguarding.title} />}><TrainingApp staticMode={browserMode} /></Suspense>;
   }
   if (isCourseId(route) && route !== 'safeguarding') {
     return <><PlatformHeader onPlatformHome={home} activeCourse={route} onCourse={open} onCourses={home} /><Suspense fallback={<CourseLoading title={COURSE_BY_ID[route].title} />}><AiTrainingApp key={route} onExit={home} course={route} /></Suspense></>;
