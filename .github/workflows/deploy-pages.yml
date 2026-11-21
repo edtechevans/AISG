@@ -64,6 +64,9 @@ jobs:
         with:
           path: pages-dist
 
+      - name: Allow Pages artifact to become available
+        run: sleep 20
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
