@@ -336,14 +336,14 @@ function App() {
       <div className="sg-choice-grid">
         <button type="button" className="sg-division-card" onClick={() => chooseDivision('elementary')}>
           <span className="sg-card-top"><span className="sg-number">01</span><span className="sg-arrow"><ArrowRight size={20}/></span></span>
-          <span className="sg-card-label">Ersha · Elementary School</span>
+          <span className="sg-card-label">Elementary Campus</span>
           <strong>Safeguarding our younger learners</strong>
           <span className="sg-card-desc">For PYP classroom teachers: younger children, disclosures, personal care, classroom routines, caregivers and excursions.</span>
           <span className="sg-card-foot"><BookOpenCheck size={16}/> Six chapters · 30 checks</span>
         </button>
         <button type="button" className="sg-division-card" onClick={() => chooseDivision('secondary')}>
           <span className="sg-card-top"><span className="sg-number">02</span><span className="sg-arrow"><ArrowRight size={20}/></span></span>
-          <span className="sg-card-label">Science Park · Secondary School</span>
+          <span className="sg-card-label">Secondary Campus</span>
           <strong>Safeguarding adolescents and young adults</strong>
           <span className="sg-card-desc">For MYP and DP classroom teachers: peer harm, advisory, online risks, professional boundaries, activities and China Trips.</span>
           <span className="sg-card-foot"><BookOpenCheck size={16}/> Six chapters · 30 checks</span>
