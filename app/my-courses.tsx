@@ -344,7 +344,7 @@ function CourseGroup({ title, eyebrow, description, courses, onOpen, favourites,
       <div><p className="tiny-eyebrow">{eyebrow}</p><h2 id={`group-${title.replaceAll(' ', '-').toLowerCase()}`}>{title}</h2><p>{description}</p></div>
       <span>{courses.length} {courses.length === 1 ? 'course' : 'courses'}</span>
     </div>
-    {isSavedLearning && courses.length === 0 ? <div className="record-empty rounded-[22px] border border-dashed border-navy/15 bg-white/60 px-5 py-4 sm:px-6" role="status">
+    {isSavedLearning && courses.length === 0 ? <div className="record-empty rounded-[22px] border border-dashed border-navy/15 bg-white/60 px-5 py-4 sm:px-6" aria-live="polite">
       <strong className="block text-sm font-semibold text-navy">Nothing saved yet</strong>
       <p className="mt-1 text-sm text-muted-foreground">Star learning to return to it here.</p>
     </div> : <div className="course-grid premium-course-grid">
