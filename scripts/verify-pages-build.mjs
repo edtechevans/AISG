@@ -13,6 +13,28 @@ function fail(message) {
 
 if (!fs.existsSync(htmlPath)) fail('pages-dist/index.html is missing.');
 
+const standaloneCourseHtmlPath = path.join(outputDir, 'safeguardingcourse', 'index.html');
+if (!fs.existsSync(standaloneCourseHtmlPath)) fail('safeguardingcourse/index.html is missing.');
+const standaloneCourseHtml = fs.readFileSync(standaloneCourseHtmlPath, 'utf8');
+if (!standaloneCourseHtml.includes('Safeguarding at AISG | Team Review')) {
+  fail('safeguardingcourse page title missing.');
+}
+if (!standaloneCourseHtml.includes('name="robots" content="noindex, nofollow, noarchive"')) {
+  fail('safeguardingcourse must be noindex/nofollow.');
+}
+const standaloneAssets = [...standaloneCourseHtml.matchAll(/(?:src|href)="([^"]+)"/g)]
+  .map((match) => match[1])
+  .filter((url) => url.startsWith('/'));
+for (const assetUrl of standaloneAssets) {
+  if (basePath !== '/' && !assetUrl.startsWith(basePath)) {
+    fail(`safeguardingcourse asset ${assetUrl} does not use base ${basePath}`);
+  }
+  const relativePath = assetUrl.slice(basePath === '/' ? 1 : basePath.length).split(/[?#]/)[0];
+  if (relativePath && !fs.existsSync(path.join(outputDir, relativePath))) {
+    fail(`safeguardingcourse asset ${assetUrl} is missing.`);
+  }
+}
+
 const safeguardingHtmlPath = path.join(outputDir, 'safeguarding', 'index.html');
 if (!fs.existsSync(safeguardingHtmlPath)) fail('standalone safeguarding/index.html is missing.');
 const safeguardingHtml = fs.readFileSync(safeguardingHtmlPath, 'utf8');
