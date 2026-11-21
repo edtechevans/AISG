@@ -86,7 +86,11 @@ function App() {
   const [acknowledged, setAcknowledged] = useState(false);
   const [answers, setAnswers] = useState<Record<string, number[]>>({});
   const [review, setReview] = useState<Review | null>(null);
-  const [handbook, setHandbook] = useState<Handbook | null>(null);
+  const [handbook, setHandbook] = useState<Handbook | null>(() => ({
+    name: 'AISG Student Safeguarding Handbook · Revised May 2026',
+    url: new URL('safeguarding-handbook.pdf', document.baseURI).toString(),
+    source: 'bundled',
+  }));
   const [bookSourceChecked, setBookSourceChecked] = useState(false);
   const [handbookOpen, setHandbookOpen] = useState(false);
   const [handbookPage, setHandbookPage] = useState(4);
@@ -366,7 +370,7 @@ function App() {
           <div className="sg-resource-eyebrow">Your source of truth</div><h2>AISG Student Safeguarding Handbook</h2>
           <p>May 2026 revision · 39 pages. The questions reference the handbook&apos;s printed page numbers.</p>
           <button type="button" className="sg-book-button" onClick={() => openPage(current.refs[0].page)}>{handbook ? 'Read handbook · open PDF' : bookSourceChecked ? 'Connect official handbook' : 'Checking handbook…'} <ArrowRight size={16}/></button>
-          <p className="sg-private"><LockKeyhole size={14}/>{handbook?.source === 'device' ? 'Your PDF is saved only in this browser for future visits.' : handbook ? 'Access to the handbook follows the hosting source permissions.' : 'The handbook is not uploaded to this public site.'}</p>
+          <p className="sg-private"><BookOpenCheck size={14}/> Official May 2026 handbook · Embedded directly from AISG&apos;s GitHub course.</p>
         </div>
         {stage !== 'finished' && <div className="sg-tip"><span>READING FOCUS</span><p>{current.reading}</p><button type="button" className="sg-inline-link" onClick={() => openPage(current.refs[0].page)}>Open starting page <ArrowRight size={14}/></button></div>}
         <div className="sg-safety"><ShieldCheck size={18}/><p>This learning activity does not receive confidential safeguarding reports. For a real concern, stop and follow AISG&apos;s current procedures.</p></div>
@@ -379,8 +383,8 @@ function App() {
       <button type="button" className="sg-modal-backdrop" aria-label="Close handbook viewer" onClick={() => setHandbookOpen(false)}/>
       <aside className="sg-handbook-drawer" aria-label="Handbook viewer">
         <div className="sg-drawer-header"><div><span>OFFICIAL SOURCE</span><h2>Student Safeguarding Handbook</h2></div><button className="sg-icon-button" type="button" aria-label="Close handbook" onClick={() => setHandbookOpen(false)}><X size={22}/></button></div>
-        <div className="sg-drawer-tools"><label htmlFor="sg-page">Page</label><select id="sg-page" value={handbookPage} onChange={(e) => setHandbookPage(Number(e.target.value))}>{Array.from({length:39},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select><button type="button" className="sg-secondary small" onClick={() => fileInput.current?.click()}><UploadCloud size={15}/> {handbook ? 'Replace PDF':'Choose PDF'}</button></div>
-        {handbook ? <><iframe key={handbook.url + '#' + handbookPage} className="sg-pdf-frame" title="AISG Student Safeguarding Handbook PDF viewer" src={handbook.url + '#page=' + handbookPage + '&view=FitH'}/><p className="sg-pdf-note">Source: {handbook.name}. Use the page selector above to jump to a handbook reference. If your organisation blocks embedding, <a target="_blank" rel="noreferrer" href={handbook.url + '#page=' + handbookPage}>open the PDF in a new tab</a>.</p></>
+        <div className="sg-drawer-tools"><label htmlFor="sg-page">Page</label><select id="sg-page" value={handbookPage} onChange={(e) => setHandbookPage(Number(e.target.value))}>{Array.from({length:39},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select>{handbook && <a className="sg-secondary small" target="_blank" rel="noreferrer" href={handbook.url + '#page=' + handbookPage}><BookOpen size={15}/> Open PDF</a>}</div>
+        {handbook ? <><iframe key={handbook.url + '#' + handbookPage} className="sg-pdf-frame" title="AISG Student Safeguarding Handbook PDF viewer" src={handbook.url + '#page=' + handbookPage + '&view=FitH'}/><p className="sg-pdf-note">Official AISG Student Safeguarding Handbook · May 2026. Use the page selector to jump to a referenced page. <a target="_blank" rel="noreferrer" href={handbook.url + '#page=' + handbookPage}>Open or save the full handbook</a>.</p></>
           : <div className="sg-empty-pdf"><BookOpen size={42}/><h3>Official handbook not connected</h3><p>The site is ready to display the PDF automatically, but an approved hosted copy must be linked before it can be offered to everyone. In the meantime, choose the handbook once on this device; it will be remembered here for subsequent visits.</p><button type="button" className="sg-primary" onClick={() => fileInput.current?.click()}><UploadCloud size={17}/> Choose official PDF once</button><small>This does not publish the handbook or upload it to the public site.</small></div>}
       </aside>
     </div>}
