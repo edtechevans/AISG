@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowLeft, ArrowRight, Award, BookOpen, BookOpenCheck, Check, CheckCircle2, ChevronLeft, ChevronRight, FileText, LockKeyhole, Printer, RotateCcw, ShieldAlert, ShieldCheck, UploadCloud, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, BookOpen, BookOpenCheck, Check, CheckCircle2, ChevronLeft, ChevronRight, FileText, LockKeyhole, Printer, RotateCcw, ShieldAlert, ShieldCheck, X } from 'lucide-react';
 import { chapters, questionsFor, validateBank, type Division, type Question } from './safeguarding-v2-data';
 import { forAttempt } from './safeguarding-v21-variants';
 import './safeguarding-v2.css';
@@ -127,7 +127,7 @@ function App() {
   const attempt = getAttempt(saved, chapter);
   const checks = useMemo(() => division ? questionsFor(division, chapter).map((q) => forAttempt(q, attempt)) : [], [division, chapter, attempt]);
   const currentQuestion = checks[Math.min(questionCursor, Math.max(0, checks.length - 1))];
-  const answered = checks.filter((q) => (answers[q.id] || []).length > 0).length;
+  const answered = checks.filter((q) => q.kind === 'order' ? (answers[q.id] || []).length === q.options.length : (answers[q.id] || []).length > 0).length;
   const count = saved.completed.length;
   const reading = division ? current.context[division] : null;
   const qualityIssues = validateBank();
@@ -423,7 +423,7 @@ function App() {
           <div className="sg-assessment-track"><span style={{width:(answered/checks.length*100)+'%'}} /></div>
           <nav className="sg-question-jump" aria-label="Assessment questions">
             {checks.map((q,i) => <button type="button" key={q.id} onClick={() => { setQuestionCursor(i); goTop(); }}
-              className={'sg-question-step' + (i===questionCursor?' active':'') + ((answers[q.id]||[]).length?' answered':'')}
+              className={'sg-question-step' + (i===questionCursor?' active':'') + ((answers[q.id]||[]).length === (q.kind==='order'?q.options.length:1) || (q.kind==='multi' && (answers[q.id]||[]).length>0)?' answered':'')}
               aria-current={i===questionCursor?'step':undefined} aria-label={`Question ${i+1}: ${(answers[q.id]||[]).length?'answered':'not answered'}`}>
               {(answers[q.id]||[]).length ? <Check size={15}/> : i+1}
             </button>)}
@@ -558,25 +558,42 @@ function Certificate({division,name,date}:{division:Division;name:string;date:st
   </div>;
 }
 
+
 function QuestionCard({question,number,attempt,answer,onChoose,onClear,onReference}:{
-  question:Question;number:number;attempt:number;answer:number[];onChoose:(idx:number)=>void;onClear:()=>void;onReference:()=>void;
+  question:Question;number:number;attempt:number;answer:number[];
+  onChoose:(idx:number)=>void;onClear:()=>void;onReference:()=>void;
 }) {
   const order = optionSequence(question,attempt);
-  const typeLabel = question.kind==='multi'?'Choose all that apply':question.kind==='order'?'Select actions in the correct order':'Choose one response';
-  return <article className="sg-question">
-    <div className="sg-question-top"><span>CHECK {String(number).padStart(2,'0')}</span><span>{typeLabel}</span>{question.critical && <span className="sg-critical"><ShieldCheck size={13}/> Critical</span>}</div>
-    <p className="sg-scenario">{question.scenario}</p><h3>{question.prompt}</h3>
-    {question.lookUp && <div className="sg-evidence-note"><BookOpenCheck size={16}/> Handbook lookup · Find the rule before choosing.</div>}
+  const typeLabel = question.kind==='multi'?'Select all that apply':question.kind==='order'?'Select the actions in sequence':'Select one response';
+  const isOrder = question.kind==='order';
+  return <fieldset className="sg-question" aria-describedby={'sg-scenario-'+question.id}>
+    <legend className="sg-question-top"><span>QUESTION {String(number).padStart(2,'0')}</span><span>{typeLabel}</span>
+      {question.critical && <span className="sg-critical"><ShieldCheck size={13}/> Critical decision</span>}</legend>
+    <p id={'sg-scenario-'+question.id} className="sg-scenario">{question.scenario}</p>
+    <h3>{question.prompt}</h3>
+    {question.lookUp && <p className="sg-evidence-note"><BookOpenCheck size={17}/> Handbook reference · Find the requirement before choosing.</p>}
+    {isOrder && <p className="sg-order-hint">Select each action in the order it should happen. Numbers show your sequence. Use Reset order to start again.</p>}
     <div className="sg-options">{order.map((idx,displayIndex)=>{
       const selected=answer.includes(idx);
-      return <button key={idx} type="button" className={'sg-option'+(selected?' selected':'')} aria-pressed={selected} onClick={()=>onChoose(idx)}>
-        <span className="sg-option-marker">{question.kind==='order'?(selected?String(answer.indexOf(idx)+1):'—'):(question.kind==='multi'?(selected?<Check size={15}/>:null):String.fromCharCode(65+displayIndex))}</span>
-        <span>{question.options[idx]}</span>
-      </button>;
+      const content=<><span className="sg-option-marker" aria-hidden="true">
+          {isOrder ? (selected ? String(answer.indexOf(idx)+1) : '—') :
+            question.kind==='multi' ? (selected ? <Check size={16}/> : null) : String.fromCharCode(65+displayIndex)}
+        </span><span>{question.options[idx]}</span></>;
+      return isOrder ?
+        <button key={idx} type="button" className={'sg-option'+(selected?' selected':'')}
+          aria-pressed={selected} aria-label={question.options[idx]+(selected?', position '+(answer.indexOf(idx)+1):', not yet selected')}
+          onClick={()=>onChoose(idx)}>{content}</button> :
+        <label key={idx} className={'sg-option'+(selected?' selected':'')}>
+          <input type={question.kind==='single'?'radio':'checkbox'} name={'sg-answer-'+question.id}
+            checked={selected} onChange={()=>onChoose(idx)} value={String(idx)}/>
+          {content}
+        </label>;
     })}</div>
-    <div className="sg-question-foot"><button type="button" className="sg-inline-link" onClick={onReference}><BookOpen size={14}/> Refer to {question.section}, p. {question.page}</button>
-      {question.kind==='order'&&answer.length>0&&<button type="button" className="sg-inline-link" onClick={onClear}><RotateCcw size={13}/> Reset order</button>}</div>
-  </article>;
+    <div className="sg-question-foot">
+      <button type="button" className="sg-inline-link" onClick={onReference}><BookOpen size={15}/> View {question.section} · p. {question.page}</button>
+      {isOrder&&answer.length>0&&<button type="button" className="sg-inline-link" onClick={onClear}><RotateCcw size={14}/> Reset order</button>}
+    </div>
+  </fieldset>;
 }
 
 createRoot(document.getElementById('root')!).render(<App/>);
