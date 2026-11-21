@@ -13,6 +13,28 @@ function fail(message) {
 
 if (!fs.existsSync(htmlPath)) fail('pages-dist/index.html is missing.');
 
+const safeguardingHtmlPath = path.join(outputDir, 'safeguarding', 'index.html');
+if (!fs.existsSync(safeguardingHtmlPath)) fail('standalone safeguarding/index.html is missing.');
+const safeguardingHtml = fs.readFileSync(safeguardingHtmlPath, 'utf8');
+if (!safeguardingHtml.includes('Safeguarding at AISG | Team Review')) {
+  fail('standalone safeguarding page title is missing.');
+}
+if (!safeguardingHtml.includes('name="robots" content="noindex, nofollow, noarchive"')) {
+  fail('standalone safeguarding review must be noindex/nofollow.');
+}
+const safeguardingAssets = [...safeguardingHtml.matchAll(/(?:src|href)="([^"]+)"/g)]
+  .map((match) => match[1])
+  .filter((url) => url.startsWith('/'));
+for (const assetUrl of safeguardingAssets) {
+  if (basePath !== '/' && !assetUrl.startsWith(basePath)) {
+    fail(`safeguarding asset path ${assetUrl} does not use the base ${basePath}`);
+  }
+  const relativePath = assetUrl.slice(basePath === '/' ? 1 : basePath.length).split(/[?#]/)[0];
+  if (relativePath && !fs.existsSync(path.join(outputDir, relativePath))) {
+    fail(`safeguarding asset ${assetUrl} is missing.`);
+  }
+}
+
 const html = fs.readFileSync(htmlPath, 'utf8');
 if (!html.includes('<title>AISG My Courses</title>')) {
   fail('the published document title is not AISG My Courses.');
