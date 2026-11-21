@@ -24,6 +24,7 @@ export default defineConfig({
       input: {
         main: path.join(projectRoot, 'pages/index.html'),
         safeguarding: path.join(projectRoot, 'pages/safeguarding/index.html'),
+        safeguardingcourse: path.join(projectRoot, 'pages/safeguardingcourse/index.html'),
       },
     },
   },
