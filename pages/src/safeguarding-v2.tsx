@@ -329,7 +329,7 @@ function App() {
     {qualityIssues.length > 0 && <div className="sg-quality-warning">Question-bank integrity check: {qualityIssues.join('; ')}</div>}
 
     {!division ? <main id="sg-main" className="sg-landing">
-      <div className="sg-landing-eyebrow"><ShieldCheck size={16} /> AISG professional responsibility · SY2026–27</div>
+      <div className="sg-landing-eyebrow"><ShieldCheck size={16} /> AISG professional responsibility</div>
       <h1>Know the handbook.<br /><em>Protect the student.</em></h1>
       <p className="sg-landing-copy">Safeguarding is more than completing a quiz. Read our handbook, practise making sound decisions, and check your understanding of what protecting children looks like at AISG.</p>
       <div className="sg-rule"><span>1. Read</span><ChevronRight size={16}/><span>2. Find the policy</span><ChevronRight size={16}/><span>3. Apply</span><ChevronRight size={16}/><span>4. Check</span></div>
@@ -522,7 +522,7 @@ function Certificate({division,name,date}:{division:Division;name:string;date:st
         <span>AMERICAN INTERNATIONAL SCHOOL OF GUANGZHOU</span>
       </div>
       <div className="sg-cert-ornament"><ShieldCheck size={31}/></div>
-      <p className="sg-cert-overline">Professional Learning · School Year 2026–27</p>
+      <p className="sg-cert-overline">Professional Learning</p>
       <h2>Certificate of Completion</h2>
       <p className="sg-cert-presented">Presented to</p>
       <strong className="sg-cert-name">{name || 'Your name here'}</strong>
