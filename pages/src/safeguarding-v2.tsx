@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowLeft, ArrowRight, BookOpen, BookOpenCheck, Check, CheckCircle2, ChevronRight, ClipboardCheck, FileText, LockKeyhole, RotateCcw, ShieldCheck, UploadCloud, X } from 'lucide-react';
-import { allQuestions, chapters, questionsFor, validateBank, type Chapter, type Division, type Question } from './safeguarding-v2-data';
+import { ArrowLeft, ArrowRight, BookOpen, BookOpenCheck, Check, CheckCircle2, ChevronRight, FileText, LockKeyhole, RotateCcw, ShieldCheck, UploadCloud, X } from 'lucide-react';
+import { chapters, questionsFor, validateBank, type Division, type Question } from './safeguarding-v2-data';
 import './safeguarding-v2.css';
 
 type Stage = 'reading' | 'checking' | 'review' | 'finished';
@@ -49,7 +49,7 @@ function App() {
   const [division, setDivision] = useState<Division | null>(initialDivision);
   const [saved, setSaved] = useState<SavedProgress>(() => initialDivision() ? getSaved(initialDivision()!) : { completed: [], lastChapter: 1, tries: {} });
   const [chapter, setChapter] = useState(() => initialDivision() ? getSaved(initialDivision()!).lastChapter : 1);
-  const [stage, setStage] = useState<Stage>('reading');
+  const [stage, setStage] = useState<Stage>(() => initialDivision() && getSaved(initialDivision()!).completed.length === 6 ? 'finished' : 'reading');
   const [acknowledged, setAcknowledged] = useState(false);
   const [answers, setAnswers] = useState<Record<string, number[]>>({});
   const [review, setReview] = useState<Review | null>(null);
@@ -57,7 +57,7 @@ function App() {
   const [handbookOpen, setHandbookOpen] = useState(false);
   const [handbookPage, setHandbookPage] = useState(4);
   const fileInput = useRef<HTMLInputElement>(null);
-  const contentTop = useRef<HTMLDivElement>(null);
+  const contentTop = useRef<HTMLElement>(null);
   const current = chapters[chapter - 1];
   const checks = useMemo(() => division ? questionsFor(division, chapter) : [], [division, chapter]);
   const attempt = (saved.tries[chapter] || 0) + 1;
@@ -250,8 +250,8 @@ function App() {
           </div>
           <div className="sg-section-title sg-lower"><span className="sg-idx">02</span><div><h2>Carry these ideas into practice</h2><p>These are reminders, not a substitute for the official guidance.</p></div></div>
           <div className="sg-principles">{current.principles.map((text, i) => <div key={text}><span>0{i+1}</span><p>{text}</p></div>)}</div>
-          <label className="sg-acknowledge"><input type="checkbox" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} /><span><b>I have consulted the relevant sections of the official handbook.</b><small>I understand this check will ask me to apply the policy, not simply recognise a definition.</small></span></label>
-          <div className="sg-actions"><button type="button" className="sg-primary" disabled={!acknowledged} onClick={() => { setStage('checking'); goTop(); }}>Check my understanding <ArrowRight size={18}/></button></div>
+          <label className="sg-acknowledge"><input type="checkbox" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} /><span><b>I have consulted the relevant sections of the official handbook.</b><small>Load the handbook PDF locally and review the assigned pages before you start this chapter check.</small></span></label>
+          <div className="sg-actions"><button type="button" className="sg-primary" disabled={!acknowledged || !handbook} onClick={() => { setStage('checking'); goTop(); }}>Check my understanding <ArrowRight size={18}/></button></div>
         </div>}
 
         {stage === 'checking' && <div className="sg-section-block">
@@ -271,7 +271,7 @@ function App() {
               <p>{review.pass ? 'You demonstrated the required understanding for this chapter.' : 'Review the references below. Every critical safeguarding decision needs to be correct.'}</p></div>
           </div>
           <h2 className="sg-feedback-title">Review the evidence</h2>
-          {review.questions.map(({question,correct,answer},i) => <div key={question.id} className="sg-feedback-item">
+          {review.questions.map(({question,correct},i) => <div key={question.id} className="sg-feedback-item">
             <div className="sg-feedback-heading"><span className={correct?'sg-ok':'sg-attention'}>{correct?<CheckCircle2 size={17}/>:<BookOpen size={17}/>} {correct?'Understood':'Revisit'}</span><span>Question {i+1}</span></div>
             <h3>{question.prompt}</h3>
             <p>{question.why}</p>
