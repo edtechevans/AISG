@@ -13,6 +13,19 @@ function fail(message) {
 
 if (!fs.existsSync(htmlPath)) fail('pages-dist/index.html is missing.');
 
+const officialHandbookPath = path.join(outputDir, 'safeguarding-handbook.pdf');
+if (!fs.existsSync(officialHandbookPath)) fail('official safeguarding-handbook.pdf is missing from the published website.');
+const handbookStat = fs.statSync(officialHandbookPath);
+if (handbookStat.size < 100_000) fail('published safeguarding handbook PDF is unexpectedly small.');
+const handbookMagic = Buffer.alloc(5);
+const handbookHandle = fs.openSync(officialHandbookPath, 'r');
+try {
+  fs.readSync(handbookHandle, handbookMagic, 0, 5, 0);
+} finally {
+  fs.closeSync(handbookHandle);
+}
+if (handbookMagic.toString('utf8') !== '%PDF-') fail('published safeguarding handbook is not a PDF.');
+
 const standaloneCourseHtmlPath = path.join(outputDir, 'safeguardingcourse', 'index.html');
 if (!fs.existsSync(standaloneCourseHtmlPath)) fail('safeguardingcourse/index.html is missing.');
 const standaloneCourseHtml = fs.readFileSync(standaloneCourseHtmlPath, 'utf8');
