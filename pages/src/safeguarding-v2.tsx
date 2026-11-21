@@ -7,9 +7,42 @@ import './safeguarding-v2.css';
 type Stage = 'reading' | 'checking' | 'review' | 'finished';
 type SavedProgress = { completed: number[]; lastChapter: number; tries: Record<number, number> };
 type Review = { score: number; pass: boolean; questions: { question: Question; correct: boolean; answer: number[] }[] };
-type Handbook = { name: string; url: string };
+type Handbook = { name: string; url: string; source: 'bundled' | 'approved-link' | 'device' };
 const titles: Record<Division, string> = { elementary: 'Elementary', secondary: 'Secondary' };
 const saveKey = (division: Division) => 'aisg-safeguarding-v2-review-' + division;
+const handbookStorageName = 'aisg-safeguarding-handbook';
+const bookFilename = 'safeguarding-handbook.pdf';
+
+function rememberHandbook(file: File): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof indexedDB === 'undefined') { resolve(); return; }
+    const request = indexedDB.open(handbookStorageName, 1);
+    request.onupgradeneeded = () => request.result.createObjectStore('pdf');
+    request.onerror = () => resolve();
+    request.onsuccess = () => {
+      const database = request.result;
+      const transaction = database.transaction('pdf', 'readwrite');
+      transaction.objectStore('pdf').put(file, 'official');
+      transaction.oncomplete = () => { database.close(); resolve(); };
+      transaction.onerror = () => { database.close(); resolve(); };
+    };
+  });
+}
+function recallHandbook(): Promise<File | null> {
+  return new Promise((resolve) => {
+    if (typeof indexedDB === 'undefined') { resolve(null); return; }
+    const request = indexedDB.open(handbookStorageName, 1);
+    request.onupgradeneeded = () => request.result.createObjectStore('pdf');
+    request.onerror = () => resolve(null);
+    request.onsuccess = () => {
+      const database = request.result;
+      const transaction = database.transaction('pdf', 'readonly');
+      const get = transaction.objectStore('pdf').get('official');
+      get.onsuccess = () => { resolve(get.result instanceof Blob ? new File([get.result], get.result.name || 'AISG Student Safeguarding Handbook.pdf', { type: 'application/pdf' }) : null); database.close(); };
+      get.onerror = () => { resolve(null); database.close(); };
+    };
+  });
+}
 function getSaved(division: Division): SavedProgress {
   try {
     const raw = localStorage.getItem(saveKey(division));
@@ -54,6 +87,7 @@ function App() {
   const [answers, setAnswers] = useState<Record<string, number[]>>({});
   const [review, setReview] = useState<Review | null>(null);
   const [handbook, setHandbook] = useState<Handbook | null>(null);
+  const [bookSourceChecked, setBookSourceChecked] = useState(false);
   const [handbookOpen, setHandbookOpen] = useState(false);
   const [handbookPage, setHandbookPage] = useState(4);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -91,7 +125,39 @@ function App() {
   }, []);
 
   useEffect(() => {
-    return () => { if (handbook?.url) URL.revokeObjectURL(handbook.url); };
+    let cancelled = false;
+    async function loadHandbook() {
+      try {
+        const configResponse = await fetch(new URL('safeguarding-handbook-source.json', document.baseURI).toString(), { cache: 'no-store' });
+        if (configResponse.ok) {
+          const config = await configResponse.json() as { pdfUrl?: string; title?: string };
+          const address = config.pdfUrl?.trim() || '';
+          if (address.startsWith('https://') && !cancelled) {
+            setHandbook({ name: config.title || 'AISG Student Safeguarding Handbook', url: address, source: 'approved-link' });
+            setBookSourceChecked(true);
+            return;
+          }
+        }
+      } catch { /* Hosted handbook configuration is optional. */ }
+      try {
+        const url = new URL(bookFilename, document.baseURI).toString();
+        const response = await fetch(url, { method: 'HEAD' });
+        if (response.ok && /application\/pdf/i.test(response.headers.get('content-type') || '') && !cancelled) {
+          setHandbook({ name: 'AISG Student Safeguarding Handbook', url, source: 'bundled' });
+          setBookSourceChecked(true);
+          return;
+        }
+      } catch { /* A handbook has not been approved for public hosting. */ }
+      const file = await recallHandbook();
+      if (!cancelled && file) setHandbook({ name: file.name, url: URL.createObjectURL(file), source: 'device' });
+      if (!cancelled) setBookSourceChecked(true);
+    }
+    void loadHandbook();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    return () => { if (handbook?.source === 'device') URL.revokeObjectURL(handbook.url); };
   }, [handbook]);
 
   function chooseDivision(next: Division) {
@@ -158,7 +224,8 @@ function App() {
   function setLocalFile(file?: File) {
     if (!file) return;
     if (file.type && file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) return;
-    setHandbook({ name: file.name, url: URL.createObjectURL(file) });
+    setHandbook({ name: file.name, url: URL.createObjectURL(file), source: 'device' });
+    void rememberHandbook(file);
     setHandbookOpen(true);
   }
 
@@ -251,7 +318,7 @@ function App() {
           </div>
           <div className="sg-section-title sg-lower"><span className="sg-idx">02</span><div><h2>Carry these ideas into practice</h2><p>These are reminders, not a substitute for the official guidance.</p></div></div>
           <div className="sg-principles">{current.principles.map((text, i) => <div key={text}><span>0{i+1}</span><p>{text}</p></div>)}</div>
-          <label className="sg-acknowledge" htmlFor="sg-read-confirmation"><input id="sg-read-confirmation" type="checkbox" aria-label="I have consulted the official AISG handbook" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} /><span><b>I have consulted the relevant sections of the official handbook.</b><small>Load the handbook PDF locally and review the assigned pages before you start this chapter check.</small></span></label>
+          <label className="sg-acknowledge" htmlFor="sg-read-confirmation"><input id="sg-read-confirmation" type="checkbox" aria-label="I have consulted the official AISG handbook" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} /><span><b>I have consulted the relevant sections of the official handbook.</b><small>Open the official PDF at the pages above, then confirm you have read the required sections.</small></span></label>
           <div className="sg-actions"><button type="button" className="sg-primary" disabled={!acknowledged || !handbook} onClick={() => { setStage('checking'); goTop(); }}>Check my understanding <ArrowRight size={18}/></button></div>
         </div>}
 
@@ -298,8 +365,8 @@ function App() {
           <div className="sg-resource-icon"><BookOpen size={24}/></div>
           <div className="sg-resource-eyebrow">Your source of truth</div><h2>AISG Student Safeguarding Handbook</h2>
           <p>May 2026 revision · 39 pages. The questions reference the handbook&apos;s printed page numbers.</p>
-          <button type="button" className="sg-book-button" onClick={() => handbook ? openPage(current.refs[0].page) : fileInput.current?.click()}>{handbook ? 'Open handbook' : 'Select handbook PDF'} <ArrowRight size={16}/></button>
-          <p className="sg-private"><LockKeyhole size={14}/> The PDF remains on your device. Nothing is uploaded to this public site.</p>
+          <button type="button" className="sg-book-button" onClick={() => openPage(current.refs[0].page)}>{handbook ? 'Read handbook · open PDF' : bookSourceChecked ? 'Connect official handbook' : 'Checking handbook…'} <ArrowRight size={16}/></button>
+          <p className="sg-private"><LockKeyhole size={14}/>{handbook?.source === 'device' ? 'Your PDF is saved only in this browser for future visits.' : handbook ? 'Access to the handbook follows the hosting source permissions.' : 'The handbook is not uploaded to this public site.'}</p>
         </div>
         {stage !== 'finished' && <div className="sg-tip"><span>READING FOCUS</span><p>{current.reading}</p><button type="button" className="sg-inline-link" onClick={() => openPage(current.refs[0].page)}>Open starting page <ArrowRight size={14}/></button></div>}
         <div className="sg-safety"><ShieldCheck size={18}/><p>This learning activity does not receive confidential safeguarding reports. For a real concern, stop and follow AISG&apos;s current procedures.</p></div>
@@ -313,8 +380,8 @@ function App() {
       <aside className="sg-handbook-drawer" aria-label="Handbook viewer">
         <div className="sg-drawer-header"><div><span>OFFICIAL SOURCE</span><h2>Student Safeguarding Handbook</h2></div><button className="sg-icon-button" type="button" aria-label="Close handbook" onClick={() => setHandbookOpen(false)}><X size={22}/></button></div>
         <div className="sg-drawer-tools"><label htmlFor="sg-page">Page</label><select id="sg-page" value={handbookPage} onChange={(e) => setHandbookPage(Number(e.target.value))}>{Array.from({length:39},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select><button type="button" className="sg-secondary small" onClick={() => fileInput.current?.click()}><UploadCloud size={15}/> {handbook ? 'Replace PDF':'Choose PDF'}</button></div>
-        {handbook ? <><iframe className="sg-pdf-frame" title="AISG Student Safeguarding Handbook PDF viewer" src={handbook.url + '#page=' + handbookPage + '&view=FitH'}/><p className="sg-pdf-note">Loaded locally: {handbook.name}. Page navigation depends on your browser&apos;s PDF viewer. <a target="_blank" rel="noreferrer" href={handbook.url + '#page=' + handbookPage}>Open in a separate tab</a>.</p></>
-          : <div className="sg-empty-pdf"><BookOpen size={42}/><h3>Open your official handbook</h3><p>Select the current AISG Student Safeguarding Handbook PDF from your computer. It will open in this side panel without being uploaded to GitHub or a server.</p><button type="button" className="sg-primary" onClick={() => fileInput.current?.click()}><UploadCloud size={17}/> Choose a PDF</button><small>Printed page {handbookPage} is ready to view once a PDF is selected.</small></div>}
+        {handbook ? <><iframe key={handbook.url + '#' + handbookPage} className="sg-pdf-frame" title="AISG Student Safeguarding Handbook PDF viewer" src={handbook.url + '#page=' + handbookPage + '&view=FitH'}/><p className="sg-pdf-note">Source: {handbook.name}. Use the page selector above to jump to a handbook reference. If your organisation blocks embedding, <a target="_blank" rel="noreferrer" href={handbook.url + '#page=' + handbookPage}>open the PDF in a new tab</a>.</p></>
+          : <div className="sg-empty-pdf"><BookOpen size={42}/><h3>Official handbook not connected</h3><p>The site is ready to display the PDF automatically, but an approved hosted copy must be linked before it can be offered to everyone. In the meantime, choose the handbook once on this device; it will be remembered here for subsequent visits.</p><button type="button" className="sg-primary" onClick={() => fileInput.current?.click()}><UploadCloud size={17}/> Choose official PDF once</button><small>This does not publish the handbook or upload it to the public site.</small></div>}
       </aside>
     </div>}
   </div>;
