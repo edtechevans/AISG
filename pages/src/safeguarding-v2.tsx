@@ -163,7 +163,8 @@ function App() {
   }
 
   const brand = <div className="sg-brand">
-    <img src={import.meta.env.BASE_URL + 'aisg-logo.png'} alt="AISG" />
+    {/* oxlint-disable-next-line next/no-img-element -- The GitHub Pages build uses an AISG logo from the local public directory. */}
+    <img src="aisg-logo.png" alt="AISG" />
     <div><strong>Student Safeguarding</strong><span>AISG · Handbook-led learning</span></div>
   </div>;
 
@@ -250,7 +251,7 @@ function App() {
           </div>
           <div className="sg-section-title sg-lower"><span className="sg-idx">02</span><div><h2>Carry these ideas into practice</h2><p>These are reminders, not a substitute for the official guidance.</p></div></div>
           <div className="sg-principles">{current.principles.map((text, i) => <div key={text}><span>0{i+1}</span><p>{text}</p></div>)}</div>
-          <label className="sg-acknowledge"><input type="checkbox" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} /><span><b>I have consulted the relevant sections of the official handbook.</b><small>Load the handbook PDF locally and review the assigned pages before you start this chapter check.</small></span></label>
+          <label className="sg-acknowledge" htmlFor="sg-read-confirmation"><input id="sg-read-confirmation" type="checkbox" aria-label="I have consulted the official AISG handbook" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} /><span><b>I have consulted the relevant sections of the official handbook.</b><small>Load the handbook PDF locally and review the assigned pages before you start this chapter check.</small></span></label>
           <div className="sg-actions"><button type="button" className="sg-primary" disabled={!acknowledged || !handbook} onClick={() => { setStage('checking'); goTop(); }}>Check my understanding <ArrowRight size={18}/></button></div>
         </div>}
 
@@ -285,7 +286,7 @@ function App() {
           <div className="sg-finish-mark"><ShieldCheck size={35}/></div>
           <p className="sg-finish-kicker">{titles[division]} pathway · Review complete</p>
           <h1>Safeguarding begins with what we do next.</h1>
-          <p>You've reviewed six chapters and completed thirty handbook-grounded checks. Keep the handbook available and use AISG's current safeguarding reporting procedures whenever a real concern arises.</p>
+          <p>You&apos;ve reviewed six chapters and completed thirty handbook-grounded checks. Keep the handbook available and use AISG&apos;s current safeguarding reporting procedures whenever a real concern arises.</p>
           <div className="sg-finish-stats"><span><b>06</b><small>Chapters</small></span><span><b>30</b><small>Checks</small></span><span><b>100%</b><small>Chapters mastered</small></span></div>
           <p className="sg-note-strong">This is a browser-based review, not an authorised completion certificate or an official employee record. The Safeguarding Team must approve final content and assessment settings.</p>
           <button className="sg-secondary" type="button" onClick={()=>selectChapter(1)}>Revisit the handbook and course <ArrowLeft size={16}/></button>
@@ -296,7 +297,7 @@ function App() {
         <div className="sg-resource-card">
           <div className="sg-resource-icon"><BookOpen size={24}/></div>
           <div className="sg-resource-eyebrow">Your source of truth</div><h2>AISG Student Safeguarding Handbook</h2>
-          <p>May 2026 revision · 39 pages. The questions reference the handbook's printed page numbers.</p>
+          <p>May 2026 revision · 39 pages. The questions reference the handbook&apos;s printed page numbers.</p>
           <button type="button" className="sg-book-button" onClick={() => handbook ? openPage(current.refs[0].page) : fileInput.current?.click()}>{handbook ? 'Open handbook' : 'Select handbook PDF'} <ArrowRight size={16}/></button>
           <p className="sg-private"><LockKeyhole size={14}/> The PDF remains on your device. Nothing is uploaded to this public site.</p>
         </div>
@@ -312,7 +313,7 @@ function App() {
       <aside className="sg-handbook-drawer" aria-label="Handbook viewer">
         <div className="sg-drawer-header"><div><span>OFFICIAL SOURCE</span><h2>Student Safeguarding Handbook</h2></div><button className="sg-icon-button" type="button" aria-label="Close handbook" onClick={() => setHandbookOpen(false)}><X size={22}/></button></div>
         <div className="sg-drawer-tools"><label htmlFor="sg-page">Page</label><select id="sg-page" value={handbookPage} onChange={(e) => setHandbookPage(Number(e.target.value))}>{Array.from({length:39},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select><button type="button" className="sg-secondary small" onClick={() => fileInput.current?.click()}><UploadCloud size={15}/> {handbook ? 'Replace PDF':'Choose PDF'}</button></div>
-        {handbook ? <><iframe className="sg-pdf-frame" title={'AISG Student Safeguarding Handbook, page '+handbookPage} src={handbook.url + '#page=' + handbookPage + '&view=FitH'}/><p className="sg-pdf-note">Loaded locally: {handbook.name}. Page navigation depends on your browser's PDF viewer. <a target="_blank" rel="noreferrer" href={handbook.url + '#page=' + handbookPage}>Open in a separate tab</a>.</p></>
+        {handbook ? <><iframe className="sg-pdf-frame" title="AISG Student Safeguarding Handbook PDF viewer" src={handbook.url + '#page=' + handbookPage + '&view=FitH'}/><p className="sg-pdf-note">Loaded locally: {handbook.name}. Page navigation depends on your browser&apos;s PDF viewer. <a target="_blank" rel="noreferrer" href={handbook.url + '#page=' + handbookPage}>Open in a separate tab</a>.</p></>
           : <div className="sg-empty-pdf"><BookOpen size={42}/><h3>Open your official handbook</h3><p>Select the current AISG Student Safeguarding Handbook PDF from your computer. It will open in this side panel without being uploaded to GitHub or a server.</p><button type="button" className="sg-primary" onClick={() => fileInput.current?.click()}><UploadCloud size={17}/> Choose a PDF</button><small>Printed page {handbookPage} is ready to view once a PDF is selected.</small></div>}
       </aside>
     </div>}
