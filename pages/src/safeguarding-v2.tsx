@@ -112,7 +112,7 @@ function App() {
   const focusReturnRef = useRef<HTMLElement | null>(null);
   const [review, setReview] = useState<Review | null>(null);
   const [handbook, setHandbook] = useState<Handbook | null>(() => ({
-    name: 'AISG Student Safeguarding Handbook · Revised May 2026',
+    name: 'AISG Student Safeguarding Handbook',
     url: new URL('safeguarding-handbook.pdf', document.baseURI).toString(),
     source: 'bundled',
   }));
@@ -475,9 +475,9 @@ function App() {
         <div className="sg-resource-card">
           <div className="sg-resource-icon"><BookOpen size={24}/></div>
           <div className="sg-resource-eyebrow">Your source of truth</div><h2>AISG Student Safeguarding Handbook</h2>
-          <p>May 2026 revision · 39 pages. The questions reference the handbook&apos;s printed page numbers.</p>
+          <p>39 pages. The questions reference the handbook&apos;s printed page numbers.</p>
           <button type="button" className="sg-book-button" onClick={() => openPage(current.refs[0].page)}>{handbook ? 'Read handbook · open PDF' : bookSourceChecked ? 'Connect official handbook' : 'Checking handbook…'} <ArrowRight size={16}/></button>
-          <p className="sg-private"><BookOpenCheck size={14}/> Official May 2026 handbook · Embedded directly from AISG&apos;s GitHub course.</p>
+          <p className="sg-private"><BookOpenCheck size={14}/> Official AISG handbook · Embedded directly from the course website.</p>
         </div>
         {stage !== 'finished' && <div className="sg-tip"><span>READING FOCUS</span><p>{current.reading}</p><button type="button" className="sg-inline-link" onClick={() => openPage(current.refs[0].page)}>Open starting page <ArrowRight size={14}/></button></div>}
         <div className="sg-safety"><ShieldCheck size={18}/><p>This training website does not receive confidential safeguarding reports. If you have a real concern, follow AISG&apos;s current safeguarding procedures.</p></div>
@@ -499,7 +499,7 @@ function App() {
           {handbook ? <><iframe key={handbook.url + '#' + handbookPage} className="sg-pdf-frame"
             title="AISG Student Safeguarding Handbook PDF viewer"
             src={handbook.url + '#page=' + handbookPage + '&view=FitH'}/>
-            <p className="sg-pdf-note">Page {handbookPage} · May 2026. The course remains usable alongside this viewer on desktop. <a href={handbook.url + '#page=' + handbookPage} target="_blank" rel="noreferrer">Open the handbook in a separate tab</a>.</p></>
+            <p className="sg-pdf-note">Page {handbookPage}. The course remains usable alongside this viewer on desktop. <a href={handbook.url + '#page=' + handbookPage} target="_blank" rel="noreferrer">Open the handbook in a separate tab</a>.</p></>
             : <div className="sg-empty-pdf"><BookOpen size={42}/><h3>Handbook unavailable</h3><p>Try opening the PDF in a separate tab. If it remains unavailable, contact AISG support before continuing.</p></div>}
         </aside>
       </div>}
@@ -529,7 +529,7 @@ function Certificate({division,name,date}:{division:Division;name:string;date:st
       <p className="sg-cert-for">for completing the</p>
       <h3>AISG Student Safeguarding · {titles[division]} Pathway</h3>
       <p className="sg-cert-description">Six handbook-led chapters · Thirty understanding checks<br/>Relevant to AISG classroom teachers and student safety.</p>
-      <div className="sg-cert-date">Completed {formatted} <span>•</span> Handbook revision May 2026</div>
+      <div className="sg-cert-date">Completed {formatted}</div>
       <div className="sg-cert-foot">Safeguarding Team review edition · Self-generated browser completion record · Not verified official staff certification</div>
     </div>
   </div>;
