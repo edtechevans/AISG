@@ -196,8 +196,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 /* V2.1 educator usability: readable typography, strong contrast and uncluttered controls */
 .sg-topbar{height:78px}
 .sg-topright{flex-wrap:wrap;justify-content:flex-end}
-.sg-report-trigger{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:10px 15px;border-radius:10px;border:1px solid #b71132;color:#a31330;background:#fff;font-weight:800;font-size:13px}
-.sg-report-trigger:hover{background:#fff0f4}
 .sg-landing-copy,.sg-chapter-intro{font-size:16px;line-height:1.8;color:#405b74}
 .sg-card-label{font-size:12px;color:#526c83}
 .sg-card-desc{font-size:15px;color:#405e78}
@@ -281,21 +279,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .sg-book-shell.mobile .sg-drawer-header{padding:19px 18px}
 .sg-book-shell.mobile .sg-pdf-frame{min-height:0}
 
-/* Reporting help is always available but never accepts confidential data */
-.sg-report-overlay{position:fixed;inset:0;z-index:110;display:flex;justify-content:center;align-items:center;padding:18px}
-.sg-report-dialog{position:relative;z-index:1;width:min(630px,100%);max-height:min(90dvh,850px);overflow:auto;padding:30px;background:#fff;border-radius:18px;box-shadow:0 24px 75px rgba(0,0,0,.24)}
-.sg-report-dialog-top{display:flex;align-items:start;justify-content:space-between;color:#ac1733}
-.sg-report-eyebrow{text-transform:uppercase;letter-spacing:.09em;color:#a61834;font-size:12px;font-weight:850;margin:15px 0 8px}
-.sg-report-dialog h2{font-size:27px;letter-spacing:-.04em;line-height:1.2;margin:0;color:#103b63}
-.sg-report-dialog>p{font-size:15px;line-height:1.75;color:#435d77}
-.sg-report-steps{display:grid;gap:12px;margin:20px 0}
-.sg-report-steps>div{border-radius:12px;border:1px solid #dae5ee;background:#f7fafc;padding:15px 17px}
-.sg-report-steps b{font-size:15px;color:#143d61}
-.sg-report-steps p{font-size:14px;line-height:1.7;color:#466079;margin:8px 0 0}
-.sg-report-dialog .sg-report-warning{padding:13px;border-left:3px solid #a81632;background:#fff6f7;color:#7a3441;font-weight:700;font-size:13px}
-.sg-report-links{display:flex;gap:12px;flex-wrap:wrap}
-.sg-report-links a{color:#a41534;font-weight:800;font-size:13px;display:inline-flex;align-items:center;gap:5px;text-decoration:none;padding:8px 0}
-.sg-report-links a:hover{text-decoration:underline}
 
 /* Certificate preview and browser-native PDF export */
 .sg-certificate-controls{display:flex;flex-direction:column;gap:10px;margin:36px auto 24px;padding:22px 25px;text-align:left;max-width:690px;border:1px solid #dbe6ef;background:#fff;border-radius:14px}
@@ -334,7 +317,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
   .sg-course.with-handbook{grid-template-columns:1fr}
   .sg-topright{gap:7px}
   .sg-draft{display:none}
-  .sg-report-trigger{min-height:38px;padding:8px 10px;font-size:12px}
   .sg-landing h1{font-size:clamp(42px,8vw,78px)}
   .sg-landing-copy,.sg-chapter-intro{font-size:15px}
 }
@@ -344,8 +326,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
   .sg-brand div{padding-left:9px}
   .sg-brand span{display:none}
   .sg-brand strong{font-size:12px}
-  .sg-report-trigger{font-size:0;min-width:40px;min-height:40px;padding:9px}
-  .sg-report-trigger svg{width:19px;height:19px}
   .sg-switch{font-size:11px}
   .sg-action-strip{align-items:flex-start}
   .sg-handbook-toggle{font-size:12px;width:100%;justify-content:center}
@@ -355,8 +335,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
   .sg-question-controls{flex-wrap:wrap}
   .sg-question-controls .sg-primary{min-width:0}
   .sg-option{font-size:14px}
-  .sg-report-dialog{padding:21px}
-  .sg-report-dialog h2{font-size:23px}
   .sg-certificate{padding:6px}
   .sg-certificate-border{padding:12px 10px}
   .sg-cert-brand{margin-bottom:2px}
@@ -402,8 +380,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .sg-whole-handbook p{font-size:13px;color:#475f77;line-height:1.7;margin:6px 0 0}
 .sg-whole-handbook button{flex:none;white-space:nowrap}
 .sg-landing-foot a{color:#a31532;font-weight:800;text-decoration:underline;text-underline-offset:3px}
-.sg-report-dialog{border:0;margin:auto}
 .sg-book-shell.mobile .sg-modal-backdrop{border-radius:0}
 .sg-question-step:focus-visible{outline:3px solid #2474b4;outline-offset:4px}
-.sg-report-links a:focus-visible,.sg-landing-foot a:focus-visible{outline:3px solid #2474b4;outline-offset:3px}
+.sg-landing-foot a:focus-visible{outline:3px solid #2474b4;outline-offset:3px}
 @media(max-width:630px){.sg-whole-handbook{flex-wrap:wrap}.sg-whole-handbook button{width:100%}}
