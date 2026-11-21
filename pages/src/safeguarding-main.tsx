@@ -11,6 +11,7 @@ import '../../app/home-hero.css';
 import '../../app/learning-companion.css';
 import '../../app/modern-nav.css';
 import '../../app/learning-system.css';
+import './safeguarding-review.css';
 import { installStaticApi } from './static-api';
 
 if (typeof window !== 'undefined') {
