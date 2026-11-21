@@ -110,6 +110,7 @@ function App() {
   const [reportOpen, setReportOpen] = useState(false);
   const [smallScreen, setSmallScreen] = useState(() => window.matchMedia('(max-width: 1250px)').matches);
   const handbookCloseRef = useRef<HTMLButtonElement>(null);
+  const reportCloseRef = useRef<HTMLButtonElement>(null);
   const focusReturnRef = useRef<HTMLElement | null>(null);
   const [review, setReview] = useState<Review | null>(null);
   const [handbook, setHandbook] = useState<Handbook | null>(() => ({
@@ -155,11 +156,32 @@ function App() {
     if (smallScreen) handbookCloseRef.current?.focus();
     const onEsc = (event: KeyboardEvent) => {
       if (event.key === 'Escape') { setHandbookOpen(false); focusReturnRef.current?.focus(); }
+      if (smallScreen && event.key === 'Tab') {
+        const drawer = document.querySelector('.sg-handbook-drawer');
+        if (!drawer) return;
+        const focusable = Array.from(drawer.querySelectorAll<HTMLElement>('button:not(:disabled),select,a[href],input:not(:disabled)'));
+        const first = focusable[0]; const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
     };
     document.addEventListener('keydown', onEsc);
     return () => document.removeEventListener('keydown', onEsc);
   }, [handbookOpen, smallScreen]);
   function closeHandbook() { setHandbookOpen(false); focusReturnRef.current?.focus(); }
+  useEffect(() => {
+    if (!reportOpen) return;
+    const previouslyFocused = document.activeElement;
+    reportCloseRef.current?.focus();
+    const onReportKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setReportOpen(false);
+    };
+    document.addEventListener('keydown', onReportKey);
+    return () => {
+      document.removeEventListener('keydown', onReportKey);
+      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
+    };
+  }, [reportOpen]);
   function updateSavedName(value: string) {
     if (!division) return;
     persist({ ...saved, learnerName: value.slice(0, 95) }, division);
@@ -306,6 +328,8 @@ function App() {
     <header className="sg-topbar">
       <div className="sg-topbar-content">{brand}
         <div className="sg-topright">
+
+          <button type="button" className="sg-report-trigger" onClick={() => setReportOpen(true)}><ShieldAlert size={16}/> I have a concern</button>
           <span className="sg-draft">Safeguarding Team review · Draft</span>
           {division && <button type="button" className="sg-switch" onClick={switchDivision}>Switch division</button>}
         </div>
@@ -340,7 +364,7 @@ function App() {
       <div className="sg-landing-foot">
         <ShieldCheck size={19}/><p><strong>One AISG standard, two relevant experiences.</strong> Both pathways assess the same essential duty to recognise, respond and report. Scenarios change to reflect the division.</p>
       </div>
-    </main> : <main id="sg-main" className="sg-course" ref={contentTop}>
+    </main> : <main id="sg-main" className={'sg-course' + (handbookOpen ? ' with-handbook' : '')} style={{'--sg-book-width': handbookWidth + 'px'} as CSSProperties} ref={contentTop}>
       <aside className="sg-side" aria-label="Course chapters">
         <p className="sg-side-eyebrow">{titles[division]} pathway</p>
         <h2>Your learning journey</h2>
@@ -348,13 +372,12 @@ function App() {
         <div className="sg-chapter-list">
           {chapters.map((item) => {
             const done = saved.completed.includes(item.id);
-            const earliest = chapters.find((x) => !saved.completed.includes(x.id))?.id || 6;
-            const locked = item.id > earliest;
+            const assessmentLocked = item.id > firstUnfinished && !done;
             return <button type="button" key={item.id} className={'sg-chapter-nav' + (item.id === chapter ? ' active' : '') + (done ? ' done' : '')}
-              disabled={locked} aria-current={item.id === chapter ? 'step' : undefined} onClick={() => selectChapter(item.id)}>
+              aria-current={item.id === chapter ? 'step' : undefined} onClick={() => selectChapter(item.id)}>
               <span className="sg-chapter-num">{done ? <Check size={15}/> : String(item.id).padStart(2, '0')}</span>
-              <span><b>{item.title}</b><small>{locked ? 'Complete earlier chapters' : done ? 'Mastered' : item.subtitle}</small></span>
-              {locked && <LockKeyhole size={13}/>}
+              <span><b>{item.title}</b><small>{done ? 'Mastered · Review again' : assessmentLocked ? 'Open to read · Assessment later' : item.subtitle}</small></span>
+              {assessmentLocked && <BookOpen size={13}/>}
             </button>;
           })}
         </div>
@@ -363,7 +386,12 @@ function App() {
 
       <section className="sg-mainpanel">
         {stage !== 'finished' ? <>
-          <div className="sg-chapter-kicker"><span>Chapter {String(chapter).padStart(2,'0')} / 06</span><span className="sg-small-divider">·</span><span>{current.subtitle}</span></div>
+          <div className="sg-action-strip">
+            <span className="sg-chapter-kicker">Chapter {String(chapter).padStart(2,'0')} / 06 · {titles[division]} classroom teachers</span>
+            <button type="button" className="sg-handbook-toggle" onClick={() => handbookOpen ? closeHandbook() : openPage(current.refs[0].page)} aria-expanded={handbookOpen}>
+              <BookOpen size={16}/>{handbookOpen ? 'Close handbook' : 'Read handbook alongside course'}
+            </button>
+          </div>
           <h1>{current.title}</h1>
           <p className="sg-chapter-intro">{current.reading}</p>
           <div className="sg-context">
@@ -385,17 +413,34 @@ function App() {
           <div className="sg-section-title sg-lower"><span className="sg-idx">02</span><div><h2>Carry these ideas into practice</h2><p>These are reminders, not a substitute for the official guidance.</p></div></div>
           <div className="sg-principles">{current.principles.map((text, i) => <div key={text}><span>0{i+1}</span><p>{text}</p></div>)}</div>
           <label className="sg-acknowledge" htmlFor="sg-read-confirmation"><input id="sg-read-confirmation" type="checkbox" aria-label="I have consulted the official AISG handbook" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} /><span><b>I have consulted the relevant sections of the official handbook.</b><small>Open the official PDF at the pages above, then confirm you have read the required sections.</small></span></label>
-          <div className="sg-actions"><button type="button" className="sg-primary" disabled={!acknowledged || !handbook} onClick={() => { setStage('checking'); goTop(); }}>Check my understanding <ArrowRight size={18}/></button></div>
+          {!canAssess && <p className="sg-assessment-locked"><LockKeyhole size={18}/> You can read any chapter now. To complete its assessment, first master Chapter {firstUnfinished}.</p>}
+          <div className="sg-actions"><button type="button" className="sg-primary" disabled={!acknowledged || !handbook || !canAssess} onClick={() => { setStage('checking'); goTop(); }}>Check my understanding <ArrowRight size={18}/></button></div>
         </div>}
 
         {stage === 'checking' && <div className="sg-section-block">
-          <div className="sg-section-title"><span className="sg-idx">03</span><div><h2>Apply the handbook</h2><p>Five decisions. No answer feedback until you finish. Use the official handbook when you need it.</p></div></div>
-          <div className="sg-assessment-head"><span>{answered} / {checks.length} answered</span><span>Attempt {attempt} · Open handbook assessment</span></div>
+          <div className="sg-section-title"><span className="sg-idx">03</span><div><h2>Apply the handbook</h2><p>One decision at a time. Open the handbook whenever you need a policy. Feedback appears after you submit all five.</p></div></div>
+          <div className="sg-assessment-head"><span>{answered} of {checks.length} answered · Attempt {attempt}</span><span>Answers saved on this device</span></div>
           <div className="sg-assessment-track"><span style={{width:(answered/checks.length*100)+'%'}} /></div>
-          {checks.map((question,i) => <QuestionCard key={question.id} question={question} number={i+1} attempt={attempt}
-            answer={answers[question.id] || []} onChoose={(idx) => selectOption(question,idx)} onClear={() => setAnswers((a) => ({...a,[question.id]:[]}))}
-            onReference={() => openPage(question.page)}/>)}
-          <div className="sg-assessment-submit"><p>Answers are checked together. You need at least 4/5 correct and all critical safeguarding decisions correct to master this chapter.</p><button type="button" className="sg-primary" disabled={answered!==checks.length} onClick={submitChapter}>Check this chapter <ArrowRight size={18}/></button></div>
+          <nav className="sg-question-jump" aria-label="Assessment questions">
+            {checks.map((q,i) => <button type="button" key={q.id} onClick={() => { setQuestionCursor(i); goTop(); }}
+              className={'sg-question-step' + (i===questionCursor?' active':'') + ((answers[q.id]||[]).length?' answered':'')}
+              aria-current={i===questionCursor?'step':undefined} aria-label={`Question ${i+1}: ${(answers[q.id]||[]).length?'answered':'not answered'}`}>
+              {(answers[q.id]||[]).length ? <Check size={15}/> : i+1}
+            </button>)}
+          </nav>
+          {currentQuestion && <QuestionCard key={currentQuestion.id} question={currentQuestion} number={questionCursor+1} attempt={attempt}
+            answer={answers[currentQuestion.id] || []} onChoose={(idx) => selectOption(currentQuestion,idx)}
+            onClear={() => setAnswers((a) => ({...a,[currentQuestion.id]:[]}))}
+            onReference={() => openPage(currentQuestion.page)}/>}
+          <div className="sg-question-controls">
+            <button type="button" className="sg-secondary" disabled={questionCursor===0} onClick={() => { setQuestionCursor(i=>Math.max(0,i-1)); goTop(); }}><ChevronLeft size={16}/> Previous</button>
+            <span>Question {questionCursor+1} of {checks.length}</span>
+            {questionCursor < checks.length-1 ?
+              <button type="button" className="sg-primary" onClick={() => { setQuestionCursor(i=>Math.min(checks.length-1,i+1)); goTop(); }}>Next question <ArrowRight size={17}/></button> :
+              <button type="button" className="sg-primary" disabled={answered!==checks.length} onClick={submitChapter}>Review my answers <ArrowRight size={17}/></button>}
+          </div>
+          {questionCursor===checks.length-1 && answered!==checks.length && <p className="sg-small-hint">Please answer every question before submitting. Use the numbered navigation above to find any you missed.</p>}
+          <p className="sg-mastery-note">Mastery: at least 4 of 5 correct, including every critical safeguarding decision. If you need another attempt, you will see alternative policy scenarios.</p>
         </div>}
 
         {stage === 'review' && review && <div className="sg-section-block">
