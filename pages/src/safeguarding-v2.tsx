@@ -111,6 +111,7 @@ function App() {
   const [smallScreen, setSmallScreen] = useState(() => window.matchMedia('(max-width: 1250px)').matches);
   const handbookCloseRef = useRef<HTMLButtonElement>(null);
   const reportCloseRef = useRef<HTMLButtonElement>(null);
+  const reportDialogRef = useRef<HTMLDialogElement>(null);
   const focusReturnRef = useRef<HTMLElement | null>(null);
   const [review, setReview] = useState<Review | null>(null);
   const [handbook, setHandbook] = useState<Handbook | null>(() => ({
@@ -127,7 +128,11 @@ function App() {
   const attempt = getAttempt(saved, chapter);
   const checks = useMemo(() => division ? questionsFor(division, chapter).map((q) => forAttempt(q, attempt)) : [], [division, chapter, attempt]);
   const currentQuestion = checks[Math.min(questionCursor, Math.max(0, checks.length - 1))];
-  const answered = checks.filter((q) => q.kind === 'order' ? (answers[q.id] || []).length === q.options.length : (answers[q.id] || []).length > 0).length;
+  function hasAnswer(q: Question): boolean {
+    const count = (answers[q.id] || []).length;
+    return q.kind === 'order' ? count === q.options.length : count > 0;
+  }
+  const answered = checks.filter(hasAnswer).length;
   const count = saved.completed.length;
   const reading = division ? current.context[division] : null;
   const qualityIssues = validateBank();
@@ -175,6 +180,12 @@ function App() {
     reportCloseRef.current?.focus();
     const onReportKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setReportOpen(false);
+      if (event.key === 'Tab') {
+        const focusable = Array.from(reportDialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled),a[href],input:not(:disabled)') || []);
+        const first = focusable[0]; const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
     };
     document.addEventListener('keydown', onReportKey);
     return () => {
@@ -350,19 +361,19 @@ function App() {
           <span className="sg-card-top"><span className="sg-number">01</span><span className="sg-arrow"><ArrowRight size={20}/></span></span>
           <span className="sg-card-label">Ersha · Elementary School</span>
           <strong>Safeguarding our younger learners</strong>
-          <span className="sg-card-desc">Development, disclosures, personal care, classroom routines, caregiver partnership and excursions.</span>
+          <span className="sg-card-desc">For PYP classroom teachers: younger children, disclosures, personal care, classroom routines, caregivers and excursions.</span>
           <span className="sg-card-foot"><BookOpenCheck size={16}/> Six chapters · 30 checks</span>
         </button>
         <button type="button" className="sg-division-card" onClick={() => chooseDivision('secondary')}>
           <span className="sg-card-top"><span className="sg-number">02</span><span className="sg-arrow"><ArrowRight size={20}/></span></span>
           <span className="sg-card-label">Science Park · Secondary School</span>
           <strong>Safeguarding adolescents and young adults</strong>
-          <span className="sg-card-desc">Peer harm, online risks, coaching, professional boundaries, activities, China Trips and overnight stays.</span>
+          <span className="sg-card-desc">For MYP and DP classroom teachers: peer harm, advisory, online risks, professional boundaries, activities and China Trips.</span>
           <span className="sg-card-foot"><BookOpenCheck size={16}/> Six chapters · 30 checks</span>
         </button>
       </div>
       <div className="sg-landing-foot">
-        <ShieldCheck size={19}/><p><strong>One AISG standard, two relevant experiences.</strong> Both pathways assess the same essential duty to recognise, respond and report. Scenarios change to reflect the division.</p>
+        <ShieldCheck size={19}/><p><strong>One AISG standard, two classroom-focused experiences.</strong> Read the full handbook first, then use each chapter to revisit policy details as you apply them. <a target="_blank" rel="noreferrer" href={new URL(bookFilename, document.baseURI).toString()}>Read the complete 39-page handbook</a>.</p>
       </div>
     </main> : <main id="sg-main" className={'sg-course' + (handbookOpen ? ' with-handbook' : '')} style={{'--sg-book-width': handbookWidth + 'px'} as CSSProperties} ref={contentTop}>
       <aside className="sg-side" aria-label="Course chapters">
@@ -402,7 +413,10 @@ function App() {
         </> : null}
 
         {stage === 'reading' && <div className="sg-section-block">
-          <div className="sg-section-title"><span className="sg-idx">01</span><div><h2>First, read the source</h2><p>Bring the official handbook into the learning—not just its summary.</p></div></div>
+          <div className="sg-section-title"><span className="sg-idx">01</span><div><h2>First, read the source</h2>
+            <p>{chapter===1 ? 'Start by reading the complete 39-page Student Safeguarding Handbook. These references help you revisit its key requirements.' : 'Use the complete handbook as your source of truth. Revisit the pages most relevant to this chapter.'}</p></div></div>
+          {chapter===1 && <div className="sg-whole-handbook"><BookOpenCheck size={22}/><div><b>Required first: read the whole handbook</b><p>Read all sections, including staff responsibilities, reporting, professional conduct and travel. The chapter questions then check whether you can find and apply the requirements.</p></div>
+            <button type="button" className="sg-secondary" onClick={()=>openPage(1)}>Open page 1 <ArrowRight size={15}/></button></div>}
           <div className="sg-reference-list">
             {current.refs.map((ref) => <button key={ref.section + ref.page} type="button" onClick={() => openPage(ref.page)} className="sg-reference">
               <span className="sg-ref-icon"><FileText size={20}/></span>
@@ -412,7 +426,8 @@ function App() {
           </div>
           <div className="sg-section-title sg-lower"><span className="sg-idx">02</span><div><h2>Carry these ideas into practice</h2><p>These are reminders, not a substitute for the official guidance.</p></div></div>
           <div className="sg-principles">{current.principles.map((text, i) => <div key={text}><span>0{i+1}</span><p>{text}</p></div>)}</div>
-          <label className="sg-acknowledge" htmlFor="sg-read-confirmation"><input id="sg-read-confirmation" type="checkbox" aria-label="I have consulted the official AISG handbook" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} /><span><b>I have consulted the relevant sections of the official handbook.</b><small>Open the official PDF at the pages above, then confirm you have read the required sections.</small></span></label>
+          <label className="sg-acknowledge" htmlFor="sg-read-confirmation"><input id="sg-read-confirmation" type="checkbox" aria-label="I have consulted the official AISG handbook" checked={acknowledged} onChange={(e) => setAcknowledged(e.target.checked)} /><span><b>{chapter===1 ? 'I have read the complete Student Safeguarding Handbook.' : 'I have reviewed the handbook pages relevant to this chapter.'}</b>
+              <small>This acknowledgement is based on your own reading. Your understanding is checked through the following decisions.</small></span></label>
           {!canAssess && <p className="sg-assessment-locked"><LockKeyhole size={18}/> You can read any chapter now. To complete its assessment, first master Chapter {firstUnfinished}.</p>}
           <div className="sg-actions"><button type="button" className="sg-primary" disabled={!acknowledged || !handbook || !canAssess} onClick={() => { setStage('checking'); goTop(); }}>Check my understanding <ArrowRight size={18}/></button></div>
         </div>}
@@ -423,9 +438,9 @@ function App() {
           <div className="sg-assessment-track"><span style={{width:(answered/checks.length*100)+'%'}} /></div>
           <nav className="sg-question-jump" aria-label="Assessment questions">
             {checks.map((q,i) => <button type="button" key={q.id} onClick={() => { setQuestionCursor(i); goTop(); }}
-              className={'sg-question-step' + (i===questionCursor?' active':'') + ((answers[q.id]||[]).length === (q.kind==='order'?q.options.length:1) || (q.kind==='multi' && (answers[q.id]||[]).length>0)?' answered':'')}
-              aria-current={i===questionCursor?'step':undefined} aria-label={`Question ${i+1}: ${(answers[q.id]||[]).length?'answered':'not answered'}`}>
-              {(answers[q.id]||[]).length ? <Check size={15}/> : i+1}
+              className={'sg-question-step' + (i===questionCursor?' active':'') + (hasAnswer(q)?' answered':'')}
+              aria-current={i===questionCursor?'step':undefined} aria-label={`Question ${i+1}: ${hasAnswer(q)?'answered':'not answered'}`}>
+              {hasAnswer(q) ? <Check size={15}/> : i+1}
             </button>)}
           </nav>
           {currentQuestion && <QuestionCard key={currentQuestion.id} question={currentQuestion} number={questionCursor+1} attempt={attempt}
@@ -516,7 +531,7 @@ function App() {
     <footer className="sg-footer"><span>American International School of Guangzhou</span><span>Draft for team review · Browser-based learning, not an official staff training record</span></footer>
     {reportOpen && <div className="sg-report-overlay">
       <button type="button" className="sg-modal-backdrop" aria-label="Close reporting guidance" onClick={()=>setReportOpen(false)}/>
-      <dialog open aria-modal="true" aria-labelledby="sg-report-title" className="sg-report-dialog">
+      <dialog ref={reportDialogRef} open aria-modal="true" aria-labelledby="sg-report-title" className="sg-report-dialog">
         <div className="sg-report-dialog-top"><ShieldAlert size={25}/><button ref={reportCloseRef} type="button" className="sg-icon-button" onClick={()=>setReportOpen(false)} aria-label="Close reporting guidance"><X size={20}/></button></div>
         <p className="sg-report-eyebrow">Real safeguarding concern · AISG procedures</p>
         <h2 id="sg-report-title">A real concern? Use the reporting pathway, not this course.</h2>
