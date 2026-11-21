@@ -23,7 +23,7 @@ if (typeof window !== 'undefined') {
           <strong>Safeguarding Team Review · Draft</strong>
           <span>Check policy accuracy, scenarios, wording and assessment feedback. This version is not approved for staff training. Do not enter real student information.</span>
         </aside>
-        <TrainingApp staticMode />
+        <TrainingApp staticMode reviewMode />
       </div>
     </StrictMode>,
   );
