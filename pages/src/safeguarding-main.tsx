@@ -19,7 +19,7 @@ if (typeof window !== 'undefined') {
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <div className="safeguarding-review-site">
-        <aside className="review-notice" role="status">
+        <aside className="review-notice">
           <strong>Safeguarding Team Review · Draft</strong>
           <span>Check policy accuracy, scenarios, wording and assessment feedback. This version is not approved for staff training. Do not enter real student information.</span>
         </aside>
