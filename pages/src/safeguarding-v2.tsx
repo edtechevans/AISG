@@ -505,7 +505,7 @@ function App() {
             {handbook && <a className="sg-secondary small" target="_blank" rel="noreferrer" href={handbook.url + '#page=' + handbookPage}><BookOpen size={15}/> Full PDF</a>}
           </div>
           {handbook ? <><iframe key={handbook.url + '#' + handbookPage} className="sg-pdf-frame"
-            title={'AISG Student Safeguarding Handbook — page '+handbookPage}
+            title="AISG Student Safeguarding Handbook PDF viewer"
             src={handbook.url + '#page=' + handbookPage + '&view=FitH'}/>
             <p className="sg-pdf-note">Page {handbookPage} · May 2026. The course remains usable alongside this viewer on desktop. <a href={handbook.url + '#page=' + handbookPage} target="_blank" rel="noreferrer">Open the handbook in a separate tab</a>.</p></>
             : <div className="sg-empty-pdf"><BookOpen size={42}/><h3>Handbook unavailable</h3><p>Try opening the PDF in a separate tab. If it remains unavailable, contact AISG support before continuing.</p></div>}
@@ -516,7 +516,7 @@ function App() {
     <footer className="sg-footer"><span>American International School of Guangzhou</span><span>Draft for team review · Browser-based learning, not an official staff training record</span></footer>
     {reportOpen && <div className="sg-report-overlay">
       <button type="button" className="sg-modal-backdrop" aria-label="Close reporting guidance" onClick={()=>setReportOpen(false)}/>
-      <section role="dialog" aria-modal="true" aria-labelledby="sg-report-title" className="sg-report-dialog">
+      <dialog open aria-modal="true" aria-labelledby="sg-report-title" className="sg-report-dialog">
         <div className="sg-report-dialog-top"><ShieldAlert size={25}/><button ref={reportCloseRef} type="button" className="sg-icon-button" onClick={()=>setReportOpen(false)} aria-label="Close reporting guidance"><X size={20}/></button></div>
         <p className="sg-report-eyebrow">Real safeguarding concern · AISG procedures</p>
         <h2 id="sg-report-title">A real concern? Use the reporting pathway, not this course.</h2>
@@ -528,7 +528,7 @@ function App() {
         <p className="sg-report-warning">This website does not submit or store any safeguarding reports. Do not enter real students&apos; names or personal details here.</p>
         <div className="sg-report-links"><a target="_blank" rel="noreferrer" href={new URL(bookFilename, document.baseURI).toString()+'#page=13'}>View reporting flowchart · p. 13 <ArrowRight size={15}/></a>
           <a target="_blank" rel="noreferrer" href={new URL(bookFilename, document.baseURI).toString()+'#page=27'}>Adult conduct protocol · p. 27 <ArrowRight size={15}/></a></div>
-      </section>
+      </dialog>
     </div>}
 
 
