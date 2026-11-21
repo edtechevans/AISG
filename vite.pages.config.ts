@@ -20,7 +20,7 @@ export default defineConfig({
   build: {
     outDir: path.join(projectRoot, 'pages-dist'),
     emptyOutDir: true,
-    rollupOptions: {
+    rolldownOptions: {
       input: {
         main: path.join(projectRoot, 'pages/index.html'),
         safeguarding: path.join(projectRoot, 'pages/safeguarding/index.html'),
