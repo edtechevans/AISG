@@ -511,7 +511,7 @@ function App() {
             : <div className="sg-empty-pdf"><BookOpen size={42}/><h3>Handbook unavailable</h3><p>Try opening the PDF in a separate tab. If it remains unavailable, contact AISG support before continuing.</p></div>}
         </aside>
       </div>}
-    </main>
+    </main>}
 
     <footer className="sg-footer"><span>American International School of Guangzhou</span><span>Draft for team review · Browser-based learning, not an official staff training record</span></footer>
     {reportOpen && <div className="sg-report-overlay">
