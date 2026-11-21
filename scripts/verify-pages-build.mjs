@@ -16,7 +16,7 @@ if (!fs.existsSync(htmlPath)) fail('pages-dist/index.html is missing.');
 const standaloneCourseHtmlPath = path.join(outputDir, 'safeguardingcourse', 'index.html');
 if (!fs.existsSync(standaloneCourseHtmlPath)) fail('safeguardingcourse/index.html is missing.');
 const standaloneCourseHtml = fs.readFileSync(standaloneCourseHtmlPath, 'utf8');
-if (!standaloneCourseHtml.includes('Safeguarding at AISG | Team Review')) {
+if (!standaloneCourseHtml.includes('Safeguarding at AISG | Division Review')) {
   fail('safeguardingcourse page title missing.');
 }
 if (!standaloneCourseHtml.includes('name="robots" content="noindex, nofollow, noarchive"')) {
