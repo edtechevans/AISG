@@ -30,7 +30,7 @@ type View = 'dashboard' | 'intro' | 'question' | 'results';
 const FIRST_LEARNING_BLOCK_END = 2;
 const FIRST_CHECK_BLOCK_COMPLETE_STAGE = 100;
 
-export default function TrainingApp({ staticMode = false }: { staticMode?: boolean }) {
+export default function TrainingApp({ staticMode = false, reviewMode = false }: { staticMode?: boolean; reviewMode?: boolean }) {
   const [data, setData] = useState<Bootstrap | null>(null);
   const [view, setView] = useState<View>('dashboard');
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -177,7 +177,7 @@ export default function TrainingApp({ staticMode = false }: { staticMode?: boole
     finally { setBusy(false); }
   }
 
-  const header = <AppHeader user={data.user} onHome={() => setView('dashboard')} onPlatformHome={() => { window.location.href = new URL('./', window.location.href).toString(); }} />;
+  const header = reviewMode ? null : <AppHeader user={data.user} onHome={() => setView('dashboard')} onPlatformHome={() => { window.location.href = new URL('./', window.location.href).toString(); }} />;
   if (view === 'results' && result) return <>{header}<ResultsScreen data={data} result={result} responses={[...responseMap.values()]} onRetake={retake} busy={busy} staticMode={browserMode} /></>;
   if (view === 'intro' && currentModule) return <>{header}<ModuleLearning key={`${currentModule.id}-${learningStages[currentModule.id] === FIRST_CHECK_BLOCK_COMPLETE_STAGE ? 'second' : 'first'}`} module={currentModule} progress={progressPercent} initialStage={learningStages[currentModule.id] ?? 0} onStageChange={(stage) => saveLearningStage(currentModule.id, stage)} onBack={() => setView('dashboard')} onFirstCheck={() => beginFirstCheck(currentModule.id)} onStart={() => completeLearning(currentModule.id)} /></>;
   if (view === 'question' && question && currentModule) return <>{header}<QuestionScreen question={question} module={currentModule} index={questionIndex} courseProgress={progressPercent} selected={selected} setSelected={setSelected} feedback={feedback} onSubmit={submit} onContinue={continueAfterFeedback} busy={busy} error={error} remediationConfirmed={remediationConfirmed} setRemediationConfirmed={setRemediationConfirmed} /></>;
