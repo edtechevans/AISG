@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowLeft, ArrowRight, Award, BookOpen, BookOpenCheck, Check, CheckCircle2, ChevronLeft, ChevronRight, FileText, LockKeyhole, Printer, RotateCcw, ShieldAlert, ShieldCheck, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, BookOpen, BookOpenCheck, Check, CheckCircle2, ChevronLeft, ChevronRight, FileText, LockKeyhole, Printer, RotateCcw, ShieldCheck, X } from 'lucide-react';
 import { chapters, questionsFor, validateBank, type Division, type Question } from './safeguarding-v2-data';
 import { forAttempt } from './safeguarding-v21-variants';
 import './safeguarding-v2.css';
@@ -107,11 +107,8 @@ function App() {
     return readDraft(div, progress.lastChapter, getAttempt(progress, progress.lastChapter)).cursor;
   });
   const [handbookWidth, setHandbookWidth] = useState(530);
-  const [reportOpen, setReportOpen] = useState(false);
   const [smallScreen, setSmallScreen] = useState(() => window.matchMedia('(max-width: 1250px)').matches);
   const handbookCloseRef = useRef<HTMLButtonElement>(null);
-  const reportCloseRef = useRef<HTMLButtonElement>(null);
-  const reportDialogRef = useRef<HTMLDialogElement>(null);
   const focusReturnRef = useRef<HTMLElement | null>(null);
   const [review, setReview] = useState<Review | null>(null);
   const [handbook, setHandbook] = useState<Handbook | null>(() => ({
@@ -174,25 +171,6 @@ function App() {
     return () => document.removeEventListener('keydown', onEsc);
   }, [handbookOpen, smallScreen]);
   function closeHandbook() { setHandbookOpen(false); focusReturnRef.current?.focus(); }
-  useEffect(() => {
-    if (!reportOpen) return;
-    const previouslyFocused = document.activeElement;
-    reportCloseRef.current?.focus();
-    const onReportKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setReportOpen(false);
-      if (event.key === 'Tab') {
-        const focusable = Array.from(reportDialogRef.current?.querySelectorAll<HTMLElement>('button:not(:disabled),a[href],input:not(:disabled)') || []);
-        const first = focusable[0]; const last = focusable[focusable.length - 1];
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
-      }
-    };
-    document.addEventListener('keydown', onReportKey);
-    return () => {
-      document.removeEventListener('keydown', onReportKey);
-      if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
-    };
-  }, [reportOpen]);
   function updateSavedName(value: string) {
     if (!division) return;
     persist({ ...saved, learnerName: value.slice(0, 95) }, division);
@@ -340,7 +318,6 @@ function App() {
       <div className="sg-topbar-content">{brand}
         <div className="sg-topright">
 
-          <button type="button" className="sg-report-trigger" onClick={() => setReportOpen(true)}><ShieldAlert size={16}/> I have a concern</button>
           <span className="sg-draft">Safeguarding Team review · Draft</span>
           {division && <button type="button" className="sg-switch" onClick={switchDivision}>Switch division</button>}
         </div>
@@ -503,7 +480,7 @@ function App() {
           <p className="sg-private"><BookOpenCheck size={14}/> Official May 2026 handbook · Embedded directly from AISG&apos;s GitHub course.</p>
         </div>
         {stage !== 'finished' && <div className="sg-tip"><span>READING FOCUS</span><p>{current.reading}</p><button type="button" className="sg-inline-link" onClick={() => openPage(current.refs[0].page)}>Open starting page <ArrowRight size={14}/></button></div>}
-        <div className="sg-safety"><ShieldCheck size={18}/><p>This learning activity does not receive confidential safeguarding reports. For a real concern, use the reporting guidance at the top of the page.</p></div>
+        <div className="sg-safety"><ShieldCheck size={18}/><p>This training website does not receive confidential safeguarding reports. If you have a real concern, follow AISG&apos;s current safeguarding procedures.</p></div>
       </aside>
       {handbookOpen && <div className={'sg-book-shell' + (smallScreen ? ' mobile' : '')}>
         {smallScreen && <button type="button" className="sg-modal-backdrop" aria-label="Close handbook viewer" onClick={closeHandbook}/>}
@@ -529,22 +506,7 @@ function App() {
     </main>}
 
     <footer className="sg-footer"><span>American International School of Guangzhou</span><span>Draft for team review · Browser-based learning, not an official staff training record</span></footer>
-    {reportOpen && <div className="sg-report-overlay">
-      <button type="button" className="sg-modal-backdrop" aria-label="Close reporting guidance" onClick={()=>setReportOpen(false)}/>
-      <dialog ref={reportDialogRef} open aria-modal="true" aria-labelledby="sg-report-title" className="sg-report-dialog">
-        <div className="sg-report-dialog-top"><ShieldAlert size={25}/><button ref={reportCloseRef} type="button" className="sg-icon-button" onClick={()=>setReportOpen(false)} aria-label="Close reporting guidance"><X size={20}/></button></div>
-        <p className="sg-report-eyebrow">Real safeguarding concern · AISG procedures</p>
-        <h2 id="sg-report-title">A real concern? Use the reporting pathway, not this course.</h2>
-        <p>All AISG employees must promptly report suspected abuse or neglect when they have reasonable cause to believe a student has experienced harm or may be at risk. You do not need to investigate or establish proof.</p>
-        <div className="sg-report-steps">
-          <div><b>Concern about a student</b><p>Contact the appropriate divisional Student Safeguarding Lead and follow the official reporting pathway (Handbook §§4.1–4.2, pages 11–13). If a child is in immediate danger, take the necessary immediate safety action and contact safeguarding leadership/emergency responders as applicable.</p></div>
-          <div><b>Concern about an adult</b><p>Report to the divisional principal. If the concern involves the principal, refer to the Head of School / School Safeguarding Coordinator (Handbook §7.3, page 27).</p></div>
-        </div>
-        <p className="sg-report-warning">This website does not submit or store any safeguarding reports. Do not enter real students&apos; names or personal details here.</p>
-        <div className="sg-report-links"><a target="_blank" rel="noreferrer" href={new URL(bookFilename, document.baseURI).toString()+'#page=13'}>View reporting flowchart · p. 13 <ArrowRight size={15}/></a>
-          <a target="_blank" rel="noreferrer" href={new URL(bookFilename, document.baseURI).toString()+'#page=27'}>Adult conduct protocol · p. 27 <ArrowRight size={15}/></a></div>
-      </dialog>
-    </div>}
+
 
 
   </div>;
