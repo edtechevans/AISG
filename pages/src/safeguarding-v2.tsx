@@ -1,15 +1,25 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowLeft, ArrowRight, BookOpen, BookOpenCheck, Check, CheckCircle2, ChevronRight, FileText, LockKeyhole, RotateCcw, ShieldCheck, UploadCloud, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Award, BookOpen, BookOpenCheck, Check, CheckCircle2, ChevronLeft, ChevronRight, FileText, LockKeyhole, Printer, RotateCcw, ShieldAlert, ShieldCheck, UploadCloud, X } from 'lucide-react';
 import { chapters, questionsFor, validateBank, type Division, type Question } from './safeguarding-v2-data';
+import { forAttempt } from './safeguarding-v21-variants';
 import './safeguarding-v2.css';
 
 type Stage = 'reading' | 'checking' | 'review' | 'finished';
-type SavedProgress = { completed: number[]; lastChapter: number; tries: Record<number, number> };
+type SavedProgress = { completed: number[]; lastChapter: number; tries: Record<number, number>; completedAt?: string; learnerName?: string };
 type Review = { score: number; pass: boolean; questions: { question: Question; correct: boolean; answer: number[] }[] };
 type Handbook = { name: string; url: string; source: 'bundled' | 'approved-link' | 'device' };
 const titles: Record<Division, string> = { elementary: 'Elementary', secondary: 'Secondary' };
-const saveKey = (division: Division) => 'aisg-safeguarding-v2-review-' + division;
+const saveKey = (division: Division) => 'aisg-safeguarding-v21-review-' + division;
+const draftKey = (division: Division, chapter: number) => `aisg-safeguarding-v21-draft-${division}-${chapter}`;
+type Draft = { attempt: number; answers: Record<string, number[]>; cursor: number };
+function readDraft(division: Division, chapter: number, attempt: number): Draft {
+  try { const raw = localStorage.getItem(draftKey(division, chapter)); const d = raw ? JSON.parse(raw) as Draft : null;
+    if (d && d.attempt === attempt && d.answers) return {attempt, answers: d.answers, cursor: Math.max(0, Math.min(4, d.cursor || 0))};
+  } catch { /* Storage may not be available. */ }
+  return {attempt, answers:{}, cursor:0};
+}
+function getAttempt(progress: SavedProgress, chapter: number): number { return (progress.tries[chapter] || 0) + 1; }
 const handbookStorageName = 'aisg-safeguarding-handbook';
 const bookFilename = 'safeguarding-handbook.pdf';
 
@@ -49,7 +59,7 @@ function getSaved(division: Division): SavedProgress {
     if (!raw) return { completed: [], lastChapter: 1, tries: {} };
     const parsed = JSON.parse(raw) as SavedProgress;
     const completed = Array.isArray(parsed.completed) ? parsed.completed.filter((x) => typeof x === 'number' && x >= 1 && x <= 6) : [];
-    return { completed, lastChapter: Number(parsed.lastChapter) || 1, tries: parsed.tries || {} };
+    return { completed, lastChapter: Number(parsed.lastChapter) || 1, tries: parsed.tries || {}, completedAt: parsed.completedAt, learnerName: typeof parsed.learnerName === 'string' ? parsed.learnerName : '' };
   } catch {
     return { completed: [], lastChapter: 1, tries: {} };
   }
@@ -84,7 +94,23 @@ function App() {
   const [chapter, setChapter] = useState(() => initialDivision() ? getSaved(initialDivision()!).lastChapter : 1);
   const [stage, setStage] = useState<Stage>(() => initialDivision() && getSaved(initialDivision()!).completed.length === 6 ? 'finished' : 'reading');
   const [acknowledged, setAcknowledged] = useState(false);
-  const [answers, setAnswers] = useState<Record<string, number[]>>({});
+  const [answers, setAnswers] = useState<Record<string, number[]>>(() => {
+    const div = initialDivision();
+    if (!div) return {};
+    const progress = getSaved(div);
+    return readDraft(div, progress.lastChapter, getAttempt(progress, progress.lastChapter)).answers;
+  });
+  const [questionCursor, setQuestionCursor] = useState(() => {
+    const div = initialDivision();
+    if (!div) return 0;
+    const progress = getSaved(div);
+    return readDraft(div, progress.lastChapter, getAttempt(progress, progress.lastChapter)).cursor;
+  });
+  const [handbookWidth, setHandbookWidth] = useState(530);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [smallScreen, setSmallScreen] = useState(() => window.matchMedia('(max-width: 1250px)').matches);
+  const handbookCloseRef = useRef<HTMLButtonElement>(null);
+  const focusReturnRef = useRef<HTMLElement | null>(null);
   const [review, setReview] = useState<Review | null>(null);
   const [handbook, setHandbook] = useState<Handbook | null>(() => ({
     name: 'AISG Student Safeguarding Handbook · Revised May 2026',
@@ -97,17 +123,47 @@ function App() {
   const fileInput = useRef<HTMLInputElement>(null);
   const contentTop = useRef<HTMLElement>(null);
   const current = chapters[chapter - 1];
-  const checks = useMemo(() => division ? questionsFor(division, chapter) : [], [division, chapter]);
-  const attempt = (saved.tries[chapter] || 0) + 1;
+  const attempt = getAttempt(saved, chapter);
+  const checks = useMemo(() => division ? questionsFor(division, chapter).map((q) => forAttempt(q, attempt)) : [], [division, chapter, attempt]);
+  const currentQuestion = checks[Math.min(questionCursor, Math.max(0, checks.length - 1))];
   const answered = checks.filter((q) => (answers[q.id] || []).length > 0).length;
   const count = saved.completed.length;
   const reading = division ? current.context[division] : null;
   const qualityIssues = validateBank();
+  const firstUnfinished = chapters.find((item) => !saved.completed.includes(item.id))?.id || 6;
+  const canAssess = chapter <= firstUnfinished || saved.completed.includes(chapter);
   const persist = useCallback((next: SavedProgress, who: Division) => {
     setSaved(next);
     try { localStorage.setItem(saveKey(who), JSON.stringify(next)); } catch { /* Private browser windows can block saving. */ }
   }, []);
   const goTop = () => contentTop.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 1250px)');
+    const update = () => setSmallScreen(query.matches);
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  useEffect(() => {
+    if (!division || stage !== 'checking') return;
+    try { localStorage.setItem(draftKey(division, chapter), JSON.stringify({attempt, answers, cursor:questionCursor} satisfies Draft)); }
+    catch { /* Local storage can be blocked in private browsing. */ }
+  }, [division, chapter, stage, answers, questionCursor, attempt]);
+  useEffect(() => {
+    if (!handbookOpen) return;
+    const previous = document.activeElement;
+    focusReturnRef.current = previous instanceof HTMLElement ? previous : null;
+    if (smallScreen) handbookCloseRef.current?.focus();
+    const onEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setHandbookOpen(false); focusReturnRef.current?.focus(); }
+    };
+    document.addEventListener('keydown', onEsc);
+    return () => document.removeEventListener('keydown', onEsc);
+  }, [handbookOpen, smallScreen]);
+  function closeHandbook() { setHandbookOpen(false); focusReturnRef.current?.focus(); }
+  function updateSavedName(value: string) {
+    if (!division) return;
+    persist({ ...saved, learnerName: value.slice(0, 95) }, division);
+  }
 
   useEffect(() => {
     document.title = division ? 'Safeguarding at AISG | ' + titles[division] + ' Review' : 'Safeguarding at AISG | Review';
@@ -122,7 +178,10 @@ function App() {
         setSaved(progress);
         setChapter(Math.min(6, Math.max(1, progress.lastChapter)));
       }
-      setStage('reading'); setAnswers({}); setReview(null); setAcknowledged(false);
+      setStage(next && getSaved(next).completed.length === 6 ? 'finished' : 'reading');
+      setAnswers(next ? readDraft(next, getSaved(next).lastChapter, getAttempt(getSaved(next), getSaved(next).lastChapter)).answers : {});
+      setQuestionCursor(next ? readDraft(next, getSaved(next).lastChapter, getAttempt(getSaved(next), getSaved(next).lastChapter)).cursor : 0);
+      setReview(null); setAcknowledged(false);
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
@@ -170,14 +229,15 @@ function App() {
     const nextChapter = chapters.find((item) => !progress.completed.includes(item.id))?.id || 6;
     setChapter(nextChapter);
     setStage(progress.completed.length === 6 ? 'finished' : 'reading');
-    setAcknowledged(false); setAnswers({}); setReview(null);
+    const draft = readDraft(next, nextChapter, getAttempt(progress, nextChapter));
+    setAcknowledged(false); setAnswers(draft.answers); setQuestionCursor(draft.cursor); setReview(null);
     const url = new URL(window.location.href);
     url.searchParams.set('division', next);
     window.history.pushState({}, '', url);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   function switchDivision() {
-    setDivision(null); setStage('reading'); setAnswers({}); setReview(null);
+    setDivision(null); setStage('reading'); setAnswers({}); setQuestionCursor(0); setReview(null); setHandbookOpen(false);
     const url = new URL(window.location.href);
     url.searchParams.delete('division');
     window.history.pushState({}, '', url);
@@ -185,12 +245,11 @@ function App() {
   }
   function selectChapter(next: number) {
     if (!division) return;
-    const earliestIncomplete = chapters.find((item) => !saved.completed.includes(item.id))?.id || 6;
-    if (next > earliestIncomplete) return;
     const nextSaved = { ...saved, lastChapter: next };
     persist(nextSaved, division);
+    const draft = readDraft(division, next, getAttempt(saved, next));
     setChapter(next); setStage('reading'); setAcknowledged(false);
-    setAnswers({}); setReview(null); goTop();
+    setAnswers(draft.answers); setQuestionCursor(draft.cursor); setReview(null); goTop();
   }
   function selectOption(q: Question, index: number) {
     setAnswers((old) => {
@@ -207,7 +266,9 @@ function App() {
     const pass = score >= 4 && graded.filter((item) => item.question.critical).every((item) => item.correct);
     const tries = { ...saved.tries, [chapter]: (saved.tries[chapter] || 0) + 1 };
     const completed = pass ? Array.from(new Set([...saved.completed, chapter])).sort((a, b) => a - b) : saved.completed;
-    persist({ completed, tries, lastChapter: chapter }, division);
+    const completedAt = completed.length === 6 ? (saved.completedAt || new Date().toISOString()) : saved.completedAt;
+    persist({ ...saved, completed, tries, lastChapter: chapter, completedAt }, division);
+    try { localStorage.removeItem(draftKey(division, chapter)); } catch { /* No persistent storage. */ }
     setReview({ score, pass, questions: graded });
     setStage('review'); goTop();
   }
@@ -216,10 +277,11 @@ function App() {
     if (chapter === 6) { setStage('finished'); goTop(); return; }
     const next = chapter + 1;
     persist({ ...saved, lastChapter: next }, division);
-    setChapter(next); setStage('reading'); setAcknowledged(false); setAnswers({}); setReview(null); goTop();
+    const draft = readDraft(division, next, getAttempt(saved, next));
+    setChapter(next); setStage('reading'); setAcknowledged(false); setAnswers(draft.answers); setQuestionCursor(draft.cursor); setReview(null); goTop();
   }
   function retryChapter() {
-    setAnswers({}); setReview(null); setAcknowledged(false); setStage('reading'); goTop();
+    setAnswers({}); setQuestionCursor(0); setReview(null); setAcknowledged(false); setStage('reading'); goTop();
   }
   function openPage(page: number) {
     setHandbookPage(page);
