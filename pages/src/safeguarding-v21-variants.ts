@@ -144,13 +144,13 @@ const alternatives: Record<string, Alternative> = {
     correct: [0], why: 'Safeguarding information is shared on a need-to-know basis and complete secrecy must not be promised.'
   },
   S07: {
-    scenario: 'An advisor receives a concerning disclosure during an overnight trip, far from the Science Park campus.',
+    scenario: 'An advisor receives a concerning disclosure during an overnight trip, far from the Secondary Campus.',
     prompt: 'Which action does the handbook require?',
     options: ['Make the appropriate prompt safeguarding report and protect the student’s immediate safety', 'Wait until the class is back on campus so the matter becomes a school concern', 'Ask other students to conduct interviews to save time', 'Use an informal trip group chat in place of the reporting pathway'],
     correct: [0], why: 'Reporting responsibility continues during overnight school travel.'
   },
   S11: {
-    scenario: 'A PE teacher is demonstrating a technique in the Science Park pool and believes hands-on guidance could help.',
+    scenario: 'A PE teacher is demonstrating a technique in the Secondary Campus pool and believes hands-on guidance could help.',
     prompt: 'Which conditions are expected? Select all that apply.',
     options: ['Explain the instructional purpose of potential touch', 'Seek the student’s consent before instructional touch', 'Keep approved contact necessary and visible', 'Continue touching a student who has asked not to be touched'],
     correct: [0,1,2], why: 'The aquatic guidance emphasises student consent, visibility and appropriate purpose.'
