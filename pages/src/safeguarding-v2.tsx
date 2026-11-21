@@ -38,7 +38,7 @@ function recallHandbook(): Promise<File | null> {
       const database = request.result;
       const transaction = database.transaction('pdf', 'readonly');
       const get = transaction.objectStore('pdf').get('official');
-      get.onsuccess = () => { resolve(get.result instanceof Blob ? new File([get.result], get.result.name || 'AISG Student Safeguarding Handbook.pdf', { type: 'application/pdf' }) : null); database.close(); };
+      get.onsuccess = () => { resolve(get.result instanceof Blob ? new File([get.result], get.result instanceof File ? get.result.name : 'AISG Student Safeguarding Handbook.pdf', { type: 'application/pdf' }) : null); database.close(); };
       get.onerror = () => { resolve(null); database.close(); };
     };
   });
