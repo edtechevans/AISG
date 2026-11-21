@@ -302,7 +302,7 @@ function App() {
           <p className="sg-private"><LockKeyhole size={14}/> The PDF remains on your device. Nothing is uploaded to this public site.</p>
         </div>
         {stage !== 'finished' && <div className="sg-tip"><span>READING FOCUS</span><p>{current.reading}</p><button type="button" className="sg-inline-link" onClick={() => openPage(current.refs[0].page)}>Open starting page <ArrowRight size={14}/></button></div>}
-        <div className="sg-safety"><ShieldCheck size={18}/><p>This learning activity does not receive confidential safeguarding reports. For a real concern, stop and follow AISG's current procedures.</p></div>
+        <div className="sg-safety"><ShieldCheck size={18}/><p>This learning activity does not receive confidential safeguarding reports. For a real concern, stop and follow AISG&apos;s current procedures.</p></div>
       </aside>
     </main>}
 
