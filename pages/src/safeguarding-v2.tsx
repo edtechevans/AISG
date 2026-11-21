@@ -461,13 +461,21 @@ function App() {
         </div>}
 
         {stage === 'finished' && <div className="sg-finish">
-          <div className="sg-finish-mark"><ShieldCheck size={35}/></div>
-          <p className="sg-finish-kicker">{titles[division]} pathway · Review complete</p>
+          <div className="sg-finish-mark"><Award size={35}/></div>
+          <p className="sg-finish-kicker">{titles[division]} pathway · All six chapters mastered</p>
           <h1>Safeguarding begins with what we do next.</h1>
-          <p>You&apos;ve reviewed six chapters and completed thirty handbook-grounded checks. Keep the handbook available and use AISG&apos;s current safeguarding reporting procedures whenever a real concern arises.</p>
+          <p>You&apos;ve completed the classroom-teacher pathway and thirty handbook-grounded checks. Keep the handbook available and follow AISG&apos;s current reporting procedures if you have a real concern.</p>
           <div className="sg-finish-stats"><span><b>06</b><small>Chapters</small></span><span><b>30</b><small>Checks</small></span><span><b>100%</b><small>Chapters mastered</small></span></div>
-          <p className="sg-note-strong">This is a browser-based review, not an authorised completion certificate or an official employee record. The Safeguarding Team must approve final content and assessment settings.</p>
-          <button className="sg-secondary" type="button" onClick={()=>selectChapter(1)}>Revisit the handbook and course <ArrowLeft size={16}/></button>
+          <div className="sg-certificate-controls">
+            <div><h2>Your completion certificate</h2><p>Enter your name as it should appear. You can then print the certificate or save it as a PDF using your browser.</p></div>
+            <label htmlFor="sg-certificate-name">Name on certificate</label>
+            <input id="sg-certificate-name" type="text" maxLength={95} autoComplete="name"
+              placeholder="Your full name" value={saved.learnerName || ''} onChange={(e) => updateSavedName(e.target.value)}/>
+            <button type="button" className="sg-primary" disabled={!(saved.learnerName || '').trim()} onClick={() => window.print()}><Printer size={18}/> Print / Save as PDF</button>
+            <p className="sg-cert-disclosure">This review certificate is self-generated from browser-local progress. It does not verify identity or replace AISG&apos;s official staff training records.</p>
+          </div>
+          <Certificate division={division} name={(saved.learnerName || '').trim()} date={saved.completedAt || new Date().toISOString()}/>
+          <div className="sg-finish-actions"><button className="sg-secondary" type="button" onClick={()=>selectChapter(1)}>Revisit the learning <ArrowLeft size={16}/></button></div>
         </div>}
       </section>
 
@@ -480,21 +488,73 @@ function App() {
           <p className="sg-private"><BookOpenCheck size={14}/> Official May 2026 handbook · Embedded directly from AISG&apos;s GitHub course.</p>
         </div>
         {stage !== 'finished' && <div className="sg-tip"><span>READING FOCUS</span><p>{current.reading}</p><button type="button" className="sg-inline-link" onClick={() => openPage(current.refs[0].page)}>Open starting page <ArrowRight size={14}/></button></div>}
-        <div className="sg-safety"><ShieldCheck size={18}/><p>This learning activity does not receive confidential safeguarding reports. For a real concern, stop and follow AISG&apos;s current procedures.</p></div>
+        <div className="sg-safety"><ShieldCheck size={18}/><p>This learning activity does not receive confidential safeguarding reports. For a real concern, use the reporting guidance at the top of the page.</p></div>
       </aside>
-    </main>}
+      {handbookOpen && <div className={'sg-book-shell' + (smallScreen ? ' mobile' : '')}>
+        {smallScreen && <button type="button" className="sg-modal-backdrop" aria-label="Close handbook viewer" onClick={closeHandbook}/>}
+        <aside className="sg-handbook-drawer" role={smallScreen ? 'dialog' : 'region'} aria-modal={smallScreen ? true : undefined}
+          aria-label="AISG Student Safeguarding Handbook reader">
+          <div className="sg-drawer-header"><div><span>OFFICIAL HANDBOOK · 39 PAGES</span><h2>Read alongside the course</h2></div>
+            <button ref={handbookCloseRef} className="sg-icon-button" type="button" aria-label="Close handbook reader" onClick={closeHandbook}><X size={22}/></button></div>
+          <div className="sg-drawer-tools">
+            <label htmlFor="sg-page">Handbook page</label>
+            <select id="sg-page" value={handbookPage} onChange={(e) => setHandbookPage(Number(e.target.value))}>{Array.from({length:39},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select>
+            {!smallScreen && <label className="sg-resize-control">Width
+              <input type="range" min="410" max="760" step="10" value={handbookWidth} aria-label="Adjust handbook width"
+                onChange={(e) => setHandbookWidth(Number(e.target.value))}/></label>}
+            {handbook && <a className="sg-secondary small" target="_blank" rel="noreferrer" href={handbook.url + '#page=' + handbookPage}><BookOpen size={15}/> Full PDF</a>}
+          </div>
+          {handbook ? <><iframe key={handbook.url + '#' + handbookPage} className="sg-pdf-frame"
+            title={'AISG Student Safeguarding Handbook — page '+handbookPage}
+            src={handbook.url + '#page=' + handbookPage + '&view=FitH'}/>
+            <p className="sg-pdf-note">Page {handbookPage} · May 2026. The course remains usable alongside this viewer on desktop. <a href={handbook.url + '#page=' + handbookPage} target="_blank" rel="noreferrer">Open the handbook in a separate tab</a>.</p></>
+            : <div className="sg-empty-pdf"><BookOpen size={42}/><h3>Handbook unavailable</h3><p>Try opening the PDF in a separate tab. If it remains unavailable, contact AISG support before continuing.</p></div>}
+        </aside>
+      </div>}
+    </main>
 
-    <footer className="sg-footer"><span>American International School of Guangzhou</span><span>Draft for internal review · Not an authorised safeguarding certification</span></footer>
-
-    {handbookOpen && <div className="sg-modal-wrap" role="presentation">
-      <button type="button" className="sg-modal-backdrop" aria-label="Close handbook viewer" onClick={() => setHandbookOpen(false)}/>
-      <aside className="sg-handbook-drawer" aria-label="Handbook viewer">
-        <div className="sg-drawer-header"><div><span>OFFICIAL SOURCE</span><h2>Student Safeguarding Handbook</h2></div><button className="sg-icon-button" type="button" aria-label="Close handbook" onClick={() => setHandbookOpen(false)}><X size={22}/></button></div>
-        <div className="sg-drawer-tools"><label htmlFor="sg-page">Page</label><select id="sg-page" value={handbookPage} onChange={(e) => setHandbookPage(Number(e.target.value))}>{Array.from({length:39},(_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}</select>{handbook && <a className="sg-secondary small" target="_blank" rel="noreferrer" href={handbook.url + '#page=' + handbookPage}><BookOpen size={15}/> Open PDF</a>}</div>
-        {handbook ? <><iframe key={handbook.url + '#' + handbookPage} className="sg-pdf-frame" title="AISG Student Safeguarding Handbook PDF viewer" src={handbook.url + '#page=' + handbookPage + '&view=FitH'}/><p className="sg-pdf-note">Official AISG Student Safeguarding Handbook · May 2026. Use the page selector to jump to a referenced page. <a target="_blank" rel="noreferrer" href={handbook.url + '#page=' + handbookPage}>Open or save the full handbook</a>.</p></>
-          : <div className="sg-empty-pdf"><BookOpen size={42}/><h3>Official handbook not connected</h3><p>The site is ready to display the PDF automatically, but an approved hosted copy must be linked before it can be offered to everyone. In the meantime, choose the handbook once on this device; it will be remembered here for subsequent visits.</p><button type="button" className="sg-primary" onClick={() => fileInput.current?.click()}><UploadCloud size={17}/> Choose official PDF once</button><small>This does not publish the handbook or upload it to the public site.</small></div>}
-      </aside>
+    <footer className="sg-footer"><span>American International School of Guangzhou</span><span>Draft for team review · Browser-based learning, not an official staff training record</span></footer>
+    {reportOpen && <div className="sg-report-overlay">
+      <button type="button" className="sg-modal-backdrop" aria-label="Close reporting guidance" onClick={()=>setReportOpen(false)}/>
+      <section role="dialog" aria-modal="true" aria-labelledby="sg-report-title" className="sg-report-dialog">
+        <div className="sg-report-dialog-top"><ShieldAlert size={25}/><button ref={reportCloseRef} type="button" className="sg-icon-button" onClick={()=>setReportOpen(false)} aria-label="Close reporting guidance"><X size={20}/></button></div>
+        <p className="sg-report-eyebrow">Real safeguarding concern · AISG procedures</p>
+        <h2 id="sg-report-title">A real concern? Use the reporting pathway, not this course.</h2>
+        <p>All AISG employees must promptly report suspected abuse or neglect when they have reasonable cause to believe a student has experienced harm or may be at risk. You do not need to investigate or establish proof.</p>
+        <div className="sg-report-steps">
+          <div><b>Concern about a student</b><p>Contact the appropriate divisional Student Safeguarding Lead and follow the official reporting pathway (Handbook §§4.1–4.2, pages 11–13). If a child is in immediate danger, take the necessary immediate safety action and contact safeguarding leadership/emergency responders as applicable.</p></div>
+          <div><b>Concern about an adult</b><p>Report to the divisional principal. If the concern involves the principal, refer to the Head of School / School Safeguarding Coordinator (Handbook §7.3, page 27).</p></div>
+        </div>
+        <p className="sg-report-warning">This website does not submit or store any safeguarding reports. Do not enter real students&apos; names or personal details here.</p>
+        <div className="sg-report-links"><a target="_blank" rel="noreferrer" href={new URL(bookFilename, document.baseURI).toString()+'#page=13'}>View reporting flowchart · p. 13 <ArrowRight size={15}/></a>
+          <a target="_blank" rel="noreferrer" href={new URL(bookFilename, document.baseURI).toString()+'#page=27'}>Adult conduct protocol · p. 27 <ArrowRight size={15}/></a></div>
+      </section>
     </div>}
+
+
+  </div>;
+}
+
+function Certificate({division,name,date}:{division:Division;name:string;date:string}) {
+  const formatted = new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'long',year:'numeric'}).format(new Date(date));
+  return <div className="sg-certificate" aria-label="Preview of printable safeguarding completion certificate">
+    <div className="sg-certificate-border">
+      <div className="sg-cert-brand">
+        {/* oxlint-disable-next-line next/no-img-element -- Static school logo, compatible with browser printing. */}
+        <img src="aisg-logo.png" alt="AISG"/>
+        <span>AMERICAN INTERNATIONAL SCHOOL OF GUANGZHOU</span>
+      </div>
+      <div className="sg-cert-ornament"><ShieldCheck size={31}/></div>
+      <p className="sg-cert-overline">Professional Learning · School Year 2026–27</p>
+      <h2>Certificate of Completion</h2>
+      <p className="sg-cert-presented">Presented to</p>
+      <strong className="sg-cert-name">{name || 'Your name here'}</strong>
+      <p className="sg-cert-for">for completing the</p>
+      <h3>AISG Student Safeguarding · {titles[division]} Pathway</h3>
+      <p className="sg-cert-description">Six handbook-led chapters · Thirty understanding checks<br/>Relevant to AISG classroom teachers and student safety.</p>
+      <div className="sg-cert-date">Completed {formatted} <span>•</span> Handbook revision May 2026</div>
+      <div className="sg-cert-foot">Safeguarding Team review edition · Self-generated browser completion record · Not verified official staff certification</div>
+    </div>
   </div>;
 }
 
